@@ -1,20 +1,27 @@
+import { Matrix4 } from '/libs/matrices.js';
+import {
+  createShader,
+  createVBO,
+  createIBO,
+  createProgram,
+} from '/libs/webgl-utils.js';
 
-import { Matrix4 } from "/libs/matrices.js";
-
-const canvas = document.querySelector(".js-canvas");
-const wrapper = document.querySelector(".js-wrapper");
+const canvas = document.querySelector('.js-canvas');
+const wrapper = document.querySelector('.js-wrapper');
 
 const vs = `
 attribute vec3 a_position;
 attribute vec4 a_color;
 
-uniform mat4 u_mvpMatrix;
+uniform mat4 u_modelMatrix;
+uniform mat4 u_viewMatrix;
+uniform mat4 u_projectionMatrix;
 
 varying vec4 v_color;
 
 void main() {
   v_color = a_color;
-  gl_Position = u_mvpMatrix * vec4(a_position, 1.);
+  gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.);
 }
 `;
 
@@ -28,75 +35,8 @@ void main() {
 }
 `;
 
-function createShader(gl, type, source) {
-  // create shader
-  const shader = gl.createShader(type);
-  // upload shader source to gpu
-  gl.shaderSource(shader, source);
-  // compile shader
-  gl.compileShader(shader);
-
-  // check succeeded
-  if(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    return shader;
-  }
-
-  console.error(gl.getShaderInfoLog(shader));
-
-  // delete shader
-  gl.deleteShader(shader);
-}
-
-function createProgram(gl, vertexShader, fragmentShader) {
-  // create program
-  const program = gl.createProgram();
-  // attach vertex shader to program
-  gl.attachShader(program, vertexShader);
-  // attach fragment shader to program
-  gl.attachShader(program, fragmentShader);
-  // link program
-  gl.linkProgram(program);
-
-  // check succeeded
-  if(gl.getProgramParameter(program, gl.LINK_STATUS)) {
-    gl.useProgram(program);
-    return program;
-  }
-
-  console.error(gl.getProgramInfoLog(program));
-
-  // delete program
-  gl.deleteProgram(program);
-}
-
-function createVBO(gl, data) {
-  // create buffer
-  const vbo = gl.createBuffer();
-  // bind buffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-  // set data to buffer
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-  // unbuffer
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-  return vbo;
-}
-
-function createIBO(gl, data) {
-  // create buffer
-  const ibo = gl.createBuffer();
-  // bind buffer
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-  // set data to buffer
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Int16Array(data), gl.STATIC_DRAW);
-  // unbuffer
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-  return ibo;
-}
-
 function main() {
-  const gl = canvas.getContext("webgl2");
+  const gl = canvas.getContext('webgl2');
 
   const vertexShader = createShader(gl, gl.VERTEX_SHADER, vs);
   const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fs);
@@ -111,26 +51,28 @@ function main() {
 
   const attributes = {
     position: {
-      location: gl.getAttribLocation(program, "a_position"),
+      location: gl.getAttribLocation(program, 'a_position'),
+      // prettier-ignore
       data: [
-        -0.5,  0.5,  0,
-        0.5,  0.5,  0,
-        -0.5, -0.5, 0,
-        0.5, -0.5, 0,
+        -0.5, 0.5, 0, // left top
+        0.5, 0.5, 0, // right top
+        -0.5, -0.5, 0, // left bottom
+        0.5, -0.5, 0, // right bottom
       ],
       stride: 3,
     },
     color: {
-      location: gl.getAttribLocation(program, "a_color"),
+      location: gl.getAttribLocation(program, 'a_color'),
+      // prettier-ignore
       data: [
-        1.0,  0.0,  0.0,  1.0,
-        0.0,  1.0,  0.0,  1.0,
-        0.0,  0.0,  1.0,  1.0,
-        1.0,  1.0,  1.0,  1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        0.0, 1.0, 0.0, 1.0, // green
+        0.0, 0.0, 1.0, 1.0, // blue
+        1.0, 1.0, 1.0, 1.0, // white
       ],
-      stride: 4
-    }
-  }
+      stride: 4,
+    },
+  };
 
   {
     const positionVBO = createVBO(gl, attributes.position.data);
@@ -172,16 +114,24 @@ function main() {
     );
   }
 
-  const indices = [
-    0, 2, 1,
-    1, 2, 3
-  ];
+  const indices = [0, 2, 1, 1, 2, 3];
 
   const indicesIBO = createIBO(gl, indices);
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indicesIBO);
 
-  const uniformMvpMatrixLocation = gl.getUniformLocation(program, "u_mvpMatrix")
+  const uniformModelMatrixLocation = gl.getUniformLocation(
+    program,
+    'u_modelMatrix'
+  );
+  const uniformViewMatrixLocation = gl.getUniformLocation(
+    program,
+    'u_viewMatrix'
+  );
+  const uniformProjectionMatrixLocation = gl.getUniformLocation(
+    program,
+    'u_projectionMatrix'
+  );
 
   const setSize = () => {
     const ratio = Math.min(window.devicePixelRatio, 1);
@@ -190,33 +140,43 @@ function main() {
     canvas.width = w;
     canvas.height = h;
     gl.viewport(0, 0, w, h);
-  }
+  };
 
-  const tick = () => {
+  const tick = (now) => {
+    const time = now / 1000;
+
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const modelMatrix = Matrix4.getRotationYMatrix(performance.now() / 1000);
+    const modelMatrix = Matrix4.getRotationYMatrix(time);
 
-    const viewMatrix = Matrix4.getLookAtMatrix([0, 0, -1.4], [0, 0, 0], [0, 1, 0]);
+    const viewMatrix = Matrix4.getLookAtMatrix([0, 0, 3], [0, 0, 0], [0, 1, 0]);
 
-    const projectionMatrix = Matrix4.getPerspectiveMatrix(50, window.innerWidth / window.innerHeight, 0.01, 10);
+    const projectionMatrix = Matrix4.getPerspectiveMatrix(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.01,
+      10
+    );
 
-    // const mvpMatrix = Matrix4.multiplyMatrices(projectionMatrix, viewMatrix, modelMatrix);
-    const mvpMatrix = Matrix4.multiplyMatrices(projectionMatrix, viewMatrix, modelMatrix);
-
-    gl.uniformMatrix4fv(uniformMvpMatrixLocation, false, mvpMatrix);
+    gl.uniformMatrix4fv(uniformModelMatrixLocation, false, modelMatrix);
+    gl.uniformMatrix4fv(uniformViewMatrixLocation, false, viewMatrix);
+    gl.uniformMatrix4fv(
+      uniformProjectionMatrixLocation,
+      false,
+      projectionMatrix
+    );
 
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 
     gl.flush();
 
     requestAnimationFrame(tick);
-  }
+  };
 
   setSize();
-  window.addEventListener("resize", setSize);
+  window.addEventListener('resize', setSize);
 
   requestAnimationFrame(tick);
 }

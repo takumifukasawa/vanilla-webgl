@@ -7,7 +7,7 @@ export function createShader(gl, type, source) {
   gl.compileShader(shader);
 
   // check succeeded
-  if(gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+  if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     return shader;
   }
 
@@ -28,7 +28,7 @@ export function createProgram(gl, vertexShader, fragmentShader) {
   gl.linkProgram(program);
 
   // check succeeded
-  if(gl.getProgramParameter(program, gl.LINK_STATUS)) {
+  if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
     gl.useProgram(program);
     return program;
   }
