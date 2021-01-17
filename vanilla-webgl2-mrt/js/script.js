@@ -36,28 +36,29 @@ void main() {
 }
 `;
 
-const postprocessVertexShaderText = `
-attribute vec3 a_position;
-attribute vec4 a_color;
-attribute vec2 a_uv;
+const postprocessVertexShaderText = `#version 300 es
 
-varying vec4 v_color;
-varying vec2 v_uv;
+layout (location = 0) in vec3 a_position;
+layout (location = 1) in vec2 a_uv;
+
+out vec2 v_uv;
 
 void main() {
-  v_color = a_color;
   v_uv = a_uv;
   gl_Position = vec4(a_position, 1.);
 }
 `;
 
-const postprocessFragmentShaderText = `
-precision mediump float;
+const postprocessFragmentShaderText = `#version 300 es
+
+precision highp float;
 
 uniform sampler2D u_sceneTexture;
 uniform float u_time;
 
-varying vec2 v_uv;
+in vec2 v_uv;
+
+out vec4 outColor;
 
 // cheap random
 float random (vec2 st) {
@@ -67,9 +68,9 @@ float random (vec2 st) {
 }
 
 void main() {
-  vec4 texColor = texture2D(u_sceneTexture, v_uv);
+  vec4 texColor = texture(u_sceneTexture, v_uv);
   float noise = random(v_uv + mod(u_time, 1.));
-  gl_FragColor = vec4(texColor.rgb + noise * .4, 1.);
+  outColor = vec4(texColor.rgb + noise * .4, 1.);
 }
 `;
 
@@ -446,6 +447,7 @@ function main() {
 
     gl.uniform1f(postprocessTimeUniformLocation, time);
 
+    gl.viewport(0, 0, width / 2, height / 2);
     gl.drawElements(
       gl.TRIANGLES,
       postprocessIndices.length,
