@@ -1,4 +1,4 @@
-import { createFrameBuffer, createFrameBufferMRT } from '/libs/webgl-utils.js';
+import { createFrameBuffer } from '/libs/webgl-utils.js';
 import { Matrix4 } from '/libs/matrices.js';
 import {
   createShader,
@@ -230,12 +230,6 @@ function main() {
 
   let width = wrapper.offsetWidth;
   let height = wrapper.offsetHeight;
-
-  // frame buffer for mrt
-  const frameBuffers = createFrameBufferMRT(gl, width, height, 2);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
-  const bufferList = [gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1];
-  gl.drawBuffers(bufferList);
 
   const renderTarget = createFrameBuffer(gl, width, height);
 
