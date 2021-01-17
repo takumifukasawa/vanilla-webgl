@@ -64,3 +64,130 @@ export function createIBO(gl, data) {
 
   return ibo;
 }
+
+export function createFrameBuffer(gl, initialWidth, initialHeight) {
+  // create frame buffer
+  const frameBuffer = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+
+  // create color buffer
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.framebufferTexture2D(
+    gl.FRAMEBUFFER,
+    gl.COLOR_ATTACHMENT0,
+    gl.TEXTURE_2D,
+    texture,
+    0
+  );
+  gl.bindTexture(gl.TEXTURE_2D, null);
+
+  // create depth buffer
+  const depthRenderBuffer = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.DEPTH_ATTACHMENT,
+    gl.RENDERBUFFER,
+    depthRenderBuffer
+  );
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  const setSize = (width, height) => {
+    // resize color buffer
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null
+    );
+    gl.bindTexture(gl.TEXTURE_2D, null);
+
+    // resize depth buffer
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+    gl.renderbufferStorage(
+      gl.RENDERBUFFER,
+      gl.DEPTH_COMPONENT16,
+      width,
+      height
+    );
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+  };
+
+  setSize(initialWidth, initialHeight);
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  return {
+    frameBuffer,
+    renderBuffer: depthRenderBuffer,
+    texture,
+    setSize,
+  };
+}
+
+export function createFrameBufferMRT(gl, width, height, num) {
+  const frameBuffer = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+
+  const textures = [];
+  for (let i = 0; i < num; i++) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    textures[i] = texture;
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0 + i,
+      gl.TEXTURE_2D,
+      texture,
+      0
+    );
+  }
+
+  // depth
+  const depthRenderBuffer = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+  gl.framebufferRenderbuffer(
+    gl.FRAMEBUFFER,
+    gl.DEPTH_ATTACHMENT,
+    gl.RENDERBUFFER,
+    depthRenderBuffer
+  );
+
+  // unbind
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+  return {
+    frameBuffer,
+    renderBuffer: depthRenderBuffer,
+    textures,
+  };
+}
