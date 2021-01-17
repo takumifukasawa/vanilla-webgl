@@ -99,10 +99,13 @@ function main() {
 
   gl.useProgram(planeProgram);
 
-  // 0 ------- 1
-  // |         |
-  // |         |
-  // |         |
+  //      4----------5
+  //    / |        / |
+  //  /   |      /   |
+  // 0 ------- 1     |
+  // |    6----|-----7
+  // |   /     |   /
+  // | /       | /
   // 2 ------- 3
 
   const planeAttributes = {
@@ -110,10 +113,14 @@ function main() {
       location: gl.getAttribLocation(planeProgram, 'a_position'),
       // prettier-ignore
       data: [
-        -0.5, 0.5, 0, // left top
-        0.5, 0.5, 0, // right top
-        -0.5, -0.5, 0, // left bottom
-        0.5, -0.5, 0, // right bottom
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
       ],
       stride: 3,
     },
@@ -125,6 +132,10 @@ function main() {
         0.0, 1.0, 0.0, 1.0, // green
         0.0, 0.0, 1.0, 1.0, // blue
         1.0, 1.0, 1.0, 1.0, // white
+        1.0, 1.0, 0.0, 1.0, // yellow
+        0.0, 1.0, 1.0, 1.0, // light blue
+        1.0, 0.0, 1.0, 1.0, // purple
+        0.2, 0.2, 0.2, 1.0, // gray
       ],
       stride: 4,
     },
@@ -132,8 +143,18 @@ function main() {
 
   // prettier-ignore
   const planeIndices = [
-    0, 2, 1,
-    1, 2, 3
+    0, 2, 1, // front face
+    1, 2, 3, // front face
+    5, 7, 4, // back face
+    4, 7, 6, // back face
+    4, 0, 5, // top face
+    5, 0, 1, // top face
+    7, 3, 6, // bottom face
+    6, 3, 2, // bottom face
+    4, 6, 0, // left face
+    0, 6, 2, // left face
+    1, 3, 5, // right face
+    5, 3, 7, // right face
   ];
 
   const planePositionVBO = createVBO(gl, planeAttributes.position.data);
@@ -321,10 +342,11 @@ function main() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndicesIBO);
 
     {
-      const modelMatrix = Matrix4.getRotationYMatrix(time);
+      // const modelMatrix = Matrix4.getRotationYMatrix(time * 0.1);
+      const modelMatrix = Matrix4.getIdentityMatrix();
 
       const viewMatrix = Matrix4.getLookAtMatrix(
-        [0, 0, 3],
+        [Math.cos(time) * 3, 1, Math.sin(time) * 3],
         [0, 0, 0],
         [0, 1, 0]
       );
@@ -344,6 +366,10 @@ function main() {
         projectionMatrix
       );
     }
+
+    gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
 
     gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
 
