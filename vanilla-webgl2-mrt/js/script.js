@@ -342,8 +342,14 @@ function main() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndicesIBO);
 
     {
-      // const modelMatrix = Matrix4.getRotationYMatrix(time * 0.1);
-      const modelMatrix = Matrix4.getIdentityMatrix();
+      const modelMatrix = Matrix4.getRotationYMatrix(time * 0.1);
+      // const modelMatrix = Matrix4.getIdentityMatrix();
+      // const modelMatrix = Matrix4.getScalingMatrix(
+      //   Math.sin(time * 2) * 0.5 + 1,
+      //   Math.sin(time * 2) * 0.5 + 1,
+      //   Math.sin(time * 2) * 0.5 + 1
+      // );
+      // const modelMatrix = Matrix4.getTranslationMatrix(1, 0, 0);
 
       const viewMatrix = Matrix4.getLookAtMatrix(
         [Math.cos(time) * 3, 1, Math.sin(time) * 3],

@@ -3,36 +3,43 @@
 // ------------------------------------------------------------
 export class Matrix4 {
   static getIdentityMatrix() {
-    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    // prettier-ignore
+    return [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ];
   }
 
   static getTranslationMatrix(x, y, z) {
-    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
+    // prettier-ignore
+    return [
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      x, y, z, 1
+    ];
   }
 
   static getRotationYMatrix(rad) {
+    // prettier-ignore
     return [
-      Math.cos(rad),
-      0,
-      Math.sin(rad),
-      0,
-      0,
-      1,
-      0,
-      0,
-      -Math.sin(rad),
-      Math.cos(rad),
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
+      Math.cos(rad), 0, -Math.sin(rad), 0,
+      0, 1, 0, 0,
+      Math.sin(rad), 0, Math.cos(rad), 0,
+      0, 0, 0, 1,
     ];
   }
 
   static getScalingMatrix(x, y, z) {
-    return [x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1];
+    // prettier-ignore
+    return [
+      x, 0, 0, 0,
+      0, y, 0, 0,
+      0, 0, z, 0,
+      0, 0, 0, 1
+    ];
   }
 
   // ref: http://glmatrix.net/docs/mat4.js.html
