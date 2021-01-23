@@ -119,12 +119,34 @@ function main() {
       location: gl.getAttribLocation(planeProgram, 'a_position'),
       // prettier-ignore
       data: [
+        // front: 0,1,2,3
         -0.5, 0.5, 0.5,
         0.5, 0.5, 0.5,
         -0.5, -0.5, 0.5,
         0.5, -0.5, 0.5,
+        //  back: 5,4,7,6
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        // left: 4,0,6,2
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, 0.5,
+        // right: 1,5,3,7
+        0.5, 0.5, 0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, -0.5,
+        // top: 4,5,0,1
         -0.5, 0.5, -0.5,
         0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        // bottom: 2,3,6,7
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
         -0.5, -0.5, -0.5,
         0.5, -0.5, -0.5,
       ],
@@ -135,33 +157,50 @@ function main() {
       // prettier-ignore
       data: [
         1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
         0.0, 1.0, 0.0, 1.0, // green
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
+        0.0, 1.0, 0.0, 1.0,
         0.0, 0.0, 1.0, 1.0, // blue
-        1.0, 1.0, 1.0, 1.0, // white
+        0.0, 0.0, 1.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
+        0.0, 0.0, 1.0, 1.0,
         1.0, 1.0, 0.0, 1.0, // yellow
+        1.0, 1.0, 0.0, 1.0,
+        1.0, 1.0, 0.0, 1.0,
+        1.0, 1.0, 0.0, 1.0,
         0.0, 1.0, 1.0, 1.0, // light blue
+        0.0, 1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0, 1.0,
+        0.0, 1.0, 1.0, 1.0,
         1.0, 0.0, 1.0, 1.0, // purple
-        0.2, 0.2, 0.2, 1.0, // gray
+        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 1.0, 1.0,
       ],
       stride: 4,
     },
   };
 
-  // prettier-ignore
-  const planeIndices = [
-    0, 2, 1, // front face
-    1, 2, 3, // front face
-    5, 7, 4, // back face
-    4, 7, 6, // back face
-    4, 0, 5, // top face
-    5, 0, 1, // top face
-    7, 3, 6, // bottom face
-    6, 3, 2, // bottom face
-    4, 6, 0, // left face
-    0, 6, 2, // left face
-    1, 3, 5, // right face
-    5, 3, 7, // right face
-  ];
+  // // prettier-ignore
+  // const planeIndices = [
+  //   0, 2, 1, // front face
+  //   1, 2, 3, // front face
+  // ];
+  const planeIndices = [];
+  for (let i = 0; i < 6; i++) {
+    const offset = i * 4;
+    planeIndices.push(
+      // prettier-ignore
+      ...[
+        0 + offset, 2 + offset, 1 + offset,
+        1 + offset, 2 + offset, 3 + offset,
+      ]
+    );
+  }
 
   const planePositionVBO = createVBO(gl, planeAttributes.position.data);
   const planeColorVBO = createVBO(gl, planeAttributes.color.data);
@@ -397,7 +436,7 @@ function main() {
     }
 
     gl.viewport(0, 0, w, h);
-    // gl.scissor(0, 0, w, h);
+    gl.scissor(0, 0, w, h);
 
     gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
 
