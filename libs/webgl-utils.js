@@ -143,8 +143,8 @@ export function createFrameBufferMRT(gl, width, height, num) {
   const textures = [];
   for (let i = 0; i < num; i++) {
     const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
     textures[i] = texture;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
