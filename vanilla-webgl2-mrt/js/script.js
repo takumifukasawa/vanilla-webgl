@@ -10,7 +10,7 @@ import {
 const canvas = document.querySelector('.js-canvas');
 const wrapper = document.querySelector('.js-wrapper');
 
-const planeVertexShaderText = `#version 300 es
+const cubeVertexShaderText = `#version 300 es
 
 layout (location = 0) in vec3 a_position;
 layout (location = 1) in vec3 a_normal;
@@ -31,7 +31,7 @@ void main() {
 }
 `;
 
-const planeFragmentShaderText = `#version 300 es
+const cubeFragmentShaderText = `#version 300 es
 precision mediump float;
 
 in vec3 v_normal;
@@ -80,27 +80,23 @@ function main() {
   const gl = canvas.getContext('webgl2');
 
   // ------------------------------------------------------------------------------
-  // plane
+  // cube
   // ------------------------------------------------------------------------------
 
-  const planeVertexShader = createShader(
+  const cubeVertexShader = createShader(
     gl,
     gl.VERTEX_SHADER,
-    planeVertexShaderText
+    cubeVertexShaderText
   );
-  const planeFragmentShader = createShader(
+  const cubeFragmentShader = createShader(
     gl,
     gl.FRAGMENT_SHADER,
-    planeFragmentShaderText
+    cubeFragmentShaderText
   );
 
-  const planeProgram = createProgram(
-    gl,
-    planeVertexShader,
-    planeFragmentShader
-  );
+  const cubeProgram = createProgram(gl, cubeVertexShader, cubeFragmentShader);
 
-  gl.useProgram(planeProgram);
+  gl.useProgram(cubeProgram);
 
   //
   // vertex positions
@@ -115,9 +111,9 @@ function main() {
   // 2 ------- 3
 
   // vertices: 24
-  const planeAttributes = {
+  const cubeAttributes = {
     position: {
-      location: gl.getAttribLocation(planeProgram, 'a_position'),
+      location: gl.getAttribLocation(cubeProgram, 'a_position'),
       // prettier-ignore
       data: [
         // front: 0,1,2,3
@@ -154,7 +150,7 @@ function main() {
       stride: 3,
     },
     normal: {
-      location: gl.getAttribLocation(planeProgram, 'a_normal'),
+      location: gl.getAttribLocation(cubeProgram, 'a_normal'),
       // prettier-ignore
       data: [
         0.0, 0.0, 1.0, // front
@@ -185,7 +181,7 @@ function main() {
       stride: 3,
     },
     color: {
-      location: gl.getAttribLocation(planeProgram, 'a_color'),
+      location: gl.getAttribLocation(cubeProgram, 'a_color'),
       // prettier-ignore
       data: [
         1.0, 0.0, 0.0, 1.0, // red
@@ -217,10 +213,10 @@ function main() {
     },
   };
 
-  const planeIndices = [];
+  const cubeIndices = [];
   for (let i = 0; i < 6; i++) {
     const offset = i * 4;
-    planeIndices.push(
+    cubeIndices.push(
       // prettier-ignore
       ...[
         0 + offset, 2 + offset, 1 + offset,
@@ -229,21 +225,21 @@ function main() {
     );
   }
 
-  const planePositionVBO = createVBO(gl, planeAttributes.position.data);
-  const planeNormalVBO = createVBO(gl, planeAttributes.normal.data);
-  const planeColorVBO = createVBO(gl, planeAttributes.color.data);
-  const planeIndicesIBO = createIBO(gl, planeIndices);
+  const cubePositionVBO = createVBO(gl, cubeAttributes.position.data);
+  const cubeNormalVBO = createVBO(gl, cubeAttributes.normal.data);
+  const cubeColorVBO = createVBO(gl, cubeAttributes.color.data);
+  const cubeIndicesIBO = createIBO(gl, cubeIndices);
 
   const uniformModelMatrixLocation = gl.getUniformLocation(
-    planeProgram,
+    cubeProgram,
     'u_modelMatrix'
   );
   const uniformViewMatrixLocation = gl.getUniformLocation(
-    planeProgram,
+    cubeProgram,
     'u_viewMatrix'
   );
   const uniformProjectionMatrixLocation = gl.getUniformLocation(
-    planeProgram,
+    cubeProgram,
     'u_projectionMatrix'
   );
 
@@ -329,7 +325,7 @@ function main() {
   gl.depthFunc(gl.LEQUAL);
   gl.enable(gl.CULL_FACE);
 
-  // // frame buffer for mrt
+  // frame buffer for mrt
   const frameBuffers = createFrameBufferMRT(gl, width, height, 2);
   gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
   const bufferList = [gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1];
@@ -339,9 +335,6 @@ function main() {
   gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
   gl.activeTexture(gl.TEXTURE1);
   gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[1]);
-  console.log(gl.TEXTURE0, gl.TEXTURE0 + 1);
-  console.log(frameBuffers);
-  // gl.activeTexture(null);
 
   const setSize = () => {
     const ratio = Math.min(window.devicePixelRatio, 1);
@@ -350,8 +343,7 @@ function main() {
     canvas.width = width;
     canvas.height = height;
 
-    // frame buffers resize
-
+    // frame buffers resize ??
     gl.viewport(0, 0, width, height);
   };
 
@@ -375,7 +367,7 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // ---------------------------------------------------------------------------
-    // plane model
+    // cube model
     // ---------------------------------------------------------------------------
 
     gl.enable(gl.CULL_FACE);
@@ -383,21 +375,21 @@ function main() {
     // gl.enable(gl.SCISSOR_TEST);
     gl.depthFunc(gl.LEQUAL);
 
-    gl.useProgram(planeProgram);
+    gl.useProgram(cubeProgram);
 
     {
-      // plane position
-      gl.bindBuffer(gl.ARRAY_BUFFER, planePositionVBO);
+      // cube position
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubePositionVBO);
       // enable attribute location
-      gl.enableVertexAttribArray(planeAttributes.position.location);
+      gl.enableVertexAttribArray(cubeAttributes.position.location);
       // bind current array_buffer to attribute
       const type = gl.FLOAT;
       const normalize = false;
       const stride = 0;
       const offset = 0;
       gl.vertexAttribPointer(
-        planeAttributes.position.location,
-        planeAttributes.position.stride,
+        cubeAttributes.position.location,
+        cubeAttributes.position.stride,
         type,
         normalize,
         stride,
@@ -406,18 +398,18 @@ function main() {
     }
 
     {
-      // plane normal
-      gl.bindBuffer(gl.ARRAY_BUFFER, planeNormalVBO);
+      // cube normal
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeNormalVBO);
       // enable attribute location
-      gl.enableVertexAttribArray(planeAttributes.normal.location);
+      gl.enableVertexAttribArray(cubeAttributes.normal.location);
       // bind current array_buffer to attribute
       const type = gl.FLOAT;
       const normalize = false;
       const stride = 0;
       const offset = 0;
       gl.vertexAttribPointer(
-        planeAttributes.normal.location,
-        planeAttributes.normal.stride,
+        cubeAttributes.normal.location,
+        cubeAttributes.normal.stride,
         type,
         normalize,
         stride,
@@ -426,18 +418,18 @@ function main() {
     }
 
     {
-      // plane color
-      gl.bindBuffer(gl.ARRAY_BUFFER, planeColorVBO);
+      // cube color
+      gl.bindBuffer(gl.ARRAY_BUFFER, cubeColorVBO);
       // enable attribute location
-      gl.enableVertexAttribArray(planeAttributes.color.location);
+      gl.enableVertexAttribArray(cubeAttributes.color.location);
       // bind current array_buffer to attribute
       const type = gl.FLOAT;
       const normalize = false;
       const stride = 0;
       const offset = 0;
       gl.vertexAttribPointer(
-        planeAttributes.color.location,
-        planeAttributes.color.stride,
+        cubeAttributes.color.location,
+        cubeAttributes.color.stride,
         type,
         normalize,
         stride,
@@ -445,8 +437,8 @@ function main() {
       );
     }
 
-    // plane indices
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndicesIBO);
+    // cube indices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndicesIBO);
 
     {
       const modelMatrix = Matrix4.multiplyMatrices(
@@ -479,7 +471,7 @@ function main() {
 
     gl.viewport(0, 0, width, height);
 
-    gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, cubeIndices.length, gl.UNSIGNED_SHORT, 0);
 
     // ---------------------------------------------------------------------------
     // setup: render to screen
