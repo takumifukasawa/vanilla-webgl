@@ -10,32 +10,16 @@ import {
 const canvas = document.querySelector('.js-canvas');
 const wrapper = document.querySelector('.js-wrapper');
 
-// const planeVertexShaderText = `#version 300 es
-//
-// layout (location = 0) in vec3 a_position;
-// layout (location = 1) in vec4 a_color;
-//
-// uniform mat4 u_modelMatrix;
-// uniform mat4 u_viewMatrix;
-// uniform mat4 u_projectionMatrix;
-//
-// out vec4 v_color;
-//
-// void main() {
-//   v_color = a_color;
-//   gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.);
-// }
-// `;
+const planeVertexShaderText = `#version 300 es
 
-const planeVertexShaderText = `
-attribute vec3 a_position;
-attribute vec4 a_color;
-
-varying vec4 v_color;
+layout (location = 0) in vec3 a_position;
+layout (location = 1) in vec4 a_color;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
+
+out vec4 v_color;
 
 void main() {
   v_color = a_color;
@@ -43,21 +27,15 @@ void main() {
 }
 `;
 
-// const planeFragmentShaderText = `#version 300 es
-// precision mediump float;
-//
-// in vec4 v_color;
-//
-// layout (location = 0) out vec4 outColor0;
-//
-// void main() {
-//   outColor0 = v_color;
-// }
-// `;
+const planeFragmentShaderText = `#version 300 es
+precision mediump float;
 
-const planeFragmentShaderText = `
+in vec4 v_color;
+
+layout (location = 0) out vec4 outColor0;
+
 void main() {
-  gl_FragColor = vec4(1., 0., 0., 0.);
+  outColor0 = v_color;
 }
 `;
 
