@@ -400,9 +400,6 @@ function main() {
     // plane indices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndicesIBO);
 
-    let w = width / 2;
-    let h = height;
-
     {
       const modelMatrix = Matrix4.getRotationYMatrix(time * 0.1);
       // const modelMatrix = Matrix4.getIdentityMatrix();
@@ -421,7 +418,7 @@ function main() {
 
       const projectionMatrix = Matrix4.getPerspectiveMatrix(
         50,
-        w / h,
+        width / height,
         0.01,
         10
       );
@@ -435,8 +432,8 @@ function main() {
       );
     }
 
-    gl.viewport(0, 0, w, h);
-    gl.scissor(0, 0, w, h);
+    gl.viewport(0, 0, width, height);
+    // gl.scissor(0, 0, w, h);
 
     gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
 
@@ -506,11 +503,15 @@ function main() {
 
     gl.uniform1f(postprocessTimeUniformLocation, time);
 
+    const w = width / 2;
+    const h = (width / 2) * (height / width);
+    const t = (height - h) * 0.5;
+
     // left
 
     gl.uniform1i(sceneTextureUniformLocation, 0);
 
-    gl.viewport(0, 0, w, h);
+    gl.viewport(0, t, w, h);
 
     gl.drawElements(
       gl.TRIANGLES,
@@ -523,7 +524,7 @@ function main() {
 
     gl.uniform1i(sceneTextureUniformLocation, 1);
 
-    gl.viewport(w, 0, w, h);
+    gl.viewport(width / 2, t, w, h);
 
     gl.drawElements(
       gl.TRIANGLES,
@@ -532,9 +533,9 @@ function main() {
       0
     );
 
-    // gl.bindTexture(gl.TEXTURE_2D, null);
+    // // gl.bindTexture(gl.TEXTURE_2D, null);
 
-    gl.flush();
+    // gl.flush();
 
     // ---------------------------------------------------------------------------
     // tick
