@@ -33,9 +33,11 @@ precision mediump float;
 in vec4 v_color;
 
 layout (location = 0) out vec4 outColor0;
+layout (location = 1) out vec4 outColor1;
 
 void main() {
   outColor0 = v_color;
+  outColor1 = v_color;
 }
 `;
 
@@ -261,16 +263,18 @@ function main() {
   gl.enable(gl.CULL_FACE);
 
   // // frame buffer for mrt
-  // const frameBuffers = createFrameBufferMRT(gl, width, height, 1);
-  // gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
-  // const bufferList = [gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1];
-  // gl.drawBuffers(bufferList);
+  const frameBuffers = createFrameBufferMRT(gl, width, height, 2);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
+  const bufferList = [gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1];
+  gl.drawBuffers(bufferList);
 
-  // gl.activeTexture(gl.TEXTURE0);
-  // gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
-  // gl.activeTexture(gl.TEXTURE1);
-  // gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[1]);
-  // // gl.activeTexture(null);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[1]);
+  console.log(gl.TEXTURE0, gl.TEXTURE0 + 1);
+  console.log(frameBuffers);
+  // gl.activeTexture(null);
 
   const setSize = () => {
     const ratio = Math.min(window.devicePixelRatio, 1);
@@ -296,7 +300,7 @@ function main() {
     // ---------------------------------------------------------------------------
 
     // render to frame buffer
-    // gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffers.frameBuffer);
 
     // clear
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -309,7 +313,7 @@ function main() {
 
     gl.enable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.SCISSOR_TEST);
+    // gl.enable(gl.SCISSOR_TEST);
     gl.depthFunc(gl.LEQUAL);
 
     gl.useProgram(planeProgram);
@@ -393,17 +397,16 @@ function main() {
     }
 
     gl.viewport(0, 0, w, h);
-    gl.scissor(0, 0, w, h);
+    // gl.scissor(0, 0, w, h);
 
     gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.flush();
+    // gl.flush();
 
     // ---------------------------------------------------------------------------
     // setup: render to screen
     // ---------------------------------------------------------------------------
 
-    /*
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     // clear
@@ -460,13 +463,15 @@ function main() {
     // postprocess indices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, postprocessIndicesIBO);
 
-    gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
-    gl.uniform1i(sceneTextureUniformLocation, 0);
+    // gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
 
     gl.uniform1f(postprocessTimeUniformLocation, time);
 
-    gl.viewport(0, 0, width / 2, height);
-    gl.scissor(0, 0, width / 2, height);
+    // left
+
+    gl.uniform1i(sceneTextureUniformLocation, 0);
+
+    gl.viewport(0, 0, w, h);
 
     gl.drawElements(
       gl.TRIANGLES,
@@ -475,10 +480,22 @@ function main() {
       0
     );
 
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    // right
+
+    gl.uniform1i(sceneTextureUniformLocation, 1);
+
+    gl.viewport(w, 0, w, h);
+
+    gl.drawElements(
+      gl.TRIANGLES,
+      postprocessIndices.length,
+      gl.UNSIGNED_SHORT,
+      0
+    );
+
+    // gl.bindTexture(gl.TEXTURE_2D, null);
 
     gl.flush();
-    */
 
     // ---------------------------------------------------------------------------
     // tick
