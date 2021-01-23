@@ -22,6 +22,16 @@ export class Matrix4 {
     ];
   }
 
+  static getRotationXMatrix(rad) {
+    // prettier-ignore
+    return [
+      1, 0, 0, 0,
+      0, Math.cos(rad), -Math.sin(rad), 0,
+      0, Math.sin(rad), Math.cos(rad), 0,
+      0, 0, 0, 1
+    ]
+  }
+
   static getRotationYMatrix(rad) {
     // prettier-ignore
     return [
@@ -30,6 +40,16 @@ export class Matrix4 {
       Math.sin(rad), 0, Math.cos(rad), 0,
       0, 0, 0, 1,
     ];
+  }
+
+  static getRotationZMatrix(rad) {
+    // prettier-ignore
+    return [
+      Math.cos(rad), -Math.sin(rad), 0, 0,
+      Math.sin(rad), Math.cos(rad), 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]
   }
 
   static getScalingMatrix(x, y, z) {

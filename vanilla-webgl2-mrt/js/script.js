@@ -1,4 +1,4 @@
-import { createFrameBuffer, createFrameBufferMRT } from '/libs/webgl-utils.js';
+import { createFrameBufferMRT } from '/libs/webgl-utils.js';
 import { Matrix4 } from '/libs/matrices.js';
 import {
   createShader,
@@ -13,16 +13,20 @@ const wrapper = document.querySelector('.js-wrapper');
 const planeVertexShaderText = `#version 300 es
 
 layout (location = 0) in vec3 a_position;
-layout (location = 1) in vec4 a_color;
+layout (location = 1) in vec3 a_normal;
+layout (location = 2) in vec4 a_color;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_projectionMatrix;
 
+out vec3 v_normal;
 out vec4 v_color;
 
 void main() {
   v_color = a_color;
+  mat4 normalMatrix = transpose(inverse(u_viewMatrix * u_modelMatrix));
+  v_normal = (normalMatrix * vec4(a_normal, 1.)).xyz;
   gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(a_position, 1.);
 }
 `;
@@ -30,6 +34,7 @@ void main() {
 const planeFragmentShaderText = `#version 300 es
 precision mediump float;
 
+in vec3 v_normal;
 in vec4 v_color;
 
 layout (location = 0) out vec4 outColor0;
@@ -37,7 +42,7 @@ layout (location = 1) out vec4 outColor1;
 
 void main() {
   outColor0 = v_color;
-  outColor1 = v_color;
+  outColor1 = vec4(v_normal, 1.);
 }
 `;
 
@@ -65,17 +70,9 @@ in vec2 v_uv;
 
 out vec4 outColor;
 
-// cheap random
-float random (vec2 st) {
-  return fract(sin(dot(st.xy,
-                       vec2(12.9898,78.233)))*
-      43758.5453123);
-}
-
 void main() {
   vec4 texColor = texture(u_sceneTexture, v_uv);
-  float noise = random(v_uv + mod(u_time, 1.));
-  outColor = vec4(texColor.rgb + noise * .4, 1.);
+  outColor = vec4(texColor.rgb, 1.);
 }
 `;
 
@@ -105,6 +102,9 @@ function main() {
 
   gl.useProgram(planeProgram);
 
+  //
+  // vertex positions
+  //
   //      4----------5
   //    / |        / |
   //  /   |      /   |
@@ -114,6 +114,7 @@ function main() {
   // | /       | /
   // 2 ------- 3
 
+  // vertices: 24
   const planeAttributes = {
     position: {
       location: gl.getAttribLocation(planeProgram, 'a_position'),
@@ -152,6 +153,37 @@ function main() {
       ],
       stride: 3,
     },
+    normal: {
+      location: gl.getAttribLocation(planeProgram, 'a_normal'),
+      // prettier-ignore
+      data: [
+        0.0, 0.0, 1.0, // front
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, -1.0, // back
+        0.0, 0.0, -1.0,
+        0.0, 0.0, -1.0,
+        0.0, 0.0, -1.0,
+        -1.0, 0.0, 0.0, // left
+        -1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0,
+        -1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0, // right
+        1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, // top
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, 1.0, 0.0,
+        0.0, -1.0, 0.0, // bottom
+        0.0, -1.0, 0.0,
+        0.0, -1.0, 0.0,
+        0.0, -1.0, 0.0,
+      ],
+      stride: 3,
+    },
     color: {
       location: gl.getAttribLocation(planeProgram, 'a_color'),
       // prettier-ignore
@@ -160,36 +192,31 @@ function main() {
         1.0, 0.0, 0.0, 1.0,
         1.0, 0.0, 0.0, 1.0,
         1.0, 0.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0, // green
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 1.0, 0.0, 1.0,
-        0.0, 0.0, 1.0, 1.0, // blue
-        0.0, 0.0, 1.0, 1.0,
-        0.0, 0.0, 1.0, 1.0,
-        0.0, 0.0, 1.0, 1.0,
-        1.0, 1.0, 0.0, 1.0, // yellow
-        1.0, 1.0, 0.0, 1.0,
-        1.0, 1.0, 0.0, 1.0,
-        1.0, 1.0, 0.0, 1.0,
-        0.0, 1.0, 1.0, 1.0, // light blue
-        0.0, 1.0, 1.0, 1.0,
-        0.0, 1.0, 1.0, 1.0,
-        0.0, 1.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0, // purple
-        1.0, 0.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0,
-        1.0, 0.0, 1.0, 1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0, // red
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
+        1.0, 0.0, 0.0, 1.0,
       ],
       stride: 4,
     },
   };
 
-  // // prettier-ignore
-  // const planeIndices = [
-  //   0, 2, 1, // front face
-  //   1, 2, 3, // front face
-  // ];
   const planeIndices = [];
   for (let i = 0; i < 6; i++) {
     const offset = i * 4;
@@ -203,6 +230,7 @@ function main() {
   }
 
   const planePositionVBO = createVBO(gl, planeAttributes.position.data);
+  const planeNormalVBO = createVBO(gl, planeAttributes.normal.data);
   const planeColorVBO = createVBO(gl, planeAttributes.color.data);
   const planeIndicesIBO = createIBO(gl, planeIndices);
 
@@ -378,6 +406,26 @@ function main() {
     }
 
     {
+      // plane normal
+      gl.bindBuffer(gl.ARRAY_BUFFER, planeNormalVBO);
+      // enable attribute location
+      gl.enableVertexAttribArray(planeAttributes.normal.location);
+      // bind current array_buffer to attribute
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.vertexAttribPointer(
+        planeAttributes.normal.location,
+        planeAttributes.normal.stride,
+        type,
+        normalize,
+        stride,
+        offset
+      );
+    }
+
+    {
       // plane color
       gl.bindBuffer(gl.ARRAY_BUFFER, planeColorVBO);
       // enable attribute location
@@ -401,14 +449,11 @@ function main() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planeIndicesIBO);
 
     {
-      const modelMatrix = Matrix4.getRotationYMatrix(time * 0.1);
-      // const modelMatrix = Matrix4.getIdentityMatrix();
-      // const modelMatrix = Matrix4.getScalingMatrix(
-      //   Math.sin(time * 2) * 0.5 + 1,
-      //   Math.sin(time * 2) * 0.5 + 1,
-      //   Math.sin(time * 2) * 0.5 + 1
-      // );
-      // const modelMatrix = Matrix4.getTranslationMatrix(1, 0, 0);
+      const modelMatrix = Matrix4.multiplyMatrices(
+        Matrix4.getRotationXMatrix(time * 0.1),
+        Matrix4.getRotationYMatrix(time * 0.15),
+        Matrix4.getRotationZMatrix(time * 0.2)
+      );
 
       const viewMatrix = Matrix4.getLookAtMatrix(
         [Math.cos(time) * 3, 1, Math.sin(time) * 3],
@@ -433,11 +478,8 @@ function main() {
     }
 
     gl.viewport(0, 0, width, height);
-    // gl.scissor(0, 0, w, h);
 
     gl.drawElements(gl.TRIANGLES, planeIndices.length, gl.UNSIGNED_SHORT, 0);
-
-    // gl.flush();
 
     // ---------------------------------------------------------------------------
     // setup: render to screen
@@ -499,8 +541,6 @@ function main() {
     // postprocess indices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, postprocessIndicesIBO);
 
-    // gl.bindTexture(gl.TEXTURE_2D, frameBuffers.textures[0]);
-
     gl.uniform1f(postprocessTimeUniformLocation, time);
 
     const w = width / 2;
@@ -532,10 +572,6 @@ function main() {
       gl.UNSIGNED_SHORT,
       0
     );
-
-    // // gl.bindTexture(gl.TEXTURE_2D, null);
-
-    // gl.flush();
 
     // ---------------------------------------------------------------------------
     // tick
