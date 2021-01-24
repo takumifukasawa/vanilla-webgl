@@ -535,15 +535,15 @@ function main() {
 
     gl.uniform1f(postprocessTimeUniformLocation, time);
 
-    const w = width / 2;
-    const h = (width / 2) * (height / width);
-    const t = (height - h) * 0.5;
+    const viewWidth = width / 2;
+    const viewHeight = (width / 2) * (height / width);
+    const viewTop = (height - viewHeight) * 0.5;
 
     // left
 
     gl.uniform1i(sceneTextureUniformLocation, 0);
 
-    gl.viewport(0, t, w, h);
+    gl.viewport(0, viewTop, viewWidth, viewHeight);
 
     gl.drawElements(
       gl.TRIANGLES,
@@ -556,7 +556,7 @@ function main() {
 
     gl.uniform1i(sceneTextureUniformLocation, 1);
 
-    gl.viewport(width / 2, t, w, h);
+    gl.viewport(viewWidth, viewTop, viewWidth, viewHeight);
 
     gl.drawElements(
       gl.TRIANGLES,
