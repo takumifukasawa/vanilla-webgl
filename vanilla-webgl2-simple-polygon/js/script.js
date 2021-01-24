@@ -1,10 +1,10 @@
-import { Matrix4 } from '/libs/matrices.js';
+import { Matrix4 } from './libs/matrices.js';
 import {
   createShader,
   createVBO,
   createIBO,
   createProgram,
-} from '/libs/webgl-utils.js';
+} from './libs/webgl-utils.js';
 
 const canvas = document.querySelector('.js-canvas');
 const wrapper = document.querySelector('.js-wrapper');
