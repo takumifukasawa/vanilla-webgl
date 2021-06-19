@@ -31,9 +31,9 @@ export default class Material {
       throw Info;
     }
   }
-  getGl() {
-    return this.gl;
-  }
+  // getGl() {
+  //   return this.gl;
+  // }
   getProgram() {
     return this.program;
   }

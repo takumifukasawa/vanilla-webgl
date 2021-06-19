@@ -42,9 +42,9 @@ export default class GPU {
     const program = this.material.getProgram();
     this.gl.useProgram(program);
   }
-  setVertexFormat(vertexFormat) {
-    this.vertexFormat = vertexFormat;
-  }
+  // setVertexFormat(vertexFormat) {
+  //   this.vertexFormat = vertexFormat;
+  // }
   draw() {
     const gl = this.gl;
     const program = this.material.getProgram();
