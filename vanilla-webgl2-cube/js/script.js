@@ -46,43 +46,47 @@ void main() {
   outColor = vec4(vColor, 1);
 }
 `;
-const material = new Material({
+
+const geometry = new Geometry({
   gpu,
-  vertexShader,
-  fragmentShader,
-});
-const plane = new Mesh({
-  gpu,
-  material,
-  geometry: new Geometry({
-    gpu,
-    attributes: {
-      position: {
-        attributeName: 'aPosition',
-        // prettier-ignore
-        data: [
+  attributes: {
+    position: {
+      attributeName: 'aPosition',
+      // prettier-ignore
+      data: [
           -0.5, 0.5, 0, // left top
           0.5, 0.5, 0, // right top
           -0.5, -0.5, 0, // left bottom
           0.5, -0.5, 0, // right bottom
         ],
-        stride: 3,
-      },
-      color: {
-        attributeName: 'aColor',
-        // prettier-ignore
-        data: [
+      stride: 3,
+    },
+    color: {
+      attributeName: 'aColor',
+      // prettier-ignore
+      data: [
           1, 0, 0,
           0, 1, 0,
           0, 0, 1,
           1, 1, 0,
         ],
-        stride: 3,
-      },
+      stride: 3,
     },
-    indices: [0, 2, 1, 1, 2, 3],
-    primitiveType: GPU.Primitives.Triangle,
-  }),
+  },
+  indices: [0, 2, 1, 1, 2, 3],
+  primitiveType: GPU.Primitives.Triangle,
+});
+
+const material = new Material({
+  gpu,
+  vertexShader,
+  fragmentShader,
+});
+
+const plane = new Mesh({
+  gpu,
+  geometry,
+  material,
 });
 
 const onWindowResize = () => {
