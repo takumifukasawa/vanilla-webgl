@@ -65,17 +65,19 @@ class Plane {
     // gpu.setVertexBuffer(this.geometry.vertexBuffer);
     gpu.setMaterial(this.material);
     // gpu.setVertexFormat(this.vertexFormat);
-    const program = this.material.getProgram();
     // const program = this.material.getProgram();
+    // const program = this.material.getProgram();
+    const program = gpu.getProgram();
     // TODO: bindからdrawelementsまでgpuでやる
     // positions
     gl.bindBuffer(
       gl.ARRAY_BUFFER,
       this.geometry.attributes.position.buffer.getBuffer()
     );
-    gl.enableVertexAttribArray(this.geometry.attributes.position.location);
+    gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aPosition'));
     gl.vertexAttribPointer(
-      this.geometry.attributes.position.location,
+      gl.getAttribLocation(program, 'aPosition'),
+      // this.geometry.attributes.position.location,
       this.geometry.attributes.position.stride,
       gl.FLOAT,
       false,
@@ -87,9 +89,10 @@ class Plane {
       gl.ARRAY_BUFFER,
       this.geometry.attributes.color.buffer.getBuffer()
     );
-    gl.enableVertexAttribArray(this.geometry.attributes.color.location);
+    gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aColor'));
     gl.vertexAttribPointer(
-      this.geometry.attributes.color.location,
+      gl.getAttribLocation(program, 'aColor'),
+      // this.geometry.attributes.color.location,
       this.geometry.attributes.color.stride,
       gl.FLOAT,
       false,

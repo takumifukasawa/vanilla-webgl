@@ -6,7 +6,7 @@ export default class PlaneGeometry {
     const gl = gpu.getGl();
     this.attributes = {
       position: {
-        location: gl.getAttribLocation(program, 'aPosition'),
+        // location: gl.getAttribLocation(program, 'aPosition'),
         data: vertices,
         stride: 3,
         buffer: new VertexBuffer({
@@ -15,7 +15,7 @@ export default class PlaneGeometry {
         }),
       },
       color: {
-        location: gl.getAttribLocation(program, 'aColor'),
+        // location: gl.getAttribLocation(program, 'aColor'),
         data: colors,
         stride: 3,
         buffer: new VertexBuffer({
