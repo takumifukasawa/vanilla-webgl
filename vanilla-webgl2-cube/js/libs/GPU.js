@@ -8,6 +8,8 @@ export default class GPU {
     this.gl = canvasElement.getContext('webgl2');
     // this.vertexBuffer = null;
     this.vertexFormat = null;
+    this.geometry = null;
+    this.material = null;
   }
   setSize(width, height) {
     this.gl.viewport(0, 0, width, height);
@@ -32,6 +34,9 @@ export default class GPU {
   // setVertexBuffer(vertexBuffer) {
   //   this.vertexBuffer = vertexBuffer;
   // }
+  setGeometry(geometry) {
+    this.geometry = geometry;
+  }
   setMaterial(material) {
     this.material = material;
     const program = this.material.getProgram();
@@ -40,18 +45,31 @@ export default class GPU {
   setVertexFormat(vertexFormat) {
     this.vertexFormat = vertexFormat;
   }
-  draw(
-    vertexCount,
-    primitiveType = GPU.Primitives.Triangle,
-    startVertexIndex = 0
-  ) {
+  draw() {
     const gl = this.gl;
+    const program = this.material.getProgram();
     const primitives = [gl.POINTS, gl.LINES, gl.TRIANGLES];
+
+    for (let i = 0; i < this.geometry.attributes.length; i++) {
+      const { attributeName, buffer, stride } = this.geometry.attributes[i];
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.getBuffer());
+      const location = gl.getAttribLocation(program, attributeName);
+      gl.enableVertexAttribArray(location);
+      gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
+    }
+
+    // indices
+    gl.bindBuffer(
+      gl.ELEMENT_ARRAY_BUFFER,
+      this.geometry.indexBuffer.getBuffer()
+    );
+
+    // draw
     gl.drawElements(
-      primitives[primitiveType],
-      vertexCount,
+      primitives[this.geometry.primitiveType],
+      this.geometry.indices.length,
       gl.UNSIGNED_SHORT,
-      startVertexIndex
+      0
     );
   }
 }

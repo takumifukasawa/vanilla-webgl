@@ -63,56 +63,57 @@ class Plane {
   draw({ gpu }) {
     const gl = gpu.getGl();
     // gpu.setVertexBuffer(this.geometry.vertexBuffer);
+    gpu.setGeometry(this.geometry);
     gpu.setMaterial(this.material);
     // gpu.setVertexFormat(this.vertexFormat);
     // const program = this.material.getProgram();
     // const program = this.material.getProgram();
-    const program = gpu.getProgram();
-    // TODO: bindからdrawelementsまでgpuでやる
-    // positions
-    gl.bindBuffer(
-      gl.ARRAY_BUFFER,
-      this.geometry.attributes.position.buffer.getBuffer()
-    );
-    gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aPosition'));
-    gl.vertexAttribPointer(
-      gl.getAttribLocation(program, 'aPosition'),
-      // this.geometry.attributes.position.location,
-      this.geometry.attributes.position.stride,
-      gl.FLOAT,
-      false,
-      0,
-      0
-    );
-    // colors
-    gl.bindBuffer(
-      gl.ARRAY_BUFFER,
-      this.geometry.attributes.color.buffer.getBuffer()
-    );
-    gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aColor'));
-    gl.vertexAttribPointer(
-      gl.getAttribLocation(program, 'aColor'),
-      // this.geometry.attributes.color.location,
-      this.geometry.attributes.color.stride,
-      gl.FLOAT,
-      false,
-      0,
-      0
-    );
-    // indices
-    gl.bindBuffer(
-      gl.ELEMENT_ARRAY_BUFFER,
-      this.geometry.indexBuffer.getBuffer()
-    );
-    // draw
-    gl.drawElements(
-      gl.TRIANGLES,
-      // primitives[primitiveType],
-      this.geometry.indices.length,
-      gl.UNSIGNED_SHORT,
-      0
-    );
-    // gpu.draw(this.vertexCount);
+    // const program = gpu.getProgram();
+    // // TODO: bindからdrawelementsまでgpuでやる
+    // // positions
+    // gl.bindBuffer(
+    //   gl.ARRAY_BUFFER,
+    //   this.geometry.attributes.position.buffer.getBuffer()
+    // );
+    // gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aPosition'));
+    // gl.vertexAttribPointer(
+    //   gl.getAttribLocation(program, 'aPosition'),
+    //   // this.geometry.attributes.position.location,
+    //   this.geometry.attributes.position.stride,
+    //   gl.FLOAT,
+    //   false,
+    //   0,
+    //   0
+    // );
+    // // colors
+    // gl.bindBuffer(
+    //   gl.ARRAY_BUFFER,
+    //   this.geometry.attributes.color.buffer.getBuffer()
+    // );
+    // gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aColor'));
+    // gl.vertexAttribPointer(
+    //   gl.getAttribLocation(program, 'aColor'),
+    //   // this.geometry.attributes.color.location,
+    //   this.geometry.attributes.color.stride,
+    //   gl.FLOAT,
+    //   false,
+    //   0,
+    //   0
+    // );
+    // // indices
+    // gl.bindBuffer(
+    //   gl.ELEMENT_ARRAY_BUFFER,
+    //   this.geometry.indexBuffer.getBuffer()
+    // );
+    // // draw
+    // gl.drawElements(
+    //   gl.TRIANGLES,
+    //   // primitives[primitiveType],
+    //   this.geometry.indices.length,
+    //   gl.UNSIGNED_SHORT,
+    //   0
+    // );
+    gpu.draw();
   }
 }
 
@@ -172,6 +173,7 @@ const plane = new Plane({
       },
     },
     indices: [0, 2, 1, 1, 2, 3],
+    primitiveType: GPU.Primitives.Triangle,
   }),
 });
 
