@@ -1,5 +1,5 @@
-import IndexBuffer from '../IndexBuffer.js';
-import VertexBuffer from '../VertexBuffer.js';
+import IndexBuffer from './IndexBuffer.js';
+import VertexBuffer from './VertexBuffer.js';
 
 export default class Geometry {
   constructor({ gpu, attributes, indices }) {

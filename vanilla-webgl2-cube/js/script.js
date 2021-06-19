@@ -1,7 +1,6 @@
 import GPU from './libs/GPU.js';
-import Material from './libs/Materials/Material.js';
-import PlaneGeometry from './libs/Geometrys/PlaneGeometry.js';
-import Geometry from './libs/Geometrys/Geomety.js';
+import Material from './libs/Material.js';
+import Geometry from './libs/Geomety.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
