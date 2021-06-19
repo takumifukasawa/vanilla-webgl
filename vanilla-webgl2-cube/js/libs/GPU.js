@@ -6,7 +6,7 @@ export default class GPU {
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
-    this.vertexBuffer = null;
+    // this.vertexBuffer = null;
     this.vertexFormat = null;
   }
   setSize(width, height) {
@@ -26,9 +26,12 @@ export default class GPU {
   getGl() {
     return this.gl;
   }
-  setVertexBuffer(vertexBuffer) {
-    this.vertexBuffer = vertexBuffer;
+  getProgram() {
+    return this.material.getProgram();
   }
+  // setVertexBuffer(vertexBuffer) {
+  //   this.vertexBuffer = vertexBuffer;
+  // }
   setMaterial(material) {
     this.material = material;
     const program = this.material.getProgram();
