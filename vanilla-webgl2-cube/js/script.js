@@ -1,6 +1,7 @@
 import GPU from './libs/GPU.js';
-import Material from './libs/Material.js';
-import PlaneGeometry from './libs/Geometry/PlaneGeometry.js';
+import Material from './libs/Materials/Material.js';
+import PlaneGeometry from './libs/Geometrys/PlaneGeometry.js';
+import Geometry from './libs/Geometrys/Geomety.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -145,23 +146,33 @@ const material = new Material({
 const plane = new Plane({
   gpu,
   material,
-  geometry: new PlaneGeometry({
-    program: material.getProgram(),
+  geometry: new Geometry({
     gpu,
-    // prettier-ignore
-    vertices: [
-      -0.5, 0.5, 0, // left top
-      0.5, 0.5, 0, // right top
-      -0.5, -0.5, 0, // left bottom
-      0.5, -0.5, 0, // right bottom
-    ],
-    // prettier-ignore
-    colors: [
-      1, 0, 0,
-      0, 1, 0,
-      0, 0, 1,
-      1, 1, 0,
-    ],
+    attributes: {
+      position: {
+        attributeName: 'aPosition',
+        // prettier-ignore
+        data: [
+          -0.5, 0.5, 0, // left top
+          0.5, 0.5, 0, // right top
+          -0.5, -0.5, 0, // left bottom
+          0.5, -0.5, 0, // right bottom
+        ],
+        stride: 3,
+      },
+      color: {
+        attributeName: 'aColor',
+        // prettier-ignore
+        data: [
+          1, 0, 0,
+          0, 1, 0,
+          0, 0, 1,
+          1, 1, 0,
+        ],
+        stride: 3,
+      },
+    },
+    indices: [0, 2, 1, 1, 2, 3],
   }),
 });
 
