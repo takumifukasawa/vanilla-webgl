@@ -12,12 +12,8 @@ export default class VertexBuffer {
   }
   update() {
     const gl = this.gl;
-    // gl.bindBuffer(gl.ARRAY_BUFFER, gl);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vbo);
   }
-  // getGl() {
-  //   return this.gl;
-  // }
   getBuffer() {
     return this.vbo;
   }

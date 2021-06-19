@@ -13,106 +13,14 @@ const states = {
   isResized: false,
 };
 
-class Plane {
-  // vertices:
-  // 0 --------- 1
-  // |         / |
-  // |       /   |
-  // |     /     |
-  // |   /       |
-  // | /         |
-  // 2 --------- 3
-  constructor({ gpu, geometry, material }) {
-    const gl = gpu.getGl();
-    // this.indexBuffer = null;
+class Mesh {
+  constructor({ geometry, material }) {
     this.geometry = geometry;
     this.material = material;
-
-    this.positionLocation = gl.getAttribLocation(
-      this.material.getProgram(),
-      'aPosition'
-    );
-    this.colorLocation = gl.getAttribLocation(
-      this.material.getProgram(),
-      'aColor'
-    );
-    // this.attributes = {
-    //   position: {
-    //     location: gl.getAttribLocation(this.material.getProgram(), 'aPosition'),
-    //     data: vertices,
-    //     stride: 3,
-    //     buffer: new VertexBuffer({
-    //       gl,
-    //       data: vertices,
-    //     }),
-    //   },
-    //   color: {
-    //     // location: gl.getAttribLocation(this.material.getProgram(), 'aColor'),
-    //     data: colors,
-    //     stride: 3,
-    //     buffer: new VertexBuffer({
-    //       gl,
-    //       data: colors,
-    //     }),
-    //   },
-    // };
-    // this.indices = [0, 2, 1, 1, 2, 3];
-    // this.vertexCount = this.indices.length / 3;
-    // this.indexBuffer = new IndexBuffer({ gl, data: this.indices });
   }
   draw({ gpu }) {
-    const gl = gpu.getGl();
-    // gpu.setVertexBuffer(this.geometry.vertexBuffer);
     gpu.setGeometry(this.geometry);
     gpu.setMaterial(this.material);
-    // gpu.setVertexFormat(this.vertexFormat);
-    // const program = this.material.getProgram();
-    // const program = this.material.getProgram();
-    // const program = gpu.getProgram();
-    // // TODO: bindからdrawelementsまでgpuでやる
-    // // positions
-    // gl.bindBuffer(
-    //   gl.ARRAY_BUFFER,
-    //   this.geometry.attributes.position.buffer.getBuffer()
-    // );
-    // gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aPosition'));
-    // gl.vertexAttribPointer(
-    //   gl.getAttribLocation(program, 'aPosition'),
-    //   // this.geometry.attributes.position.location,
-    //   this.geometry.attributes.position.stride,
-    //   gl.FLOAT,
-    //   false,
-    //   0,
-    //   0
-    // );
-    // // colors
-    // gl.bindBuffer(
-    //   gl.ARRAY_BUFFER,
-    //   this.geometry.attributes.color.buffer.getBuffer()
-    // );
-    // gl.enableVertexAttribArray(gl.getAttribLocation(program, 'aColor'));
-    // gl.vertexAttribPointer(
-    //   gl.getAttribLocation(program, 'aColor'),
-    //   // this.geometry.attributes.color.location,
-    //   this.geometry.attributes.color.stride,
-    //   gl.FLOAT,
-    //   false,
-    //   0,
-    //   0
-    // );
-    // // indices
-    // gl.bindBuffer(
-    //   gl.ELEMENT_ARRAY_BUFFER,
-    //   this.geometry.indexBuffer.getBuffer()
-    // );
-    // // draw
-    // gl.drawElements(
-    //   gl.TRIANGLES,
-    //   // primitives[primitiveType],
-    //   this.geometry.indices.length,
-    //   gl.UNSIGNED_SHORT,
-    //   0
-    // );
     gpu.draw();
   }
 }
@@ -143,7 +51,7 @@ const material = new Material({
   vertexShader,
   fragmentShader,
 });
-const plane = new Plane({
+const plane = new Mesh({
   gpu,
   material,
   geometry: new Geometry({
@@ -182,7 +90,8 @@ const onWindowResize = () => {
 };
 
 const tick = (t) => {
-  const time = t / 1000;
+  // current unused
+  // const time = t / 1000;
 
   if (states.isResized) {
     const ratio = Math.max(window.devicePixelRatio, 0.5);

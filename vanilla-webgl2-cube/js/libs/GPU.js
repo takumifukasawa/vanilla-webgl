@@ -6,8 +6,6 @@ export default class GPU {
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
-    // this.vertexBuffer = null;
-    this.vertexFormat = null;
     this.geometry = null;
     this.material = null;
   }
@@ -31,9 +29,6 @@ export default class GPU {
   getProgram() {
     return this.material.getProgram();
   }
-  // setVertexBuffer(vertexBuffer) {
-  //   this.vertexBuffer = vertexBuffer;
-  // }
   setGeometry(geometry) {
     this.geometry = geometry;
   }
@@ -42,9 +37,6 @@ export default class GPU {
     const program = this.material.getProgram();
     this.gl.useProgram(program);
   }
-  // setVertexFormat(vertexFormat) {
-  //   this.vertexFormat = vertexFormat;
-  // }
   draw() {
     const gl = this.gl;
     const program = this.material.getProgram();
