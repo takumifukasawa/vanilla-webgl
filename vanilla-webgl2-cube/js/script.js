@@ -83,15 +83,17 @@ const material = new Material({
   fragmentShader,
   uniforms: {
     uModelMatrix: {
-      type: GPU.UniformTypes.ModelMatrix,
-      data: Matrix4.identity,
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
     },
     uViewMatrix: {
-      type: GPU.UniformTypes.ViewMatrix,
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
     },
     // auto update by renderer
     uProjectionMatrix: {
-      type: GPU.UniformTypes.ProjectionMatrix,
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
     },
   },
 });

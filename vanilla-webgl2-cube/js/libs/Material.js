@@ -16,23 +16,26 @@ export default class Material {
     // gl.useProgram(this.shader.getProgram());
 
     // 特殊な扱いのmatrixは明示的にupdate
-    const uniformModelMatrix = Object.keys(this.uniforms)
-      .map((name) => this.uniforms[name])
-      .find((uniform) => uniform.type === GPU.UniformTypes.ModelMatrix);
+    const uniformModelMatrix =
+      this.uniforms[
+        Object.keys(this.uniforms).find((name) => name === 'uModelMatrix')
+      ];
     if (uniformModelMatrix) {
       uniformModelMatrix.data = modelMatrix.getArray();
     }
 
-    const uniformViewMatrix = Object.keys(this.uniforms)
-      .map((name) => this.uniforms[name])
-      .find((uniform) => uniform.type === GPU.UniformTypes.ViewMatrix);
+    const uniformViewMatrix =
+      this.uniforms[
+        Object.keys(this.uniforms).find((name) => name === 'uViewMatrix')
+      ];
     if (uniformViewMatrix) {
       uniformViewMatrix.data = viewMatrix.getArray();
     }
 
-    const uniformProjectionMatrix = Object.keys(this.uniforms)
-      .map((name) => this.uniforms[name])
-      .find((uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix);
+    const uniformProjectionMatrix =
+      this.uniforms[
+        Object.keys(this.uniforms).find((name) => name === 'uProjectionMatrix')
+      ];
     if (uniformProjectionMatrix) {
       uniformProjectionMatrix.data = projectionMatrix.getArray();
     }

@@ -6,9 +6,9 @@ export default class GPU {
   };
   static UniformTypes = {
     Matrix4fv: 0,
-    ModelMatrix: 1,
-    ViewMatrix: 2,
-    ProjectionMatrix: 3,
+    // ModelMatrix: 1,
+    // ViewMatrix: 2,
+    // ProjectionMatrix: 3,
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
@@ -84,9 +84,9 @@ export default class GPU {
       // NOTE: add type
       switch (type) {
         case GPU.UniformTypes.Matrix4fv:
-        case GPU.UniformTypes.ModelMatrix:
-        case GPU.UniformTypes.ViewMatrix:
-        case GPU.UniformTypes.ProjectionMatrix:
+          // case GPU.UniformTypes.ModelMatrix:
+          // case GPU.UniformTypes.ViewMatrix:
+          // case GPU.UniformTypes.ProjectionMatrix:
           gl.uniformMatrix4fv(location, false, data);
           break;
         default:
