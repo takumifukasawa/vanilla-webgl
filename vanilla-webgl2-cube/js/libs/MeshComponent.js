@@ -1,4 +1,5 @@
 import Component from './Component.js';
+import GPU from './GPU.js';
 
 export default class MeshComponent extends Component {
   constructor({ actor, geometry, material }) {
@@ -12,17 +13,21 @@ export default class MeshComponent extends Component {
   }
   update() {}
   render({ gpu, modelMatrix, viewMatrix, projectionMatrix }) {
-    const gl = gpu.getGl();
-    this.geometry.render({ gpu, shader: this.material });
-    this.material.render({ gpu, modelMatrix, viewMatrix, projectionMatrix });
-    const primitives = [gl.POINTS, gl.LINES, gl.TRIANGLES];
-    gpu
-      .getGl()
-      .drawElements(
-        primitives[this.geometry.primitiveType],
-        this.geometry.indices.length,
-        gl.UNSIGNED_SHORT,
-        0
-      );
+    // this.geometry.render({ gpu, shader: this.material });
+    this.material.render({ modelMatrix, viewMatrix, projectionMatrix });
+    gpu.setShader(this.material.shader);
+    gpu.setAttributes(this.geometry.attributes);
+    gpu.setIndices(this.geometry.indices);
+    gpu.setUniforms(this.material.uniforms);
+    gpu.draw(this.geometry.indices.data.length, GPU.Primitives.Triangle);
+    // gpu.resetData();
+    // gpu
+    //   .getGl()
+    //   .drawElements(
+    //     primitives[this.geometry.primitiveType],
+    //     this.geometry.indices.length,
+    //     gl.UNSIGNED_SHORT,
+    //     0
+    //   );
   }
 }

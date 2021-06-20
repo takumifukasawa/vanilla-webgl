@@ -1,6 +1,6 @@
 export default class VertexBuffer {
   constructor({ gl, data }) {
-    this.gl = gl;
+    // this.gl = gl;
     // create buffer
     this.vbo = gl.createBuffer();
     // bind buffer

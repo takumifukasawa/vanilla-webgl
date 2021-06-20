@@ -10,15 +10,15 @@ export default class Actor {
     component.setActor(this);
     this.components.push(component);
   }
-  // FYI
-  removeComponent(name) {
-    const index = this.components.findIndex(
-      (component) => component.name === name
-    );
-    if (index > -1) {
-      this.components(index, 1);
-    }
-  }
+  // wip
+  // removeComponent(name) {
+  //   const index = this.components.findIndex(
+  //     (component) => component.name === name
+  //   );
+  //   if (index > -1) {
+  //     this.components(index, 1);
+  //   }
+  // }
   update() {
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
