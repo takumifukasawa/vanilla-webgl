@@ -145,14 +145,6 @@ const tick = (t) => {
     const cameraTransform = Matrix4.identity();
     cameraTransform.translate(new Vector3(0, 0, 0));
     perspectiveCamera.worldTransform = cameraTransform;
-
-    // const planeTransform = Matrix4.identity();
-    // transform.rotateY(time * 0.2);
-    // planeTransform.translate(new Vector3(0.1, 0, 0));
-    // plane.worldTransform = planeTransform;
-
-    const gl = gpu.getGl();
-    gl.enable(gl.DEPTH_TEST);
   }
 
   // update
@@ -163,8 +155,6 @@ const tick = (t) => {
   {
     planeActor.render({ gpu, camera: perspectiveCamera });
   }
-
-  // gpu.draw({ camera: perspectiveCamera, mesh: plane });
 
   requestAnimationFrame(tick);
 };
