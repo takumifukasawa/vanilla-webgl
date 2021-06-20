@@ -3,7 +3,6 @@ import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import Mesh from './libs/Mesh.js';
-// import { Matrix4 } from './libs/Matrix.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
