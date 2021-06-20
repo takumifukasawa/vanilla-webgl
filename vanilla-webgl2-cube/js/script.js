@@ -8,7 +8,6 @@ import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import LifeCycleComponent from './libs/LifeCycleComponent.js';
-import Component from './libs/Component.js';
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
 
@@ -114,12 +113,6 @@ planeActor.addComponent(
     },
   })
 );
-
-// const plane = new Mesh({
-//   gpu,
-//   geometry,
-//   material,
-// });
 
 const onWindowResize = () => {
   states.isResized = true;
