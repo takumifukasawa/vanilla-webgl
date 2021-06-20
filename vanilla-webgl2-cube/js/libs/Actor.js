@@ -1,3 +1,4 @@
+import Component from './Component.js';
 import { Matrix4 } from './Matrix.js';
 
 export default class Actor {
@@ -6,6 +7,7 @@ export default class Actor {
     this.worldTransform = Matrix4.identity();
   }
   addComponent(component) {
+    component.setActor(this);
     this.components.push(component);
   }
   // FYI
@@ -21,6 +23,20 @@ export default class Actor {
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
       component.update();
+    }
+  }
+  // TODO: camera 渡さない
+  render({ gpu, camera }) {
+    const meshComponents = this.components.filter(({ type }) => {
+      return type === Component.Types.MeshComponent;
+    });
+    for (let i = 0; i < meshComponents.length; i++) {
+      meshComponents[i].render({
+        gpu,
+        modelMatrix: this.worldTransform,
+        viewMatrix: camera.worldTransform.getInvertMatrix(),
+        projectionMatrix: camera.projectionMatrix,
+      });
     }
   }
 }

@@ -7,6 +7,7 @@ import { Matrix4 } from './libs/Matrix.js';
 import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
 import MeshComponent from './libs/MeshComponent.js';
+import LifeCycleComponent from './libs/LifeCycleComponent.js';
 import Component from './libs/Component.js';
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -102,6 +103,15 @@ planeActor.addComponent(
     material,
   })
 );
+planeActor.addComponent(
+  new LifeCycleComponent({
+    updateFunc: ({ actor }) => {
+      const m = Matrix4.identity();
+      m.translate(new Vector3(0, 0, 0));
+      actor.worldTransform = m;
+    },
+  })
+);
 
 // const plane = new Mesh({
 //   gpu,
@@ -147,20 +157,9 @@ const tick = (t) => {
   {
     planeActor.update();
   }
-
   // render
   {
-    const meshComponents = planeActor.components.filter(({ type }) => {
-      return type === Component.Types.MeshComponent;
-    });
-    for (let i = 0; i < meshComponents.length; i++) {
-      meshComponents[i].render({
-        gpu,
-        modelMatrix: planeActor.worldTransform,
-        viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
-        projectionMatrix: perspectiveCamera.projectionMatrix,
-      });
-    }
+    planeActor.render({ gpu, camera: perspectiveCamera });
   }
 
   // gpu.draw({ camera: perspectiveCamera, mesh: plane });
