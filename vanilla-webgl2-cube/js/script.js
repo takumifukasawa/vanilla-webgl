@@ -8,6 +8,9 @@ import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import LifeCycleComponent from './libs/LifeCycleComponent.js';
+import loadImg from './utils/loadImg.js';
+import Texture from './libs/Texture.js';
+
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
 
@@ -93,6 +96,13 @@ const material = new Material({
     uProjectionMatrix: {
       type: GPU.UniformTypes.Matrix4fv,
       data: Matrix4.identity().getArray(),
+    },
+    uTexture: {
+      type: GPU.UniformTypes.Texture2D,
+      data: (async () => {
+        const img = await loadImg('/img/texture.png');
+        return new Texture({ gpu, img });
+      })(),
     },
   },
 });

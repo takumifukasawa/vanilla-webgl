@@ -6,6 +6,7 @@ export default class GPU {
   };
   static UniformTypes = {
     Matrix4fv: 0,
+    Texture2D: 1,
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
@@ -79,6 +80,10 @@ export default class GPU {
       switch (type) {
         case GPU.UniformTypes.Matrix4fv:
           gl.uniformMatrix4fv(location, false, data);
+          break;
+        case GPU.UniformTypes.Texture2D:
+          // TODO: texture unit id
+          gl.uniform1i(location, 0);
           break;
         default:
           throw 'no uniform type';
