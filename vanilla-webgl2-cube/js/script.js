@@ -27,16 +27,19 @@ const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 10);
 const vertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec3 aColor;
-
-out vec3 vColor;
+layout (location = 1) in vec2 aUv;
+layout (location = 2) in vec3 aColor;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
+out vec2 vUv;
+out vec3 vColor;
+
 void main() {
   vColor = aColor;
+  vUv = aUv;
   vec4 pos = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
   gl_Position = pos;
 }
@@ -44,10 +47,18 @@ void main() {
 
 const fragmentShader = `#version 300 es
 precision mediump float;
+
 in vec3 vColor;
+in vec2 vUv;
+
+uniform sampler2D uTexture;
+
 out vec4 outColor;
+
 void main() {
-  outColor = vec4(vColor, 1);
+  // outColor = vec4(vColor, 1);
+  vec4 texColor = texture(uTexture, vUv);
+  outColor = texColor;
 }
 `;
 
@@ -63,6 +74,16 @@ const geometry = new Geometry({
           0.1, -0.1, -1, // right bottom
         ],
       stride: 3,
+    },
+    aUv: {
+      // prettier-ignore
+      data: [
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 0
+      ],
+      stride: 2,
     },
     aColor: {
       // prettier-ignore
@@ -99,13 +120,16 @@ const material = new Material({
     },
     uTexture: {
       type: GPU.UniformTypes.Texture2D,
-      data: (async () => {
-        const img = await loadImg('/img/texture.png');
-        return new Texture({ gpu, img });
-      })(),
+      data: null,
     },
   },
 });
+
+(async () => {
+  const img = await loadImg('/img/texture.png');
+  const texture = new Texture({ gpu, img });
+  material.uniforms.uTexture.data = texture;
+})();
 
 const planeActor = new Actor();
 planeActor.addComponent(

@@ -82,11 +82,15 @@ export default class GPU {
           gl.uniformMatrix4fv(location, false, data);
           break;
         case GPU.UniformTypes.Texture2D:
-          // TODO: texture unit id
-          gl.uniform1i(location, 0);
+          // TODO: multi texture
+          if (data) {
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, data.getTexture());
+            gl.uniform1i(location, 0);
+          }
           break;
         default:
-          throw 'no uniform type';
+          throw 'invalid uniform type';
       }
     }
 
