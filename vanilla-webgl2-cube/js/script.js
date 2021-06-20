@@ -106,8 +106,7 @@ const material = new Material({
   fragmentShader,
   uniforms: {
     uProjectionMatrix: {
-      type: 'ProjectionMatrix',
-      data: [],
+      type: GPU.UniformTypes.ProjectionMatrix,
     },
   },
 });

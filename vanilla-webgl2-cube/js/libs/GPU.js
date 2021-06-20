@@ -4,6 +4,9 @@ export default class GPU {
     Line: 1,
     Triangle: 2,
   };
+  static UniformTypes = {
+    ProjectionMatrix: 0,
+  };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
     this.geometry = null;
@@ -57,7 +60,7 @@ export default class GPU {
     // 特殊な扱いのmatrixは明示的にupdate
     if (this.material.uniforms) {
       const uniformProjectionMatrix = this.material.uniforms.find(
-        (uniform) => uniform.type === 'ProjectionMatrix'
+        (uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix
       );
       if (uniformProjectionMatrix) {
         uniformProjectionMatrix.data = this.camera.projectionMatrix.elements;
@@ -69,7 +72,7 @@ export default class GPU {
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
-        case 'ProjectionMatrix':
+        case GPU.UniformTypes.ProjectionMatrix:
           gl.uniformMatrix4fv(location, false, data);
           break;
         default:
