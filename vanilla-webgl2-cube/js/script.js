@@ -2,10 +2,12 @@ import GPU from './libs/GPU.js';
 import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
-import Mesh from './libs/Mesh.js';
+// import Mesh from './libs/Mesh.js';
 import { Matrix4 } from './libs/Matrix.js';
 import { Vector3 } from './libs/Vector3.js';
-
+import Actor from './libs/Actor.js';
+import MeshComponent from './libs/MeshComponent.js';
+import Component from './libs/Component.js';
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
 
@@ -93,11 +95,19 @@ const material = new Material({
   },
 });
 
-const plane = new Mesh({
-  gpu,
-  geometry,
-  material,
-});
+const planeActor = new Actor();
+planeActor.addComponent(
+  new MeshComponent({
+    geometry,
+    material,
+  })
+);
+
+// const plane = new Mesh({
+//   gpu,
+//   geometry,
+//   material,
+// });
 
 const onWindowResize = () => {
   states.isResized = true;
@@ -124,16 +134,36 @@ const tick = (t) => {
     cameraTransform.translate(new Vector3(0, 0, 0));
     perspectiveCamera.worldTransform = cameraTransform;
 
-    const planeTransform = Matrix4.identity();
+    // const planeTransform = Matrix4.identity();
     // transform.rotateY(time * 0.2);
     // planeTransform.translate(new Vector3(0.1, 0, 0));
-    plane.worldTransform = planeTransform;
+    // plane.worldTransform = planeTransform;
 
     const gl = gpu.getGl();
     gl.enable(gl.DEPTH_TEST);
-
-    gpu.draw({ camera: perspectiveCamera, mesh: plane });
   }
+
+  // update
+  {
+    planeActor.update();
+  }
+
+  // render
+  {
+    const meshComponents = planeActor.components.filter(({ type }) => {
+      return type === Component.Types.MeshComponent;
+    });
+    for (let i = 0; i < meshComponents.length; i++) {
+      meshComponents[i].render({
+        gpu,
+        modelMatrix: planeActor.worldTransform,
+        viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
+        projectionMatrix: perspectiveCamera.projectionMatrix,
+      });
+    }
+  }
+
+  // gpu.draw({ camera: perspectiveCamera, mesh: plane });
 
   requestAnimationFrame(tick);
 };
