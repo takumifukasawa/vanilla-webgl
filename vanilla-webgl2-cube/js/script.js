@@ -56,9 +56,9 @@ uniform sampler2D uTexture;
 out vec4 outColor;
 
 void main() {
-  // outColor = vec4(vColor, 1);
   vec4 texColor = texture(uTexture, vUv);
   outColor = texColor;
+  // outColor = vec4(vUv, 1, 1);
 }
 `;
 
@@ -78,10 +78,10 @@ const geometry = new Geometry({
     aUv: {
       // prettier-ignore
       data: [
-        0, 1,
-        1, 1,
         0, 0,
-        1, 0
+        1, 0,
+        0, 1,
+        1, 1
       ],
       stride: 2,
     },
