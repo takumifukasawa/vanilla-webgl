@@ -5,7 +5,10 @@ export default class GPU {
     Triangle: 2,
   };
   static UniformTypes = {
-    ProjectionMatrix: 0,
+    Matrix4fv: 0,
+    ModelMatrix: 1,
+    ViewMatrix: 2,
+    ProjectionMatrix: 3,
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
@@ -30,8 +33,9 @@ export default class GPU {
   getGl() {
     return this.gl;
   }
-  draw({ camera, geometry, material }) {
+  draw({ camera, mesh }) {
     const gl = this.gl;
+    const { geometry, material } = mesh;
     const program = material.getProgram();
 
     gl.useProgram(program);
@@ -46,8 +50,26 @@ export default class GPU {
       gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
     }
 
-    // 特殊な扱いのmatrixは明示的にupdate
+    // TODO: geometry, material の処理は mesh 側でやるべき
+
     if (material.uniforms) {
+      // 特殊な扱いのmatrixは明示的にupdate
+      const uniformModelMatrix = material.uniforms.find(
+        (uniform) => uniform.type === GPU.UniformTypes.ModelMatrix
+      );
+      if (uniformModelMatrix) {
+        uniformModelMatrix.data = mesh.worldTransform.getArray();
+      }
+      const uniformViewMatrix = material.uniforms.find(
+        (uniform) => uniform.type === GPU.UniformTypes.ViewMatrix
+      );
+      if (uniformViewMatrix) {
+        uniformViewMatrix.data = camera.worldTransform
+          .getInvertMatrix()
+          .getArray();
+        // console.log(camera.worldTransform);
+        // console.log(camera.worldTransform.getInvertMatrix().getArray());
+      }
       const uniformProjectionMatrix = material.uniforms.find(
         (uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix
       );
@@ -61,6 +83,9 @@ export default class GPU {
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
+        case GPU.UniformTypes.Matrix4fv:
+        case GPU.UniformTypes.ModelMatrix:
+        case GPU.UniformTypes.ViewMatrix:
         case GPU.UniformTypes.ProjectionMatrix:
           gl.uniformMatrix4fv(location, false, data);
           break;

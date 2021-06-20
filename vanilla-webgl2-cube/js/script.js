@@ -3,6 +3,8 @@ import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import Mesh from './libs/Mesh.js';
+import { Matrix4 } from './libs/Matrix.js';
+import { Vector3 } from './libs/Vector3.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -24,11 +26,13 @@ layout (location = 1) in vec3 aColor;
 
 out vec3 vColor;
 
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
 void main() {
   vColor = aColor;
-  vec4 pos = uProjectionMatrix * vec4(aPosition, 1.);
+  vec4 pos = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
   gl_Position = pos;
 }
 `;
@@ -75,6 +79,14 @@ const material = new Material({
   vertexShader,
   fragmentShader,
   uniforms: {
+    uModelMatrix: {
+      type: GPU.UniformTypes.ModelMatrix,
+      data: Matrix4.identity,
+    },
+    uViewMatrix: {
+      type: GPU.UniformTypes.ViewMatrix,
+    },
+    // auto update by renderer
     uProjectionMatrix: {
       type: GPU.UniformTypes.ProjectionMatrix,
     },
@@ -92,8 +104,7 @@ const onWindowResize = () => {
 };
 
 const tick = (t) => {
-  // current unused
-  // const time = t / 1000;
+  const time = t / 1000;
 
   if (states.isResized) {
     const ratio = Math.max(window.devicePixelRatio, 0.5);
@@ -109,12 +120,19 @@ const tick = (t) => {
   gpu.clear(0, 0, 0, 0);
 
   {
-    const { geometry, material } = plane;
+    const cameraTransform = Matrix4.identity();
+    cameraTransform.translate(new Vector3(0, 0, 0));
+    perspectiveCamera.worldTransform = cameraTransform;
+
+    const planeTransform = Matrix4.identity();
+    // transform.rotateY(time * 0.2);
+    // planeTransform.translate(new Vector3(0.1, 0, 0));
+    plane.worldTransform = planeTransform;
 
     const gl = gpu.getGl();
     gl.enable(gl.DEPTH_TEST);
 
-    gpu.draw({ camera: perspectiveCamera, geometry, material });
+    gpu.draw({ camera: perspectiveCamera, mesh: plane });
   }
 
   requestAnimationFrame(tick);
