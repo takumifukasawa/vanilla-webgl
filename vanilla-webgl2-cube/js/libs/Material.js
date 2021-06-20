@@ -1,5 +1,15 @@
 export default class Material {
-  constructor({ gpu, vertexShader, fragmentShader }) {
+  constructor({ gpu, vertexShader, fragmentShader, uniforms }) {
+    this.uniforms = uniforms;
+    this.uniforms = Object.keys(uniforms).map((name) => {
+      const { type, data } = uniforms[name];
+      return {
+        name,
+        type,
+        data,
+      };
+    }, []);
+
     const gl = gpu.getGl();
     this.program = null;
     const vs = gl.createShader(gl.VERTEX_SHADER);

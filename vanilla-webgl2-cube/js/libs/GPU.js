@@ -8,6 +8,7 @@ export default class GPU {
     this.gl = canvasElement.getContext('webgl2');
     this.geometry = null;
     this.material = null;
+    this.camera = null;
   }
   setSize(width, height) {
     this.gl.viewport(0, 0, width, height);
@@ -37,6 +38,9 @@ export default class GPU {
     const program = this.material.getProgram();
     this.gl.useProgram(program);
   }
+  setCamera(camera) {
+    this.camera = camera;
+  }
   draw() {
     const gl = this.gl;
     const program = this.material.getProgram();
@@ -48,6 +52,29 @@ export default class GPU {
       const location = gl.getAttribLocation(program, name);
       gl.enableVertexAttribArray(location);
       gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
+    }
+
+    // 特殊な扱いのmatrixは明示的にupdate
+    if (this.material.uniforms) {
+      const uniformProjectionMatrix = this.material.uniforms.find(
+        (uniform) => uniform.type === 'ProjectionMatrix'
+      );
+      if (uniformProjectionMatrix) {
+        uniformProjectionMatrix.data = this.camera.projectionMatrix.elements;
+      }
+    }
+
+    for (let i = 0; i < this.material.uniforms.length; i++) {
+      const { name, type, data } = this.material.uniforms[i];
+      const location = gl.getUniformLocation(program, name);
+      // NOTE: add type
+      switch (type) {
+        case 'ProjectionMatrix':
+          gl.uniformMatrix4fv(location, false, data);
+          break;
+        default:
+          throw 'no uniform type';
+      }
     }
 
     // indices

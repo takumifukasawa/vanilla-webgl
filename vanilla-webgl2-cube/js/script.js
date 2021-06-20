@@ -1,18 +1,8 @@
 import GPU from './libs/GPU.js';
 import Material from './libs/Material.js';
-import Geometry from './libs/Geomety.js';
-import { Matrix4 } from './libs/Matrix.js';
-
-const wrapperElement = document.querySelector('.js-wrapper');
-const canvasElement = document.querySelector('.js-canvas');
-
-const gpu = new GPU({
-  canvasElement,
-});
-
-const states = {
-  isResized: false,
-};
+import Geometry from './libs/Geometry.js';
+import PerspectiveCamera from './libs/PerspectiveCamera.js';
+// import { Matrix4 } from './libs/Matrix.js';
 
 class Mesh {
   constructor({ geometry, material }) {
@@ -26,21 +16,36 @@ class Mesh {
     const gl = gpu.getGl();
     gl.enable(gl.DEPTH_TEST);
 
-    const loc = gl.getUniformLocation(
-      this.material.getProgram(),
-      'uProjectionMatrix'
-    );
-    const projectionMatrix = Matrix4.getPerspectiveMatrix(
-      0.5,
-      window.innerWidth / window.innerHeight,
-      0.01,
-      10
-    );
+    // const loc = gl.getUniformLocation(
+    //   this.material.getProgram(),
+    //   'uProjectionMatrix'
+    // );
+    // const projectionMatrix = Matrix4.getPerspectiveMatrix(
+    //   0.5,
+    //   window.innerWidth / window.innerHeight,
+    //   0.01,
+    //   10
+    // );
 
-    gl.uniformMatrix4fv(loc, false, projectionMatrix.elements);
+    // gl.uniformMatrix4fv(loc, false, projectionMatrix.elements);
+
+    // TODO: 呼び出し側でやったほうがよさそう
     gpu.draw();
   }
 }
+
+const wrapperElement = document.querySelector('.js-wrapper');
+const canvasElement = document.querySelector('.js-canvas');
+
+const gpu = new GPU({
+  canvasElement,
+});
+
+const states = {
+  isResized: false,
+};
+
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 10);
 
 const vertexShader = `#version 300 es
 
@@ -91,10 +96,6 @@ const geometry = new Geometry({
       stride: 3,
     },
   },
-  uniforms: {
-    type: 'Matrix4',
-    data: [],
-  },
   indices: [0, 2, 1, 1, 2, 3],
   primitiveType: GPU.Primitives.Triangle,
 });
@@ -103,6 +104,12 @@ const material = new Material({
   gpu,
   vertexShader,
   fragmentShader,
+  uniforms: {
+    uProjectionMatrix: {
+      type: 'ProjectionMatrix',
+      data: [],
+    },
+  },
 });
 
 const plane = new Mesh({
@@ -126,6 +133,7 @@ const tick = (t) => {
     canvasElement.width = targetWidth;
     canvasElement.height = targetHeight;
     gpu.setSize(targetWidth, targetHeight);
+    perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
     states.isResized = false;
   }
 
@@ -137,6 +145,7 @@ const tick = (t) => {
 };
 
 const main = () => {
+  gpu.setCamera(perspectiveCamera);
   onWindowResize();
   window.addEventListener('resize', () => {
     onWindowResize();

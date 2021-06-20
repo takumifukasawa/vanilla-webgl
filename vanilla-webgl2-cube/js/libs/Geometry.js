@@ -2,7 +2,7 @@ import IndexBuffer from './IndexBuffer.js';
 import VertexBuffer from './VertexBuffer.js';
 
 export default class Geometry {
-  constructor({ gpu, attributes, uniforms, indices, primitiveType }) {
+  constructor({ gpu, attributes, indices, primitiveType }) {
     const gl = gpu.getGl();
     this.attributes = Object.keys(attributes).map((name) => {
       const { data, stride } = attributes[name];
@@ -16,7 +16,6 @@ export default class Geometry {
         }),
       };
     }, []);
-    this.uniforms = uniforms;
     this.indices = indices;
     this.indexBuffer = new IndexBuffer({ gl, data: this.indices });
     this.primitiveType = primitiveType;
