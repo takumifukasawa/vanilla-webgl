@@ -39,23 +39,5 @@ export default class Material {
     if (uniformProjectionMatrix) {
       uniformProjectionMatrix.data = projectionMatrix.getArray();
     }
-
-    // const uniformsKeys = Object.keys(this.uniforms);
-    // for (let i = 0; i < uniformsKeys.length; i++) {
-    //   const name = uniformsKeys[i];
-    //   const { type, data } = this.uniforms[name];
-    //   const location = gl.getUniformLocation(this.program, name);
-    //   // NOTE: add type
-    //   switch (type) {
-    //     case GPU.UniformTypes.Matrix4fv:
-    //     case GPU.UniformTypes.ModelMatrix:
-    //     case GPU.UniformTypes.ViewMatrix:
-    //     case GPU.UniformTypes.ProjectionMatrix:
-    //       gl.uniformMatrix4fv(location, false, data);
-    //       break;
-    //     default:
-    //       throw 'no uniform type';
-    //   }
-    // }
   }
 }

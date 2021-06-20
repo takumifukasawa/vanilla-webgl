@@ -10,10 +10,6 @@ export default class IndexBuffer {
     );
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
   }
-  // update() {
-  //   const gl = this.gl;
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, this.indexBuffer);
-  // }
   getBuffer() {
     return this.indexBuffer;
   }

@@ -41,8 +41,6 @@ export default class Mesh {
         uniformViewMatrix.data = camera.worldTransform
           .getInvertMatrix()
           .getArray();
-        // console.log(camera.worldTransform);
-        // console.log(camera.worldTransform.getInvertMatrix().getArray());
       }
       const uniformProjectionMatrix = material.uniforms.find(
         (uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix
