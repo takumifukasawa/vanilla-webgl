@@ -3,13 +3,17 @@ import Component from './Component.js';
 export default class LifeCycleComponent extends Component {
   constructor({ actor, updateFunc, renderFunc }) {
     super({ actor, type: Component.Types.LifeCycleComponent });
-    this.updateFunc = updateFunc || (() => {});
-    this.renderFunc = renderFunc || (() => {});
+    this.updateFunc = updateFunc;
+    this.renderFunc = renderFunc;
   }
   update() {
-    this.updateFunc({ actor: this.actor });
+    if (this.updateFunc) {
+      this.updateFunc();
+    }
   }
   render() {
-    this.renderFunc({ actor: this.actor });
+    if (this.renderFunc) {
+      this.renderFunc();
+    }
   }
 }

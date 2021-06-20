@@ -105,10 +105,10 @@ planeActor.addComponent(
 );
 planeActor.addComponent(
   new LifeCycleComponent({
-    updateFunc: ({ actor }) => {
+    updateFunc: function () {
       const m = Matrix4.identity();
       m.translate(new Vector3(0, 0, 0));
-      actor.worldTransform = m;
+      this.actor.worldTransform = m;
     },
   })
 );
