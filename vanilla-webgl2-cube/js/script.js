@@ -6,27 +6,6 @@ import Mesh from './libs/Mesh.js';
 import { Matrix4 } from './libs/Matrix.js';
 import { Vector3 } from './libs/Vector3.js';
 
-class Plane extends Mesh {
-  constructor(args) {
-    super(args);
-  }
-  // draw({ gpu }) {
-  //   Object.keys(this.vertexBuffers).forEach(name => {
-  //     gpu.setVertexBuffer(name, vertexBuffer);
-  //   });
-  //   gpu.setAttribute(this.attributes);
-
-  //   Object.keys(this.uniforms).forEach(name => {
-  //   });
-
-  //   gpu.draw();
-
-  //   Object.keys(this.vertexBuffers).forEach(name => {
-  //     gpu.clearVertexBuffer(name);
-  //   });
-  // }
-}
-
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
 
@@ -114,7 +93,7 @@ const material = new Material({
   },
 });
 
-const plane = new Plane({
+const plane = new Mesh({
   gpu,
   geometry,
   material,
@@ -153,8 +132,7 @@ const tick = (t) => {
     const gl = gpu.getGl();
     gl.enable(gl.DEPTH_TEST);
 
-    plane.draw({ gpu, camera: perspectiveCamera });
-    gpu.draw({ camera: perspectiveCamera });
+    gpu.draw({ camera: perspectiveCamera, mesh: plane });
   }
 
   requestAnimationFrame(tick);

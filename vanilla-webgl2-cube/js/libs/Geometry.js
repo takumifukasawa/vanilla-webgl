@@ -4,16 +4,9 @@ import VertexBuffer from './VertexBuffer.js';
 export default class Geometry {
   constructor({ gpu, attributes, indices, primitiveType }) {
     const gl = gpu.getGl();
-    // this.vertexBuffers = Object.keys(attributes).reduce((acc, name) => {
-    //   const { data } = attributes[name];
-    //   acc[name] = new VertexBuffer({
-    //     gl,
-    //     data,
-    //   });
-    // }, {});
-    this.attributes = Object.keys(attributes).reduce((acc, name) => {
+    this.attributes = Object.keys(attributes).map((name) => {
       const { data, stride } = attributes[name];
-      acc[name] = {
+      return {
         name,
         data,
         stride,
@@ -22,13 +15,9 @@ export default class Geometry {
           data,
         }),
       };
-      return acc;
-    }, {});
-    this.indices = {
-      buffer: new IndexBuffer({ gl, data: this.indices }),
-      data: indices,
-    };
-    // this.indices = indices;
+    }, []);
+    this.indices = indices;
+    this.indexBuffer = new IndexBuffer({ gl, data: this.indices });
     this.primitiveType = primitiveType;
   }
 }
