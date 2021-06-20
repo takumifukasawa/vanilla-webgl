@@ -30,9 +30,6 @@ export default class GPU {
   getGl() {
     return this.gl;
   }
-  getProgram() {
-    return this.material.getProgram();
-  }
   draw({ camera, geometry, material }) {
     const gl = this.gl;
     const program = material.getProgram();
@@ -55,7 +52,7 @@ export default class GPU {
         (uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix
       );
       if (uniformProjectionMatrix) {
-        uniformProjectionMatrix.data = camera.projectionMatrix.elements;
+        uniformProjectionMatrix.data = camera.projectionMatrix.getArray();
       }
     }
 
