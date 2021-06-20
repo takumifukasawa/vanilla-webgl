@@ -43,9 +43,9 @@ export default class GPU {
     const primitives = [gl.POINTS, gl.LINES, gl.TRIANGLES];
 
     for (let i = 0; i < this.geometry.attributes.length; i++) {
-      const { attributeName, buffer, stride } = this.geometry.attributes[i];
+      const { name, buffer, stride } = this.geometry.attributes[i];
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer.getBuffer());
-      const location = gl.getAttribLocation(program, attributeName);
+      const location = gl.getAttribLocation(program, name);
       gl.enableVertexAttribArray(location);
       gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
     }
