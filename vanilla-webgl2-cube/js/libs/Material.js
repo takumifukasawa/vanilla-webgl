@@ -1,4 +1,3 @@
-import GPU from './GPU.js';
 import Shader from './Shader.js';
 
 export default class Material {
@@ -10,11 +9,8 @@ export default class Material {
       fragmentShader,
     });
   }
-  // TODO: pass data to gpu
-  render({ modelMatrix, viewMatrix, projectionMatrix }) {
-    // const gl = gpu.getGl();
-    // gl.useProgram(this.shader.getProgram());
 
+  render({ modelMatrix, viewMatrix, projectionMatrix }) {
     // 特殊な扱いのmatrixは明示的にupdate
     const uniformModelMatrix =
       this.uniforms[
