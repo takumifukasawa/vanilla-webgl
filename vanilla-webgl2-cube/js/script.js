@@ -9,29 +9,6 @@ class Mesh {
     this.geometry = geometry;
     this.material = material;
   }
-  draw({ gpu }) {
-    gpu.setGeometry(this.geometry);
-    gpu.setMaterial(this.material);
-
-    const gl = gpu.getGl();
-    gl.enable(gl.DEPTH_TEST);
-
-    // const loc = gl.getUniformLocation(
-    //   this.material.getProgram(),
-    //   'uProjectionMatrix'
-    // );
-    // const projectionMatrix = Matrix4.getPerspectiveMatrix(
-    //   0.5,
-    //   window.innerWidth / window.innerHeight,
-    //   0.01,
-    //   10
-    // );
-
-    // gl.uniformMatrix4fv(loc, false, projectionMatrix.elements);
-
-    // TODO: 呼び出し側でやったほうがよさそう
-    gpu.draw();
-  }
 }
 
 const wrapperElement = document.querySelector('.js-wrapper');
@@ -138,13 +115,19 @@ const tick = (t) => {
 
   gpu.clear(0, 0, 0, 0);
 
-  plane.draw({ gpu });
+  {
+    const { geometry, material } = plane;
+
+    const gl = gpu.getGl();
+    gl.enable(gl.DEPTH_TEST);
+
+    gpu.draw({ camera: perspectiveCamera, geometry, material });
+  }
 
   requestAnimationFrame(tick);
 };
 
 const main = () => {
-  gpu.setCamera(perspectiveCamera);
   onWindowResize();
   window.addEventListener('resize', () => {
     onWindowResize();

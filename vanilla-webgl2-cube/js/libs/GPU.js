@@ -33,24 +33,16 @@ export default class GPU {
   getProgram() {
     return this.material.getProgram();
   }
-  setGeometry(geometry) {
-    this.geometry = geometry;
-  }
-  setMaterial(material) {
-    this.material = material;
-    const program = this.material.getProgram();
-    this.gl.useProgram(program);
-  }
-  setCamera(camera) {
-    this.camera = camera;
-  }
-  draw() {
+  draw({ camera, geometry, material }) {
     const gl = this.gl;
-    const program = this.material.getProgram();
+    const program = material.getProgram();
+
+    gl.useProgram(program);
+
     const primitives = [gl.POINTS, gl.LINES, gl.TRIANGLES];
 
-    for (let i = 0; i < this.geometry.attributes.length; i++) {
-      const { name, buffer, stride } = this.geometry.attributes[i];
+    for (let i = 0; i < geometry.attributes.length; i++) {
+      const { name, buffer, stride } = geometry.attributes[i];
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer.getBuffer());
       const location = gl.getAttribLocation(program, name);
       gl.enableVertexAttribArray(location);
@@ -58,17 +50,17 @@ export default class GPU {
     }
 
     // 特殊な扱いのmatrixは明示的にupdate
-    if (this.material.uniforms) {
-      const uniformProjectionMatrix = this.material.uniforms.find(
+    if (material.uniforms) {
+      const uniformProjectionMatrix = material.uniforms.find(
         (uniform) => uniform.type === GPU.UniformTypes.ProjectionMatrix
       );
       if (uniformProjectionMatrix) {
-        uniformProjectionMatrix.data = this.camera.projectionMatrix.elements;
+        uniformProjectionMatrix.data = camera.projectionMatrix.elements;
       }
     }
 
-    for (let i = 0; i < this.material.uniforms.length; i++) {
-      const { name, type, data } = this.material.uniforms[i];
+    for (let i = 0; i < material.uniforms.length; i++) {
+      const { name, type, data } = material.uniforms[i];
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
@@ -81,15 +73,12 @@ export default class GPU {
     }
 
     // indices
-    gl.bindBuffer(
-      gl.ELEMENT_ARRAY_BUFFER,
-      this.geometry.indexBuffer.getBuffer()
-    );
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geometry.indexBuffer.getBuffer());
 
     // draw
     gl.drawElements(
-      primitives[this.geometry.primitiveType],
-      this.geometry.indices.length,
+      primitives[geometry.primitiveType],
+      geometry.indices.length,
       gl.UNSIGNED_SHORT,
       0
     );
