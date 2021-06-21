@@ -6,6 +6,7 @@ export default class Component {
   constructor({ type }) {
     this.type = type;
   }
+  // NOTE: 最低限の引数
   update({ actor, time, deltaTime }) {}
   render({ actor, time, deltaTime }) {}
 }

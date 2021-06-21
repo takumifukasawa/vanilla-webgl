@@ -27,18 +27,4 @@ export default class Actor {
       component.update({ actor: this, time, deltaTime });
     }
   }
-  // // TODO: camera 渡さない
-  // render({ gpu, camera }) {
-  //   const meshComponents = this.components.filter(({ type }) => {
-  //     return type === Component.Types.MeshComponent;
-  //   });
-  //   for (let i = 0; i < meshComponents.length; i++) {
-  //     meshComponents[i].render({
-  //       gpu,
-  //       modelMatrix: this.worldTransform,
-  //       viewMatrix: camera.worldTransform.getInvertMatrix(),
-  //       projectionMatrix: camera.projectionMatrix,
-  //     });
-  //   }
-  // }
 }
