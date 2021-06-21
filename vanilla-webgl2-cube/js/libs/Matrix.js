@@ -93,6 +93,7 @@ export class Matrix4 {
     this.m30 += v.x;
     this.m31 += v.y;
     this.m32 += v.z;
+    return this;
   }
 
   rotateX(rad) {

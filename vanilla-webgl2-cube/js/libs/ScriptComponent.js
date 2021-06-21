@@ -1,19 +1,14 @@
 import Component from './Component.js';
 
 export default class ScriptComponent extends Component {
-  constructor({ actor, updateFunc, renderFunc }) {
-    super({ actor, type: Component.Types.LifeCycleComponent });
+  constructor({ updateFunc, renderFunc }) {
+    super({ type: Component.Types.LifeCycleComponent });
     this.updateFunc = updateFunc;
     this.renderFunc = renderFunc;
   }
-  update() {
+  update({ actor, time, deltaTime }) {
     if (this.updateFunc) {
-      this.updateFunc();
-    }
-  }
-  render() {
-    if (this.renderFunc) {
-      this.renderFunc();
+      this.updateFunc({ actor, time, deltaTime });
     }
   }
 }

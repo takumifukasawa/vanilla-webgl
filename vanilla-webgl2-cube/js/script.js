@@ -19,9 +19,14 @@ const gpu = new GPU({
   canvasElement,
 });
 
+const actors = [];
+
 const states = {
   isResized: false,
 };
+
+let beforeTime = null;
+let deltaTime = 0;
 
 const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 10);
 
@@ -140,15 +145,13 @@ const planeMeshActor = new MeshActor({
 });
 planeMeshActor.addComponent(
   new ScriptComponent({
-    updateFunc: function () {
-      const m = Matrix4.identity();
-      m.translate(new Vector3(0, 0, 0));
-      this.actor.worldTransform = m;
+    updateFunc: function ({ actor, time, deltaTime }) {
+      actor.worldTransform = Matrix4.createTranslateMatrix(
+        new Vector3(0.1, 0, 0)
+      );
     },
   })
 );
-
-const actors = [];
 actors.push(planeMeshActor);
 
 const onWindowResize = () => {
@@ -158,6 +161,8 @@ const onWindowResize = () => {
 // NOTE: class にしてもよい
 const render = ({
   gpu,
+  time,
+  deltaTime,
   geometry,
   material,
   modelMatrix,
@@ -175,6 +180,15 @@ const render = ({
 
 const tick = (t) => {
   const time = t / 1000;
+
+  // skip first frame
+  if (beforeTime === null) {
+    beforeTime = time;
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  deltaTime = time - beforeTime;
 
   if (states.isResized) {
     const ratio = Math.max(window.devicePixelRatio, 0.5);
@@ -197,18 +211,19 @@ const tick = (t) => {
 
   // update
   {
-    planeMeshActor.update();
-    actors.forEach((actor) => actor.update());
+    actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
+
   // render
   {
     const meshActors = actors.filter(
       (actor) => actor.type === Actor.Types.MeshActor
     );
     meshActors.forEach((meshActor) => {
-      // NOTE: meshをgetしてからrendererクラスとかで描画するのが多分正しい
       render({
         gpu,
+        time,
+        deltaTime,
         geometry,
         material,
         modelMatrix: meshActor.worldTransform,
@@ -217,6 +232,8 @@ const tick = (t) => {
       });
     });
   }
+
+  beforeTime = time;
 
   requestAnimationFrame(tick);
 };

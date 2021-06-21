@@ -1,4 +1,3 @@
-import Component from './Component.js';
 import { Matrix4 } from './Matrix.js';
 
 export default class Actor {
@@ -11,7 +10,6 @@ export default class Actor {
     this.worldTransform = Matrix4.identity();
   }
   addComponent(component) {
-    component.setActor(this);
     this.components.push(component);
   }
   // wip
@@ -23,10 +21,10 @@ export default class Actor {
   //     this.components(index, 1);
   //   }
   // }
-  update() {
+  update({ time, deltaTime }) {
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
-      component.update();
+      component.update({ actor: this, time, deltaTime });
     }
   }
   // // TODO: camera 渡さない
