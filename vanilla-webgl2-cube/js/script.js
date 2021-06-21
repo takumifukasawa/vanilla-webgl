@@ -206,9 +206,6 @@ const tick = (t) => {
   gpu.clear(0, 0, 0, 0);
 
   {
-    const x = Math.cos(time * 1) * 8;
-    const y = Math.sin(time * 0.8) * 8;
-    const z = Math.sin(time * 1) * 8;
     const cameraTransform = Matrix4.createLookAtMatrix(
       new Vector3(0, 0, 10),
       new Vector3(0, 0, 0),
@@ -235,9 +232,8 @@ const tick = (t) => {
         geometry,
         material,
         modelMatrix: meshActor.worldTransform,
-        // NOTE: カメラ用の行列を作成する用途
+        // TODO: 命名をcameraMatrixのにしたい
         viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
-        // viewMatrix: perspectiveCamera.worldTransform,
         projectionMatrix: perspectiveCamera.projectionMatrix,
       });
     });

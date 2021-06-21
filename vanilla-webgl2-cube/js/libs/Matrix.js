@@ -82,27 +82,16 @@ export class Matrix4 {
   }
 
   static createLookAtMatrix(eye, center, up) {
+    // 右手座標系での方向ベクトル
     const f = Vector3.subVectors(eye, center).normalize();
     const r = Vector3.crossVectors(up.normalize(), f).normalize();
     const u = Vector3.crossVectors(f, r).normalize();
-    // const f = Vector3.subVectors(center, eye).normalize();
-    // const r = Vector3.crossVectors(f, up.normalize()).normalize();
-    // const u = Vector3.crossVectors(r, f).normalize();
-    // console.log('=========');
-    // console.log('f: ', f);
-    // console.log('r: ', r);
-    // console.log('u: ', u);
-    // console.log('eye: ', eye);
     // prettier-ignore
     return new Matrix4(
       r.x, r.y, r.z, 0,
       u.x, u.y, u.z, 0,
       f.x, f.y, f.z, 0,
       eye.x, eye.y, eye.z, 1
-      // r.x, u.x, f.x, 0,
-      // r.y, u.y, f.y, 0,
-      // r.z, u.z, f.z, 0,
-      // -eye.x, -eye.y, -eye.z, 1
     );
   }
 
