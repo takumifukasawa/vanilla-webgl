@@ -5,7 +5,8 @@ export default class PerspectiveCamera {
     this.fov = fov;
     this.nearClip = nearClip;
     this.farClip = farClip;
-    this.worldTransform = Matrix4.identity();
+    this.cameraMatrix = Matrix4.identity();
+    this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix(aspect);
   }
   updateProjectionMatrix(aspect) {

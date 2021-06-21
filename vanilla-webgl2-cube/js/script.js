@@ -206,12 +206,12 @@ const tick = (t) => {
   gpu.clear(0, 0, 0, 0);
 
   {
-    const cameraTransform = Matrix4.createLookAtMatrix(
+    const lookAtMatrix = Matrix4.createLookAtMatrix(
       new Vector3(0, 0, 10),
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)
     );
-    perspectiveCamera.worldTransform = cameraTransform;
+    perspectiveCamera.cameraMatrix = lookAtMatrix;
   }
 
   // update
@@ -232,12 +232,10 @@ const tick = (t) => {
         geometry,
         material,
         modelMatrix: meshActor.worldTransform,
-        // TODO: 命名をcameraMatrixのにしたい
-        viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
+        viewMatrix: perspectiveCamera.cameraMatrix.getInvertMatrix(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
       });
     });
-    // console.log(perspectiveCamera.worldTransform);
   }
 
   beforeTime = time;

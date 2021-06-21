@@ -85,7 +85,7 @@ export class Matrix4 {
     // 右手座標系での方向ベクトル
     const f = Vector3.subVectors(eye, center).normalize();
     const r = Vector3.crossVectors(up.normalize(), f).normalize();
-    const u = Vector3.crossVectors(f, r).normalize();
+    const u = Vector3.crossVectors(f, r).normalize(); // normalizeしなくてもよい
     // prettier-ignore
     return new Matrix4(
       r.x, r.y, r.z, 0,
