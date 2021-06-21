@@ -10,7 +10,7 @@ export default class Material {
     });
   }
 
-  render({ modelMatrix, viewMatrix, projectionMatrix }) {
+  updateUniforms({ modelMatrix, viewMatrix, projectionMatrix }) {
     // 特殊な扱いのmatrixは明示的にupdate
     const uniformModelMatrix =
       this.uniforms[

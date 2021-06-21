@@ -169,7 +169,7 @@ const render = ({
   viewMatrix,
   projectionMatrix,
 }) => {
-  material.render({ modelMatrix, viewMatrix, projectionMatrix });
+  material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
   gpu.setIndices(geometry.indices);
