@@ -10,7 +10,6 @@ export default class MeshComponent extends Component {
     this.geometry = geometry;
     this.material = material;
   }
-  update() {}
   render({ gpu, modelMatrix, viewMatrix, projectionMatrix }) {
     this.material.render({ modelMatrix, viewMatrix, projectionMatrix });
     gpu.setShader(this.material.shader);

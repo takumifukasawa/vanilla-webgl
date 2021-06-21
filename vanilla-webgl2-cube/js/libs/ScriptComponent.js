@@ -1,6 +1,6 @@
 import Component from './Component.js';
 
-export default class LifeCycleComponent extends Component {
+export default class ScriptComponent extends Component {
   constructor({ actor, updateFunc, renderFunc }) {
     super({ actor, type: Component.Types.LifeCycleComponent });
     this.updateFunc = updateFunc;

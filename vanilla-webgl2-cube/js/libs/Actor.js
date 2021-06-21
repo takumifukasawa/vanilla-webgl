@@ -2,7 +2,11 @@ import Component from './Component.js';
 import { Matrix4 } from './Matrix.js';
 
 export default class Actor {
-  constructor() {
+  static Types = {
+    MeshActor: 'MeshActor',
+  };
+  constructor({ type }) {
+    this.type = type;
     this.components = [];
     this.worldTransform = Matrix4.identity();
   }
@@ -25,18 +29,18 @@ export default class Actor {
       component.update();
     }
   }
-  // TODO: camera 渡さない
-  render({ gpu, camera }) {
-    const meshComponents = this.components.filter(({ type }) => {
-      return type === Component.Types.MeshComponent;
-    });
-    for (let i = 0; i < meshComponents.length; i++) {
-      meshComponents[i].render({
-        gpu,
-        modelMatrix: this.worldTransform,
-        viewMatrix: camera.worldTransform.getInvertMatrix(),
-        projectionMatrix: camera.projectionMatrix,
-      });
-    }
-  }
+  // // TODO: camera 渡さない
+  // render({ gpu, camera }) {
+  //   const meshComponents = this.components.filter(({ type }) => {
+  //     return type === Component.Types.MeshComponent;
+  //   });
+  //   for (let i = 0; i < meshComponents.length; i++) {
+  //     meshComponents[i].render({
+  //       gpu,
+  //       modelMatrix: this.worldTransform,
+  //       viewMatrix: camera.worldTransform.getInvertMatrix(),
+  //       projectionMatrix: camera.projectionMatrix,
+  //     });
+  //   }
+  // }
 }

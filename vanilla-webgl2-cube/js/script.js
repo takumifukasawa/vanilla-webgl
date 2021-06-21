@@ -6,8 +6,9 @@ import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import { Matrix4 } from './libs/Matrix.js';
 import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
+import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
-import LifeCycleComponent from './libs/LifeCycleComponent.js';
+import ScriptComponent from './libs/ScriptComponent.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
 
@@ -126,20 +127,19 @@ const material = new Material({
 });
 
 (async () => {
-  const img = await loadImg('/img/texture.png');
+  const img = await loadImg('./img/texture.png');
   const texture = new Texture({ gpu, img });
   material.uniforms.uTexture.data = texture;
 })();
 
-const planeActor = new Actor();
-planeActor.addComponent(
-  new MeshComponent({
+const planeMeshActor = new MeshActor({
+  meshComponent: new MeshComponent({
     geometry,
     material,
-  })
-);
-planeActor.addComponent(
-  new LifeCycleComponent({
+  }),
+});
+planeMeshActor.addComponent(
+  new ScriptComponent({
     updateFunc: function () {
       const m = Matrix4.identity();
       m.translate(new Vector3(0, 0, 0));
@@ -148,8 +148,29 @@ planeActor.addComponent(
   })
 );
 
+const actors = [];
+actors.push(planeMeshActor);
+
 const onWindowResize = () => {
   states.isResized = true;
+};
+
+// NOTE: class にしてもよい
+const render = ({
+  gpu,
+  geometry,
+  material,
+  modelMatrix,
+  viewMatrix,
+  projectionMatrix,
+}) => {
+  material.render({ modelMatrix, viewMatrix, projectionMatrix });
+  gpu.setShader(material.shader);
+  gpu.setAttributes(geometry.attributes);
+  gpu.setIndices(geometry.indices);
+  gpu.setUniforms(material.uniforms);
+  gpu.draw(geometry.indices.data.length, GPU.Primitives.Triangle);
+  gpu.resetData();
 };
 
 const tick = (t) => {
@@ -176,11 +197,25 @@ const tick = (t) => {
 
   // update
   {
-    planeActor.update();
+    planeMeshActor.update();
+    actors.forEach((actor) => actor.update());
   }
   // render
   {
-    planeActor.render({ gpu, camera: perspectiveCamera });
+    const meshActors = actors.filter(
+      (actor) => actor.type === Actor.Types.MeshActor
+    );
+    meshActors.forEach((meshActor) => {
+      // NOTE: meshをgetしてからrendererクラスとかで描画するのが多分正しい
+      render({
+        gpu,
+        geometry,
+        material,
+        modelMatrix: meshActor.worldTransform,
+        viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
+        projectionMatrix: perspectiveCamera.projectionMatrix,
+      });
+    });
   }
 
   requestAnimationFrame(tick);
