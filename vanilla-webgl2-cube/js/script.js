@@ -118,7 +118,6 @@ const material = new Material({
       type: GPU.UniformTypes.Matrix4fv,
       data: Matrix4.identity().getArray(),
     },
-    // auto update by renderer
     uProjectionMatrix: {
       type: GPU.UniformTypes.Matrix4fv,
       data: Matrix4.identity().getArray(),
@@ -145,10 +144,7 @@ const planeMeshActor = new MeshActor({
 planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
-      // actor.worldTransform = Matrix4.createTranslateMatrix(
-      //   new Vector3(0, 0, 0)
-      // );
-      // actor.worldTransform = Matrix4.createRotateYMatrix(time);
+      actor.worldTransform = Matrix4.createRotateYMatrix(time);
     },
   })
 );
