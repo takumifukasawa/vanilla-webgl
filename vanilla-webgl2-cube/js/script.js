@@ -25,10 +25,9 @@ const states = {
   isResized: false,
 };
 
+let startTime = null;
 let beforeTime = null;
 let deltaTime = 0;
-
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 10);
 
 const vertexShader = `#version 300 es
 
@@ -74,10 +73,10 @@ const geometry = new Geometry({
     aPosition: {
       // prettier-ignore
       data: [
-          -0.1, 0.1, -1, // left top
-          0.1, 0.1, -1, // right top
-          -0.1, -0.1, -1, // left bottom
-          0.1, -0.1, -1, // right bottom
+          -0.5, 0.5, 0, // left top
+          0.5, 0.5, 0, // right top
+          -0.5, -0.5, 0, // left bottom
+          0.5, -0.5, 0, // right bottom
         ],
       stride: 3,
     },
@@ -146,13 +145,16 @@ const planeMeshActor = new MeshActor({
 planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
-      actor.worldTransform = Matrix4.createTranslateMatrix(
-        new Vector3(0.1, 0, 0)
-      );
+      // actor.worldTransform = Matrix4.createTranslateMatrix(
+      //   new Vector3(0, 0, 0)
+      // );
+      // actor.worldTransform = Matrix4.createRotateYMatrix(time);
     },
   })
 );
 actors.push(planeMeshActor);
+
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 20);
 
 const onWindowResize = () => {
   states.isResized = true;
@@ -179,15 +181,15 @@ const render = ({
 };
 
 const tick = (t) => {
-  const time = t / 1000;
-
   // skip first frame
-  if (beforeTime === null) {
-    beforeTime = time;
+  if (startTime === null) {
+    startTime = t / 1000;
+    beforeTime = t / 1000;
     requestAnimationFrame(tick);
     return;
   }
 
+  const time = t / 1000 - startTime;
   deltaTime = time - beforeTime;
 
   if (states.isResized) {
@@ -204,8 +206,14 @@ const tick = (t) => {
   gpu.clear(0, 0, 0, 0);
 
   {
-    const cameraTransform = Matrix4.identity();
-    cameraTransform.translate(new Vector3(0, 0, 0));
+    const x = Math.cos(time * 1) * 8;
+    const y = Math.sin(time * 0.8) * 8;
+    const z = Math.sin(time * 1) * 8;
+    const cameraTransform = Matrix4.createLookAtMatrix(
+      new Vector3(0, 0, 10),
+      new Vector3(0, 0, 0),
+      new Vector3(0, 1, 0)
+    );
     perspectiveCamera.worldTransform = cameraTransform;
   }
 
@@ -227,10 +235,13 @@ const tick = (t) => {
         geometry,
         material,
         modelMatrix: meshActor.worldTransform,
+        // NOTE: カメラ用の行列を作成する用途
         viewMatrix: perspectiveCamera.worldTransform.getInvertMatrix(),
+        // viewMatrix: perspectiveCamera.worldTransform,
         projectionMatrix: perspectiveCamera.projectionMatrix,
       });
     });
+    // console.log(perspectiveCamera.worldTransform);
   }
 
   beforeTime = time;
