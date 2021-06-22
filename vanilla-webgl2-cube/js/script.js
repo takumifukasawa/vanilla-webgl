@@ -202,7 +202,7 @@ const tick = (t) => {
   gpu.clear(0, 0, 0, 0);
 
   {
-    const lookAtMatrix = Matrix4.createLookAtMatrix(
+    const lookAtCameraMatrix = Matrix4.createLookAtMatrix(
       new Vector3(0, 0, 10),
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)

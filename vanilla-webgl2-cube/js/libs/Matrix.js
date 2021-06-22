@@ -81,7 +81,7 @@ export class Matrix4 {
     );
   }
 
-  static createLookAtMatrix(eye, center, up) {
+  static createLookAtCameraMatrix(eye, center, up) {
     // 右手座標系での方向ベクトル
     const f = Vector3.subVectors(eye, center).normalize();
     const r = Vector3.crossVectors(up.normalize(), f).normalize();
