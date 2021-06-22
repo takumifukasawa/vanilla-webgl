@@ -85,10 +85,9 @@ export class Matrix4 {
   // inverseされることでviewMatrixとして使う
   static createLookAtCameraMatrix(eye, center, up) {
     // f: 実際のforwardとは逆なことに注意. inverseされるため
-    // uはnormalizeしなくてもよい
     const f = Vector3.subVectors(eye, center).normalize();
     const r = Vector3.crossVectors(up.normalize(), f).normalize();
-    const u = Vector3.crossVectors(f, r).normalize();
+    const u = Vector3.crossVectors(f, r);
     // prettier-ignore
     return new Matrix4(
       r.x, r.y, r.z, 0,
