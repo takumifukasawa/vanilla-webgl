@@ -33,18 +33,18 @@ const vertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
-layout (location = 2) in vec3 aColor;
+layout (location = 2) in float aTextureIndex;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
 out vec2 vUv;
-out vec3 vColor;
+out float vTextureIndex;
 
 void main() {
-  vColor = aColor;
   vUv = aUv;
+  vTextureIndex = aTextureIndex;
   vec4 pos = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
   gl_Position = pos;
 }
@@ -53,55 +53,126 @@ void main() {
 const fragmentShader = `#version 300 es
 precision mediump float;
 
-in vec3 vColor;
 in vec2 vUv;
+in float vTextureIndex;
 
-uniform sampler2D uTexture;
+uniform sampler2D uTextureXPlus;
+uniform sampler2D uTextureXMinus;
+uniform sampler2D uTextureYPlus;
+uniform sampler2D uTextureYMinus;
+uniform sampler2D uTextureZPlus;
+uniform sampler2D uTextureZMinus;
 
 out vec4 outColor;
 
 void main() {
-  vec4 texColor = texture(uTexture, vUv);
+  vec4 texColor = vec4(1.);
+  if(vTextureIndex < 0.5) {
+    texColor = texture(uTextureZPlus, vUv);
+  } else if(vTextureIndex < 1.5) {
+    texColor = texture(uTextureZMinus, vUv);
+  } else if(vTextureIndex < 2.5) {
+    texColor = texture(uTextureXMinus, vUv);
+  } else if(vTextureIndex < 3.5) {
+    texColor = texture(uTextureXPlus, vUv);
+  } else if(vTextureIndex < 4.5) {
+    texColor = texture(uTextureYPlus, vUv);
+  } else if(vTextureIndex < 5.5) {
+    texColor = texture(uTextureYMinus, vUv);
+  }
+
   outColor = texColor;
+  // outColor = vec4(vUv, 1, 1);
   // outColor = vec4(vUv, 1, 1);
 }
 `;
 
+//
+// vertex positions
+//
+//      4----------5
+//    / |        / |
+//  /   |      /   |
+// 0 ------- 1     |
+// |    6----|-----7
+// |   /     |   /
+// | /       | /
+// 2 ------- 3
 const geometry = new Geometry({
   gpu,
   attributes: {
     aPosition: {
       // prettier-ignore
       data: [
-          -0.5, 0.5, 0, // left top
-          0.5, 0.5, 0, // right top
-          -0.5, -0.5, 0, // left bottom
-          0.5, -0.5, 0, // right bottom
-        ],
+        // front: 0,1,2,3
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        //  back: 5,4,7,6
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        // left: 4,0,6,2
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, 0.5,
+        // right: 1,5,3,7
+        0.5, 0.5, 0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, -0.5,
+        // top: 4,5,0,1
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        // bottom: 2,3,6,7
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+      ],
       stride: 3,
     },
     aUv: {
-      // prettier-ignore
-      data: [
-        0, 0,
-        1, 0,
-        0, 1,
-        1, 1
-      ],
+      data: new Array(6)
+        .fill(0)
+        .map(() => {
+          // prettier-ignore
+          return [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+          ]
+        })
+        .flat(),
       stride: 2,
     },
-    aColor: {
-      // prettier-ignore
-      data: [
-          1, 0, 0,
-          0, 1, 0,
-          0, 0, 1,
-          1, 1, 0,
-        ],
-      stride: 3,
+    aTextureIndex: {
+      data: new Array(6)
+        .fill(0)
+        .map((_, i) => {
+          return [i, i, i, i];
+        })
+        .flat(),
+      stride: 1,
     },
   },
-  indices: [0, 2, 1, 1, 2, 3],
+  indices: new Array(6)
+    .fill(0)
+    .map((_, i) => {
+      const offset = i * 4;
+      // prettier-ignore
+      return  [
+        0 + offset, 2 + offset, 1 + offset,
+        1 + offset, 2 + offset, 3 + offset,
+      ]
+    })
+    .flat(),
   primitiveType: GPU.Primitives.Triangle,
 });
 
@@ -122,7 +193,27 @@ const material = new Material({
       type: GPU.UniformTypes.Matrix4fv,
       data: Matrix4.identity().getArray(),
     },
-    uTexture: {
+    uTextureXPlus: {
+      type: GPU.UniformTypes.Texture2D,
+      data: null,
+    },
+    uTextureXMinus: {
+      type: GPU.UniformTypes.Texture2D,
+      data: null,
+    },
+    uTextureYPlus: {
+      type: GPU.UniformTypes.Texture2D,
+      data: null,
+    },
+    uTextureYMinus: {
+      type: GPU.UniformTypes.Texture2D,
+      data: null,
+    },
+    uTextureZPlus: {
+      type: GPU.UniformTypes.Texture2D,
+      data: null,
+    },
+    uTextureZMinus: {
       type: GPU.UniformTypes.Texture2D,
       data: null,
     },
@@ -130,9 +221,21 @@ const material = new Material({
 });
 
 (async () => {
-  const img = await loadImg('./img/dir-x-plus.png');
-  const texture = new Texture({ gpu, img });
-  material.uniforms.uTexture.data = texture;
+  const paths = [
+    { name: 'uTextureXPlus', path: './img/dir-x-plus.png' },
+    { name: 'uTextureXMinus', path: './img/dir-x-minus.png' },
+    { name: 'uTextureYPlus', path: './img/dir-y-plus.png' },
+    { name: 'uTextureYMinus', path: './img/dir-y-minus.png' },
+    { name: 'uTextureZPlus', path: './img/dir-z-plus.png' },
+    { name: 'uTextureZMinus', path: './img/dir-z-minus.png' },
+  ];
+  await Promise.all(
+    paths.map(async ({ name, path }) => {
+      const img = await loadImg(path);
+      const texture = new Texture({ gpu, img });
+      material.uniforms[name].data = texture;
+    })
+  );
 })();
 
 const planeMeshActor = new MeshActor({
@@ -167,6 +270,11 @@ const render = ({
   viewMatrix,
   projectionMatrix,
 }) => {
+  // stateの切り替えはアプリケーションレベルで行う
+  const gl = gpu.getGl();
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+  gl.enable(gl.CULL_FACE);
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
@@ -208,7 +316,7 @@ const tick = (t) => {
   // update
   {
     const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-      new Vector3(0, 0, 10),
+      new Vector3(4, 4, 10),
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)
     );
