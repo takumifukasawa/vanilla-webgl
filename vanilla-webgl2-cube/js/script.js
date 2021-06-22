@@ -188,30 +188,31 @@ const tick = (t) => {
   const time = t / 1000 - startTime;
   deltaTime = time - beforeTime;
 
-  if (states.isResized) {
-    const ratio = Math.max(window.devicePixelRatio, 0.5);
-    const targetWidth = wrapperElement.offsetWidth / ratio;
-    const targetHeight = wrapperElement.offsetHeight / ratio;
-    canvasElement.width = targetWidth;
-    canvasElement.height = targetHeight;
-    gpu.setSize(targetWidth, targetHeight);
-    perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
-    states.isResized = false;
+  // before update
+  {
+    if (states.isResized) {
+      const ratio = Math.max(window.devicePixelRatio, 0.5);
+      const targetWidth = wrapperElement.offsetWidth / ratio;
+      const targetHeight = wrapperElement.offsetHeight / ratio;
+      canvasElement.width = targetWidth;
+      canvasElement.height = targetHeight;
+      gpu.setSize(targetWidth, targetHeight);
+      perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
+      states.isResized = false;
+    }
   }
 
   gpu.clear(0, 0, 0, 0);
 
+  // update
   {
-    const lookAtCameraMatrix = Matrix4.createLookAtMatrix(
+    const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
       new Vector3(0, 0, 10),
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)
     );
-    perspectiveCamera.cameraMatrix = lookAtMatrix;
-  }
+    perspectiveCamera.cameraMatrix = lookAtCameraMatrix;
 
-  // update
-  {
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
 
