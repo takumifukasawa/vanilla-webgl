@@ -298,9 +298,9 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.max(window.devicePixelRatio, 0.5);
-      const targetWidth = wrapperElement.offsetWidth / ratio;
-      const targetHeight = wrapperElement.offsetHeight / ratio;
+      const ratio = Math.min(window.devicePixelRatio, 1.5);
+      const targetWidth = wrapperElement.offsetWidth * ratio;
+      const targetHeight = wrapperElement.offsetHeight * ratio;
       canvasElement.width = targetWidth;
       canvasElement.height = targetHeight;
       gpu.setSize(targetWidth, targetHeight);
