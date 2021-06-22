@@ -1,3 +1,4 @@
+// import GPU from './GPU.js';
 import Shader from './Shader.js';
 
 export default class Material {
@@ -9,6 +10,16 @@ export default class Material {
       fragmentShader,
     });
   }
+
+  // getTextureUniforms() {
+  //   const textureUniforms = [];
+  //   Object.keys(this.uniforms).forEach((name) => {
+  //     if (this.uniforms[name].type === GPU.UniformTypes.Texture2D) {
+  //       textureUniforms[name] = this.uniforms[name];
+  //     }
+  //   });
+  //   return textureUniforms;
+  // }
 
   updateUniforms({ modelMatrix, viewMatrix, projectionMatrix }) {
     // 特殊な扱いのmatrixは明示的にupdate

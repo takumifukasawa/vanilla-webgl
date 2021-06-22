@@ -130,7 +130,7 @@ const material = new Material({
 });
 
 (async () => {
-  const img = await loadImg('./img/texture.png');
+  const img = await loadImg('./img/dir-x-plus.png');
   const texture = new Texture({ gpu, img });
   material.uniforms.uTexture.data = texture;
 })();
@@ -171,6 +171,7 @@ const render = ({
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
   gpu.setIndices(geometry.indices);
+  // gpu.setTextures(material.textures);
   gpu.setUniforms(material.uniforms);
   gpu.draw(geometry.indices.data.length, GPU.Primitives.Triangle);
   gpu.resetData();

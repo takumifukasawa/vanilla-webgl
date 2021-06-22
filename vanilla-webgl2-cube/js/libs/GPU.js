@@ -27,6 +27,7 @@ export default class GPU {
   setUniforms(uniforms) {
     this.uniforms = uniforms;
   }
+  setTextures() {}
   resetData() {
     this.shader = null;
     this.attributes = null;
@@ -71,6 +72,23 @@ export default class GPU {
     // indices
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
 
+    // init textures
+    let activeTextureIndex = 0;
+    // NOTE:
+    // - glから最大テクスチャ割当可能数を取得して動的に設定してもよい
+    // - 連番なので列挙しなくてもよい
+    const textureUnits = [
+      gl.TEXTURE0,
+      gl.TEXTURE1,
+      gl.TEXTURE2,
+      gl.TEXTURE3,
+      gl.TEXTURE4,
+      gl.TEXTURE5,
+      gl.TEXTURE6,
+      gl.TEXTURE7,
+    ];
+
+    // uniforms
     const uniformsKeys = Object.keys(this.uniforms);
     for (let i = 0; i < uniformsKeys.length; i++) {
       const name = uniformsKeys[i];
@@ -82,11 +100,12 @@ export default class GPU {
           gl.uniformMatrix4fv(location, false, data);
           break;
         case GPU.UniformTypes.Texture2D:
-          // TODO: multi texture
+          // TODO: textureが最大数よりも大きくなるときの対応が必要
           if (data) {
-            gl.activeTexture(gl.TEXTURE0);
+            gl.activeTexture(textureUnits[activeTextureIndex]);
             gl.bindTexture(gl.TEXTURE_2D, data.getTexture());
-            gl.uniform1i(location, 0);
+            gl.uniform1i(location, activeTextureIndex);
+            activeTextureIndex++;
           }
           break;
         default:
