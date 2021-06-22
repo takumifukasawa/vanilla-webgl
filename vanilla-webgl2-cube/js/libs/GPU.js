@@ -1,3 +1,15 @@
+import Texture from './Texture.js';
+
+const createWhite1x1 = () => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1;
+  canvas.height = 1;
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, 1, 1);
+  return canvas;
+};
+
 export default class GPU {
   static Primitives = {
     Point: 0,
@@ -14,6 +26,7 @@ export default class GPU {
     this.attributes = null;
     this.uniforms = null;
     this.indices = null;
+    this.dummyTexture = new Texture({ gpu: this, img: createWhite1x1() });
   }
   setShader(shader) {
     this.shader = shader;
@@ -101,12 +114,13 @@ export default class GPU {
           break;
         case GPU.UniformTypes.Texture2D:
           // TODO: textureが最大数よりも大きくなるときの対応が必要
-          if (data) {
-            gl.activeTexture(textureUnits[activeTextureIndex]);
-            gl.bindTexture(gl.TEXTURE_2D, data.getTexture());
-            gl.uniform1i(location, activeTextureIndex);
-            activeTextureIndex++;
-          }
+          gl.activeTexture(textureUnits[activeTextureIndex]);
+          gl.bindTexture(
+            gl.TEXTURE_2D,
+            data ? data.getTexture() : this.dummyTexture.getTexture()
+          );
+          gl.uniform1i(location, activeTextureIndex);
+          activeTextureIndex++;
           break;
         default:
           throw 'invalid uniform type';

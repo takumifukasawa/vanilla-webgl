@@ -82,8 +82,6 @@ void main() {
   }
 
   outColor = texColor;
-  // outColor = vec4(vUv, 1, 1);
-  // outColor = vec4(vUv, 1, 1);
 }
 `;
 
