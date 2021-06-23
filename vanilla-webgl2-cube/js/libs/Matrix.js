@@ -26,6 +26,16 @@ export class Matrix4 {
     this.m33 = m33;
   }
 
+  static zero() {
+    // prettier-ignore
+    return new Matrix4(
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 0, 0
+    );
+  }
+
   static identity() {
     // prettier-ignore
     return new Matrix4(
@@ -77,6 +87,16 @@ export class Matrix4 {
       c, -s, 0, 0,
       s, c, 0, 0,
       0, 0, 1, 0,
+      0, 0, 0, 1
+    );
+  }
+
+  static createScaleMatrix(s) {
+    // prettier-ignore
+    return new Matrix4(
+      s.x, 0, 0, 0,
+      0, s.y, 0, 0,
+      0, 0, s.z, 0,
       0, 0, 0, 1
     );
   }
@@ -326,5 +346,36 @@ export class Matrix4 {
       m20, m21, m22, m23,
       m30, m31, m32, m33
     );
+  }
+
+  static multiplyMatrices(a, b) {
+    const out = Matrix4.zero();
+
+    out.m00 = b.m00 * a.m00 + b.m10 * a.m01 + b.m20 * a.m02 + b.m30 * a.m03;
+    out.m10 = b.m00 * a.m10 + b.m10 * a.m11 + b.m20 * a.m12 + b.m30 * a.m13;
+    out.m20 = b.m00 * a.m20 + b.m10 * a.m21 + b.m20 * a.m22 + b.m30 * a.m23;
+    out.m30 = b.m00 * a.m30 + b.m10 * a.m31 + b.m20 * a.m32 + b.m30 * a.m33;
+
+    out.m01 = b.m01 * a.m00 + b.m11 * a.m01 + b.m21 * a.m02 + b.m31 * a.m03;
+    out.m11 = b.m01 * a.m10 + b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13;
+    out.m21 = b.m01 * a.m20 + b.m11 * a.m21 + b.m21 * a.m22 + b.m31 * a.m23;
+    out.m31 = b.m01 * a.m30 + b.m11 * a.m31 + b.m21 * a.m32 + b.m31 * a.m33;
+
+    out.m02 = b.m02 * a.m00 + b.m12 * a.m01 + b.m22 * a.m02 + b.m32 * a.m03;
+    out.m12 = b.m02 * a.m10 + b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13;
+    out.m22 = b.m02 * a.m20 + b.m12 * a.m21 + b.m22 * a.m22 + b.m32 * a.m23;
+    out.m32 = b.m02 * a.m30 + b.m12 * a.m31 + b.m22 * a.m32 + b.m32 * a.m33;
+
+    out.m03 = b.m02 * a.m00 + b.m13 * a.m01 + b.m23 * a.m02 + b.m33 * a.m03;
+    out.m13 = b.m02 * a.m10 + b.m13 * a.m11 + b.m23 * a.m12 + b.m33 * a.m13;
+    out.m23 = b.m02 * a.m20 + b.m13 * a.m21 + b.m23 * a.m22 + b.m33 * a.m23;
+    out.m33 = b.m02 * a.m30 + b.m13 * a.m31 + b.m23 * a.m32 + b.m33 * a.m33;
+
+    return out;
+  }
+
+  // 後ろからかけていく
+  static postMultiplyMatrices(...matrices) {
+    const exec = (a, b) => {};
   }
 }
