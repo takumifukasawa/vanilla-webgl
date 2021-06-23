@@ -56,7 +56,14 @@ export class Matrix4 {
     );
   }
 
-  static createRotateXMatrix(rad) {
+  translate(v) {
+    this.m30 += v.x;
+    this.m31 += v.y;
+    this.m32 += v.z;
+    return this;
+  }
+
+  static createRotationXMatrix(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
     // prettier-ignore
@@ -67,27 +74,19 @@ export class Matrix4 {
       0, 0, 0, 1
     );
   }
-  static createRotateYMatrix(rad) {
-    // const c = Math.cos(rad);
-    // const s = Math.sin(rad);
-    // // prettier-ignore
-    // return new Matrix4(
-    //   c, 0, -s, 0,
-    //   0, 1, 0, 0,
-    //   s, 0, c, 0,
-    //   0, 0, 0, 1
-    // );
-
+  static createRotationYMatrix(rad) {
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
     // prettier-ignore
     return new Matrix4(
-      Math.cos(rad), 0, -Math.sin(rad), 0,
+      c, 0, -s, 0,
       0, 1, 0, 0,
-      Math.sin(rad), 0, Math.cos(rad), 0,
-      0, 0, 0, 1,
+      s, 0, c, 0,
+      0, 0, 0, 1
     );
   }
 
-  static createRotateZMatrix(rad) {
+  static createRotationZMatrix(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
     // prettier-ignore
@@ -99,6 +98,33 @@ export class Matrix4 {
     );
   }
 
+  rotateX(rad) {
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    this.m11 = c;
+    this.m12 = -s;
+    this.m21 = s;
+    this.m22 = c;
+  }
+
+  rotateY(rad) {
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    this.m00 = c;
+    this.m02 = -s;
+    this.m20 = s;
+    this.m22 = c;
+  }
+
+  rotateZ(rad) {
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    this.m00 = c;
+    this.m01 = -s;
+    this.m10 = s;
+    this.m11 = c;
+  }
+
   static createScaleMatrix(s) {
     // prettier-ignore
     return new Matrix4(
@@ -107,6 +133,13 @@ export class Matrix4 {
       0, 0, s.z, 0,
       0, 0, 0, 1
     );
+  }
+
+  scale(s) {
+    this.m00 = s.x;
+    this.m11 = s.y;
+    this.m22 = s.y;
+    return this;
   }
 
   // 右手座標系での方向ベクトル
@@ -225,40 +258,6 @@ export class Matrix4 {
   postMultiplyMatrix(m) {
     this.copyFromMatrix(Matrix4.multiplyMatrices(this, m));
     return this;
-  }
-
-  translate(v) {
-    this.m30 += v.x;
-    this.m31 += v.y;
-    this.m32 += v.z;
-    return this;
-  }
-
-  rotateX(rad) {
-    const c = Math.cos(rad);
-    const s = Math.sin(rad);
-    this.m11 = c;
-    this.m12 = -s;
-    this.m21 = s;
-    this.m22 = c;
-  }
-
-  rotateY(rad) {
-    const c = Math.cos(rad);
-    const s = Math.sin(rad);
-    this.m00 = c;
-    this.m02 = -s;
-    this.m20 = s;
-    this.m22 = c;
-  }
-
-  rotateZ(rad) {
-    const c = Math.cos(rad);
-    const s = Math.sin(rad);
-    this.m00 = c;
-    this.m01 = -s;
-    this.m10 = s;
-    this.m11 = c;
   }
 
   // ref: https://github.com/gregtatum/mdn-model-view-projection/blob/master/shared/matrices.js
