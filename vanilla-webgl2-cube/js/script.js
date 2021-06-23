@@ -245,7 +245,22 @@ const planeMeshActor = new MeshActor({
 planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
-      actor.worldTransform = Matrix4.createRotateYMatrix(time);
+      const t = Matrix4.postMultiplyMatrices(
+        Matrix4.createTranslateMatrix(
+          new Vector3(
+            Math.sin(time * 0.2) * 0.5,
+            Math.sin(time * 0.4) * 0.9,
+            Math.sin(time * 0.9) * 0.8
+          )
+        ),
+        Matrix4.createRotateYMatrix(time * 0.7),
+        Matrix4.createRotateXMatrix(time * 0.8),
+        Matrix4.createRotateZMatrix(time * 0.9),
+        Matrix4.createScaleMatrix(new Vector3(1.4, 2, 1.2))
+      );
+      // const t = Matrix4.createRotateYMatrix(time);
+      // console.log(t);
+      actor.worldTransform = t;
     },
   })
 );
@@ -298,7 +313,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 1.5);
+      const ratio = Math.min(window.devicePixelRatio, 0.5);
       const targetWidth = wrapperElement.offsetWidth * ratio;
       const targetHeight = wrapperElement.offsetHeight * ratio;
       canvasElement.width = targetWidth;
@@ -314,7 +329,7 @@ const tick = (t) => {
   // update
   {
     const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-      new Vector3(4, 4, 10),
+      new Vector3(0, 0, 10),
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)
     );

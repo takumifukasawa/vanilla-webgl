@@ -68,14 +68,22 @@ export class Matrix4 {
     );
   }
   static createRotateYMatrix(rad) {
-    const c = Math.cos(rad);
-    const s = Math.sin(rad);
+    // const c = Math.cos(rad);
+    // const s = Math.sin(rad);
+    // // prettier-ignore
+    // return new Matrix4(
+    //   c, 0, -s, 0,
+    //   0, 1, 0, 0,
+    //   s, 0, c, 0,
+    //   0, 0, 0, 1
+    // );
+
     // prettier-ignore
     return new Matrix4(
-      c, 0, -s, 0,
+      Math.cos(rad), 0, -Math.sin(rad), 0,
       0, 1, 0, 0,
-      s, 0, c, 0,
-      0, 0, 0, 1
+      Math.sin(rad), 0, Math.cos(rad), 0,
+      0, 0, 0, 1,
     );
   }
 
@@ -125,6 +133,98 @@ export class Matrix4 {
       this.m20, this.m21, this.m22, this.m23,
       this.m30, this.m31, this.m32, this.m33
     ];
+  }
+
+  static cloneMatrix(m) {
+    // prettier-ignore
+    return new Matrix4(
+      m.m00, m.m01, m.m02, m.m03,
+      m.m10, m.m11, m.m12, m.m13,
+      m.m20, m.m21, m.m22, m.m23,
+      m.m30, m.m31, m.m32, m.m33
+    );
+  }
+
+  copyFromMatrix(m) {
+    this.m00 = m.m00;
+    this.m01 = m.m01;
+    this.m02 = m.m02;
+    this.m03 = m.m03;
+    this.m10 = m.m10;
+    this.m11 = m.m11;
+    this.m12 = m.m12;
+    this.m13 = m.m13;
+    this.m20 = m.m20;
+    this.m21 = m.m21;
+    this.m22 = m.m22;
+    this.m23 = m.m23;
+    this.m30 = m.m30;
+    this.m31 = m.m31;
+    this.m32 = m.m32;
+    this.m33 = m.m33;
+    return this;
+  }
+
+  copyToMatrix(m) {
+    m.m00 = this.m00;
+    m.m01 = this.m01;
+    m.m02 = this.m02;
+    m.m03 = this.m03;
+    m.m10 = this.m10;
+    m.m11 = this.m11;
+    m.m12 = this.m12;
+    m.m13 = this.m13;
+    m.m20 = this.m20;
+    m.m21 = this.m21;
+    m.m22 = this.m22;
+    m.m23 = this.m23;
+    m.m30 = this.m30;
+    m.m31 = this.m31;
+    m.m32 = this.m32;
+    m.m33 = this.m33;
+    return m;
+  }
+
+  static multiplyMatrices(a, b) {
+    const out = Matrix4.identity();
+
+    out.m00 = b.m00 * a.m00 + b.m10 * a.m01 + b.m20 * a.m02 + b.m30 * a.m03;
+    out.m10 = b.m00 * a.m10 + b.m10 * a.m11 + b.m20 * a.m12 + b.m30 * a.m13;
+    out.m20 = b.m00 * a.m20 + b.m10 * a.m21 + b.m20 * a.m22 + b.m30 * a.m23;
+    out.m30 = b.m00 * a.m30 + b.m10 * a.m31 + b.m20 * a.m32 + b.m30 * a.m33;
+
+    out.m01 = b.m01 * a.m00 + b.m11 * a.m01 + b.m21 * a.m02 + b.m31 * a.m03;
+    out.m11 = b.m01 * a.m10 + b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13;
+    out.m21 = b.m01 * a.m20 + b.m11 * a.m21 + b.m21 * a.m22 + b.m31 * a.m23;
+    out.m31 = b.m01 * a.m30 + b.m11 * a.m31 + b.m21 * a.m32 + b.m31 * a.m33;
+
+    out.m02 = b.m02 * a.m00 + b.m12 * a.m01 + b.m22 * a.m02 + b.m32 * a.m03;
+    out.m12 = b.m02 * a.m10 + b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13;
+    out.m22 = b.m02 * a.m20 + b.m12 * a.m21 + b.m22 * a.m22 + b.m32 * a.m23;
+    out.m32 = b.m02 * a.m30 + b.m12 * a.m31 + b.m22 * a.m32 + b.m32 * a.m33;
+
+    out.m03 = b.m03 * a.m00 + b.m13 * a.m01 + b.m23 * a.m02 + b.m33 * a.m03;
+    out.m13 = b.m03 * a.m10 + b.m13 * a.m11 + b.m23 * a.m12 + b.m33 * a.m13;
+    out.m23 = b.m03 * a.m20 + b.m13 * a.m21 + b.m23 * a.m22 + b.m33 * a.m23;
+    out.m33 = b.m03 * a.m30 + b.m13 * a.m31 + b.m23 * a.m32 + b.m33 * a.m33;
+
+    return out;
+  }
+
+  // 後ろからかけていく
+  static postMultiplyMatrices(...matrices) {
+    let m = Matrix4.identity();
+    for (let i = matrices.length - 1; i >= 0; i--) {
+      m.postMultiplyMatrix(matrices[i]);
+    }
+    return m;
+  }
+
+  // 後ろからかける
+  // 計算方法を統一したいのでcopyを使う
+  postMultiplyMatrix(m) {
+    this.copyFromMatrix(Matrix4.multiplyMatrices(this, m));
+    return this;
   }
 
   translate(v) {
@@ -346,36 +446,5 @@ export class Matrix4 {
       m20, m21, m22, m23,
       m30, m31, m32, m33
     );
-  }
-
-  static multiplyMatrices(a, b) {
-    const out = Matrix4.zero();
-
-    out.m00 = b.m00 * a.m00 + b.m10 * a.m01 + b.m20 * a.m02 + b.m30 * a.m03;
-    out.m10 = b.m00 * a.m10 + b.m10 * a.m11 + b.m20 * a.m12 + b.m30 * a.m13;
-    out.m20 = b.m00 * a.m20 + b.m10 * a.m21 + b.m20 * a.m22 + b.m30 * a.m23;
-    out.m30 = b.m00 * a.m30 + b.m10 * a.m31 + b.m20 * a.m32 + b.m30 * a.m33;
-
-    out.m01 = b.m01 * a.m00 + b.m11 * a.m01 + b.m21 * a.m02 + b.m31 * a.m03;
-    out.m11 = b.m01 * a.m10 + b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13;
-    out.m21 = b.m01 * a.m20 + b.m11 * a.m21 + b.m21 * a.m22 + b.m31 * a.m23;
-    out.m31 = b.m01 * a.m30 + b.m11 * a.m31 + b.m21 * a.m32 + b.m31 * a.m33;
-
-    out.m02 = b.m02 * a.m00 + b.m12 * a.m01 + b.m22 * a.m02 + b.m32 * a.m03;
-    out.m12 = b.m02 * a.m10 + b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13;
-    out.m22 = b.m02 * a.m20 + b.m12 * a.m21 + b.m22 * a.m22 + b.m32 * a.m23;
-    out.m32 = b.m02 * a.m30 + b.m12 * a.m31 + b.m22 * a.m32 + b.m32 * a.m33;
-
-    out.m03 = b.m02 * a.m00 + b.m13 * a.m01 + b.m23 * a.m02 + b.m33 * a.m03;
-    out.m13 = b.m02 * a.m10 + b.m13 * a.m11 + b.m23 * a.m12 + b.m33 * a.m13;
-    out.m23 = b.m02 * a.m20 + b.m13 * a.m21 + b.m23 * a.m22 + b.m33 * a.m23;
-    out.m33 = b.m02 * a.m30 + b.m13 * a.m31 + b.m23 * a.m32 + b.m33 * a.m33;
-
-    return out;
-  }
-
-  // 後ろからかけていく
-  static postMultiplyMatrices(...matrices) {
-    const exec = (a, b) => {};
   }
 }
