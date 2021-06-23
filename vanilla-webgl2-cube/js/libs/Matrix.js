@@ -105,6 +105,7 @@ export class Matrix4 {
     this.m12 = -s;
     this.m21 = s;
     this.m22 = c;
+    return this;
   }
 
   rotateY(rad) {
@@ -114,6 +115,7 @@ export class Matrix4 {
     this.m02 = -s;
     this.m20 = s;
     this.m22 = c;
+    return this;
   }
 
   rotateZ(rad) {
@@ -123,6 +125,7 @@ export class Matrix4 {
     this.m01 = -s;
     this.m10 = s;
     this.m11 = c;
+    return this;
   }
 
   static createScalingMatrix(s) {
