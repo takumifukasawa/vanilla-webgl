@@ -46,7 +46,7 @@ export class Matrix4 {
     );
   }
 
-  static createTranslateMatrix(v) {
+  static createTranslationMatrix(v) {
     // prettier-ignore
     return new Matrix4(
       1, 0, 0, 0,
@@ -125,7 +125,7 @@ export class Matrix4 {
     this.m11 = c;
   }
 
-  static createScaleMatrix(s) {
+  static createScalingMatrix(s) {
     // prettier-ignore
     return new Matrix4(
       s.x, 0, 0, 0,

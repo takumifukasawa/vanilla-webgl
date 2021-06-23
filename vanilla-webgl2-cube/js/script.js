@@ -246,20 +246,18 @@ planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
       const t = Matrix4.postMultiplyMatrices(
-        Matrix4.createTranslateMatrix(
+        Matrix4.createTranslationMatrix(
           new Vector3(
             Math.sin(time * 0.2) * 0.5,
             Math.sin(time * 0.4) * 0.9,
             Math.sin(time * 0.9) * 0.8
           )
         ),
-        Matrix4.createRotateYMatrix(time * 0.7),
-        Matrix4.createRotateXMatrix(time * 0.8),
-        Matrix4.createRotateZMatrix(time * 0.9),
-        Matrix4.createScaleMatrix(new Vector3(1.4, 2, 1.2))
+        Matrix4.createRotationXMatrix(time * 0.7),
+        Matrix4.createRotationYMatrix(time * 0.8),
+        Matrix4.createRotationZMatrix(time * 0.9),
+        Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
       );
-      // const t = Matrix4.createRotateYMatrix(time);
-      // console.log(t);
       actor.worldTransform = t;
     },
   })
