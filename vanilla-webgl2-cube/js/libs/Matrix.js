@@ -24,6 +24,7 @@ export class Matrix4 {
     this.m31 = m31;
     this.m32 = m32;
     this.m33 = m33;
+    return this;
   }
 
   static zero() {
@@ -101,30 +102,30 @@ export class Matrix4 {
   rotateX(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
-    this.m11 = c;
-    this.m12 = -s;
-    this.m21 = s;
-    this.m22 = c;
+    this.m11 += c;
+    this.m12 += -s;
+    this.m21 += s;
+    this.m22 += c;
     return this;
   }
 
   rotateY(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
-    this.m00 = c;
-    this.m02 = -s;
-    this.m20 = s;
-    this.m22 = c;
+    this.m00 += c;
+    this.m02 += -s;
+    this.m20 += s;
+    this.m22 += c;
     return this;
   }
 
   rotateZ(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
-    this.m00 = c;
-    this.m01 = -s;
-    this.m10 = s;
-    this.m11 = c;
+    this.m00 += c;
+    this.m01 += -s;
+    this.m10 += s;
+    this.m11 += c;
     return this;
   }
 
@@ -139,9 +140,9 @@ export class Matrix4 {
   }
 
   scale(s) {
-    this.m00 = s.x;
-    this.m11 = s.y;
-    this.m22 = s.y;
+    this.m00 *= s.x;
+    this.m11 *= s.y;
+    this.m22 *= s.z;
     return this;
   }
 
@@ -179,6 +180,11 @@ export class Matrix4 {
       m.m20, m.m21, m.m22, m.m23,
       m.m30, m.m31, m.m32, m.m33
     );
+  }
+
+  clone() {
+    // prettier-ignore
+    return Matrix4.cloneMatrix(this);
   }
 
   copyFromMatrix(m) {
@@ -221,46 +227,39 @@ export class Matrix4 {
     return m;
   }
 
-  static multiplyMatrices(a, b) {
-    const out = Matrix4.identity();
+  multiplyMatrix(b) {
+    const a = this.clone();
 
-    out.m00 = b.m00 * a.m00 + b.m10 * a.m01 + b.m20 * a.m02 + b.m30 * a.m03;
-    out.m10 = b.m00 * a.m10 + b.m10 * a.m11 + b.m20 * a.m12 + b.m30 * a.m13;
-    out.m20 = b.m00 * a.m20 + b.m10 * a.m21 + b.m20 * a.m22 + b.m30 * a.m23;
-    out.m30 = b.m00 * a.m30 + b.m10 * a.m31 + b.m20 * a.m32 + b.m30 * a.m33;
+    this.m00 = a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20 + a.m03 * b.m30;
+    this.m01 = a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21 + a.m03 * b.m31;
+    this.m02 = a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22 + a.m03 * b.m32;
+    this.m03 = a.m00 * b.m03 + a.m01 * b.m13 + a.m02 * b.m23 + a.m03 * b.m33;
 
-    out.m01 = b.m01 * a.m00 + b.m11 * a.m01 + b.m21 * a.m02 + b.m31 * a.m03;
-    out.m11 = b.m01 * a.m10 + b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13;
-    out.m21 = b.m01 * a.m20 + b.m11 * a.m21 + b.m21 * a.m22 + b.m31 * a.m23;
-    out.m31 = b.m01 * a.m30 + b.m11 * a.m31 + b.m21 * a.m32 + b.m31 * a.m33;
+    this.m10 = a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20 + a.m13 * b.m30;
+    this.m11 = a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21 + a.m13 * b.m31;
+    this.m12 = a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22 + a.m13 * b.m32;
+    this.m13 = a.m10 * b.m03 + a.m11 * b.m13 + a.m12 * b.m23 + a.m13 * b.m33;
 
-    out.m02 = b.m02 * a.m00 + b.m12 * a.m01 + b.m22 * a.m02 + b.m32 * a.m03;
-    out.m12 = b.m02 * a.m10 + b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13;
-    out.m22 = b.m02 * a.m20 + b.m12 * a.m21 + b.m22 * a.m22 + b.m32 * a.m23;
-    out.m32 = b.m02 * a.m30 + b.m12 * a.m31 + b.m22 * a.m32 + b.m32 * a.m33;
+    this.m21 = a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21 + a.m23 * b.m31;
+    this.m20 = a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20 + a.m23 * b.m30;
+    this.m22 = a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22 + a.m23 * b.m32;
+    this.m23 = a.m20 * b.m03 + a.m21 * b.m13 + a.m22 * b.m23 + a.m23 * b.m33;
 
-    out.m03 = b.m03 * a.m00 + b.m13 * a.m01 + b.m23 * a.m02 + b.m33 * a.m03;
-    out.m13 = b.m03 * a.m10 + b.m13 * a.m11 + b.m23 * a.m12 + b.m33 * a.m13;
-    out.m23 = b.m03 * a.m20 + b.m13 * a.m21 + b.m23 * a.m22 + b.m33 * a.m23;
-    out.m33 = b.m03 * a.m30 + b.m13 * a.m31 + b.m23 * a.m32 + b.m33 * a.m33;
-
-    return out;
-  }
-
-  // 後ろからかけていく
-  static postMultiplyMatrices(...matrices) {
-    let m = Matrix4.identity();
-    for (let i = matrices.length - 1; i >= 0; i--) {
-      m.postMultiplyMatrix(matrices[i]);
-    }
-    return m;
-  }
-
-  // 後ろからかける
-  // 計算方法を統一したいのでcopyを使う
-  postMultiplyMatrix(m) {
-    this.copyFromMatrix(Matrix4.multiplyMatrices(this, m));
+    this.m30 = a.m30 * b.m00 + a.m31 * b.m10 + a.m32 * b.m20 + a.m33 * b.m30;
+    this.m31 = a.m30 * b.m01 + a.m31 * b.m11 + a.m32 * b.m21 + a.m33 * b.m31;
+    this.m32 = a.m30 * b.m02 + a.m31 * b.m12 + a.m32 * b.m22 + a.m33 * b.m32;
+    this.m33 = a.m30 * b.m03 + a.m31 * b.m13 + a.m32 * b.m23 + a.m33 * b.m33;
     return this;
+  }
+
+  static multiplyMatrices(...matrices) {
+    const m = Matrix4.identity();
+
+    for (let i = matrices.length - 1; i >= 0; i--) {
+      m.multiplyMatrix(matrices[i]);
+    }
+
+    return m;
   }
 
   // ref: https://github.com/gregtatum/mdn-model-view-projection/blob/master/shared/matrices.js
@@ -419,34 +418,27 @@ export class Matrix4 {
   // aspect ... w / h
   static getPerspectiveMatrix(fov, aspect, near, far) {
     const f = 1 / Math.tan(fov / 2);
-    const rangeInv = 1 / (near - far); // for gl
+    const nf = 1 / (near - far);
 
-    const m00 = f / aspect;
-    const m01 = 0;
-    const m02 = 0;
-    const m03 = 0;
+    const pjm = Matrix4.identity();
 
-    const m10 = 0;
-    const m11 = f;
-    const m12 = 0;
-    const m13 = 0;
+    pjm.m00 = f / aspect; // aspect ... w / h
+    pjm.m01 = 0;
+    pjm.m02 = 0;
+    pjm.m03 = 0;
+    pjm.m10 = 0;
+    pjm.m11 = f;
+    pjm.m12 = 0;
+    pjm.m13 = 0;
+    pjm.m20 = 0;
+    pjm.m21 = 0;
+    pjm.m22 = (far + near) * nf;
+    pjm.m23 = -1;
+    pjm.m30 = 0;
+    pjm.m31 = 0;
+    pjm.m32 = 2 * far * near * nf;
+    pjm.m33 = 0;
 
-    const m20 = 0;
-    const m21 = 0;
-    const m22 = (near + far) * rangeInv;
-    const m23 = -1;
-
-    const m30 = 0;
-    const m31 = 0;
-    const m32 = near * far * rangeInv * 2;
-    const m33 = 0;
-
-    // prettier-ignore
-    return new Matrix4(
-      m00, m01, m02, m03,
-      m10, m11, m12, m13,
-      m20, m21, m22, m23,
-      m30, m31, m32, m33
-    );
+    return pjm;
   }
 }

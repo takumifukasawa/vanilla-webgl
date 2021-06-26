@@ -245,7 +245,7 @@ const planeMeshActor = new MeshActor({
 planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
-      const t = Matrix4.postMultiplyMatrices(
+      const t = Matrix4.multiplyMatrices(
         Matrix4.createTranslationMatrix(
           new Vector3(
             Math.sin(time * 0.2) * 0.5,
@@ -264,7 +264,7 @@ planeMeshActor.addComponent(
 );
 actors.push(planeMeshActor);
 
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.01, 20);
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 20);
 
 const onWindowResize = () => {
   states.isResized = true;
