@@ -308,7 +308,6 @@ const particleGeometry = new Geometry({
       stride: 3,
     },
   },
-  indices: new Array(8).fill(0).map((_, i) => i),
 });
 
 const particleMaterial = new Material({
@@ -406,10 +405,18 @@ const render = ({
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
-  gpu.setIndices(geometry.indices);
   // gpu.setTextures(material.textures);
   gpu.setUniforms(material.uniforms);
-  gpu.draw(geometry.indices.data.length, material.primitiveType);
+  // TODO: primitiveの種別とindicesがあるかないかで判断するのが正しい
+  if (material.primitiveType === GPU.Primitives.Points) {
+    gpu.draw(
+      geometry.attributes.aPosition.data.length / 3,
+      material.primitiveType
+    );
+  } else {
+    gpu.setIndices(geometry.indices);
+    gpu.draw(geometry.indices.data.length, material.primitiveType);
+  }
   gpu.resetData();
 };
 

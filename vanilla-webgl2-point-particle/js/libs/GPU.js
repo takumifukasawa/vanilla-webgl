@@ -91,9 +91,6 @@ export default class GPU {
       gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
     }
 
-    // indices
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
-
     // init textures
     let activeTextureIndex = 0;
     // NOTE:
@@ -136,12 +133,19 @@ export default class GPU {
       }
     }
 
-    // draw
-    gl.drawElements(
-      primitives[primitiveType],
-      vertexCount,
-      gl.UNSIGNED_SHORT,
-      startVertexOffset
-    );
+    if (primitiveType === GPU.Primitives.Points) {
+      // 第一引数は実質pointのみ
+      gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
+    } else {
+      // indices
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
+      // draw
+      gl.drawElements(
+        primitives[primitiveType],
+        vertexCount,
+        gl.UNSIGNED_SHORT,
+        startVertexOffset
+      );
+    }
   }
 }
