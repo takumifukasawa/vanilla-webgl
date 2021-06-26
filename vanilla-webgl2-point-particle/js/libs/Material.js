@@ -9,6 +9,7 @@ export default class Material {
     uniforms,
     primitiveType,
     transparent,
+    blendType,
   }) {
     this.uniforms = uniforms;
     this.shader = new Shader({
@@ -18,6 +19,10 @@ export default class Material {
     });
     this.primitiveType = primitiveType || GPU.Primitives.Triangles;
     this.transparent = !!transparent;
+    this.blendType = GPU.BlendTypes.None;
+    if (this.transparent && blendType) {
+      this.blendType = blendType;
+    }
   }
 
   // getTextureUniforms() {

@@ -105,7 +105,7 @@ precision mediump float;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(gl_PointCoord, 0, 1);
+  outColor = vec4(gl_PointCoord, 0, 0.5);
 }
 `;
 
@@ -308,12 +308,7 @@ const particleGeometry = new Geometry({
       stride: 3,
     },
   },
-  indices: new Array(8)
-    .fill(0)
-    .map((_, i) => {
-      return i;
-    })
-    .flat(),
+  indices: new Array(8).fill(0).map((_, i) => i),
 });
 
 const particleMaterial = new Material({
@@ -335,6 +330,8 @@ const particleMaterial = new Material({
     },
   },
   primitiveType: GPU.Primitives.Points,
+  transparent: true,
+  blendType: GPU.BlendTypes.Additive,
 });
 
 const particleMeshActor = new MeshActor({
@@ -343,26 +340,26 @@ const particleMeshActor = new MeshActor({
     material: particleMaterial,
   }),
 });
-particleMeshActor.addComponent(
-  new ScriptComponent({
-    updateFunc: function ({ actor, time, deltaTime }) {
-      const t = Matrix4.multiplyMatrices(
-        Matrix4.createTranslationMatrix(
-          new Vector3(
-            Math.sin(time * 0.2) * 0.5,
-            Math.sin(time * 0.4) * 0.9,
-            Math.sin(time * 0.9) * 0.8
-          )
-        ),
-        Matrix4.createRotationXMatrix(time * 0.7),
-        Matrix4.createRotationYMatrix(time * 0.8),
-        Matrix4.createRotationZMatrix(time * 0.9),
-        Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-      );
-      actor.worldTransform = t;
-    },
-  })
-);
+// particleMeshActor.addComponent(
+//   new ScriptComponent({
+//     updateFunc: function ({ actor, time, deltaTime }) {
+//       const t = Matrix4.multiplyMatrices(
+//         Matrix4.createTranslationMatrix(
+//           new Vector3(
+//             Math.sin(time * 0.2) * 0.5,
+//             Math.sin(time * 0.4) * 0.9,
+//             Math.sin(time * 0.9) * 0.8
+//           )
+//         ),
+//         Matrix4.createRotationXMatrix(time * 0.7),
+//         Matrix4.createRotationYMatrix(time * 0.8),
+//         Matrix4.createRotationZMatrix(time * 0.9),
+//         Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
+//       );
+//       actor.worldTransform = t;
+//     },
+//   })
+// );
 
 actors.push(particleMeshActor);
 
@@ -372,7 +369,7 @@ const onWindowResize = () => {
   states.isResized = true;
 };
 
-// NOTE: class にしてもよい
+// NOTE: renderer的なクラスにするのがよい
 const render = ({
   gpu,
   time,
@@ -385,15 +382,27 @@ const render = ({
 }) => {
   // stateの切り替えはアプリケーションレベルで行う
   const gl = gpu.getGl();
-  if (!material.transparent) {
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.CULL_FACE);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);
+  gl.enable(gl.CULL_FACE);
+
+  if (material.transparent) {
+    gl.enable(gl.BLEND);
+    switch (material.blendType) {
+      case GPU.BlendTypes.Alpha:
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        break;
+      case GPU.BlendTypes.Additive:
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        break;
+      default:
+        throw 'should specify blend type';
+    }
   } else {
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.CULL_FACE);
+    gl.disable(gl.BLEND);
   }
+
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
@@ -430,7 +439,7 @@ const tick = (t) => {
     }
   }
 
-  gpu.clear(0, 0, 0, 0);
+  gpu.clear(0, 0, 0, 1);
 
   // update
   {

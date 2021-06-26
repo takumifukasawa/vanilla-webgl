@@ -17,8 +17,13 @@ export default class GPU {
     Triangles: 'Triangles',
   };
   static UniformTypes = {
-    Matrix4fv: 0,
-    Texture2D: 1,
+    Matrix4fv: 'Matrix4fv',
+    Texture2D: 'Texture2D',
+  };
+  static BlendTypes = {
+    Alpha: 'Alpha',
+    Additive: 'Additive',
+    None: 'None',
   };
   constructor({ canvasElement }) {
     this.gl = canvasElement.getContext('webgl2');
