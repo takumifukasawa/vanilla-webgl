@@ -11,6 +11,7 @@ import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
+import WireFrameMaterial from './libs/materials/WireFrameMaterial.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -96,7 +97,7 @@ void main() {
 // |   /     |   /
 // | /       | /
 // 2 ------- 3
-const geometry = new Geometry({
+const planeGeometry = new Geometry({
   gpu,
   attributes: {
     aPosition: {
@@ -127,7 +128,7 @@ const geometry = new Geometry({
         0.5, 0.5, -0.5,
         -0.5, 0.5, 0.5,
         0.5, 0.5, 0.5,
-        // bottom: 2,.3,6,7
+        // bottom: 2,3,6,7
         -0.5, -0.5, 0.5,
         0.5, -0.5, 0.5,
         -0.5, -0.5, -0.5,
@@ -171,9 +172,10 @@ const geometry = new Geometry({
       ]
     })
     .flat(),
+  primitiveType: GPU.Primitives.Triangle,
 });
 
-const material = new Material({
+const planeMaterial = new Material({
   gpu,
   vertexShader,
   fragmentShader,
@@ -215,7 +217,6 @@ const material = new Material({
       data: null,
     },
   },
-  primitiveType: GPU.Primitives.Triangles,
 });
 
 (async () => {
@@ -231,15 +232,15 @@ const material = new Material({
     paths.map(async ({ name, path }) => {
       const img = await loadImg(path);
       const texture = new Texture({ gpu, img });
-      material.uniforms[name].data = texture;
+      planeMaterial.uniforms[name].data = texture;
     })
   );
 })();
 
 const planeMeshActor = new MeshActor({
   meshComponent: new MeshComponent({
-    geometry,
-    material,
+    geometry: planeGeometry,
+    material: planeMaterial,
   }),
 });
 planeMeshActor.addComponent(
@@ -292,7 +293,7 @@ const render = ({
   gpu.setIndices(geometry.indices);
   // gpu.setTextures(material.textures);
   gpu.setUniforms(material.uniforms);
-  gpu.draw(geometry.indices.data.length, GPU.Primitives.Triangles);
+  gpu.draw(geometry.indices.data.length, material.primitiveType);
   gpu.resetData();
 };
 
@@ -346,8 +347,8 @@ const tick = (t) => {
         gpu,
         time,
         deltaTime,
-        geometry,
-        material,
+        geometry: meshActor.meshComponent.geometry,
+        material: meshActor.meshComponent.material,
         modelMatrix: meshActor.worldTransform,
         viewMatrix: perspectiveCamera.cameraMatrix.getInvertMatrix(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
