@@ -1,8 +1,7 @@
 import GPU from './libs/GPU.js';
-import Material from './libs/materials/Material.js';
+import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
-// import Mesh from './libs/Mesh.js';
 import { Matrix4 } from './libs/Matrix.js';
 import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
@@ -11,7 +10,6 @@ import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
-import WireFrameMaterial from './libs/materials/WireFrameMaterial.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -91,26 +89,23 @@ const particleVertexShader = `#version 300 es
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
 
-out vec2 vUv;
-
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
 void main() {
-  vUv = aUv;
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+  gl_PointSize = 10.;
 }
 `;
 
 const particleFragmentShader = `#version 300 es
 precision mediump float;
 
-in vec2 vUv;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(vUv, 0, 1);
+  outColor = vec4(gl_PointCoord, 0, 1);
 }
 `;
 
@@ -301,64 +296,22 @@ const particleGeometry = new Geometry({
     aPosition: {
       // prettier-ignore
       data: [
-        // front: 0,1,2,3
         -0.5, 0.5, 0.5,
         0.5, 0.5, 0.5,
         -0.5, -0.5, 0.5,
         0.5, -0.5, 0.5,
-        //  back: 5,4,7,6
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
-        // left: 4,0,6,2
-        -0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, -0.5, -0.5,
-        -0.5, -0.5, 0.5,
-        // right: 1,5,3,7
-        0.5, 0.5, 0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, 0.5,
-        0.5, -0.5, -0.5,
-        // top: 4,5,0,1
         -0.5, 0.5, -0.5,
         0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        // bottom: 2,3,6,7
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, -0.5, -0.5,
         0.5, -0.5, -0.5,
-      ],
+        -0.5, -0.5, -0.5,
+     ],
       stride: 3,
     },
-    aUv: {
-      data: new Array(6)
-        .fill(0)
-        .map(() => {
-          // prettier-ignore
-          return [
-            0, 0,
-            1, 0,
-            0, 1,
-            1, 1
-          ]
-        })
-        .flat(),
-      stride: 2,
-    },
   },
-  indices: new Array(6)
+  indices: new Array(8)
     .fill(0)
     .map((_, i) => {
-      const offset = i * 4;
-      // prettier-ignore
-      return  [
-        0 + offset, 2 + offset, 1 + offset,
-        1 + offset, 2 + offset, 3 + offset,
-      ]
+      return i;
     })
     .flat(),
 });
@@ -381,7 +334,7 @@ const particleMaterial = new Material({
       data: Matrix4.identity().getArray(),
     },
   },
-  primitiveType: GPU.Primitives.Triangle,
+  primitiveType: GPU.Primitives.Points,
 });
 
 const particleMeshActor = new MeshActor({
@@ -390,6 +343,26 @@ const particleMeshActor = new MeshActor({
     material: particleMaterial,
   }),
 });
+particleMeshActor.addComponent(
+  new ScriptComponent({
+    updateFunc: function ({ actor, time, deltaTime }) {
+      const t = Matrix4.multiplyMatrices(
+        Matrix4.createTranslationMatrix(
+          new Vector3(
+            Math.sin(time * 0.2) * 0.5,
+            Math.sin(time * 0.4) * 0.9,
+            Math.sin(time * 0.9) * 0.8
+          )
+        ),
+        Matrix4.createRotationXMatrix(time * 0.7),
+        Matrix4.createRotationYMatrix(time * 0.8),
+        Matrix4.createRotationZMatrix(time * 0.9),
+        Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
+      );
+      actor.worldTransform = t;
+    },
+  })
+);
 
 actors.push(particleMeshActor);
 
@@ -412,9 +385,15 @@ const render = ({
 }) => {
   // stateの切り替えはアプリケーションレベルで行う
   const gl = gpu.getGl();
-  gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.CULL_FACE);
+  if (!material.transparent) {
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.CULL_FACE);
+  } else {
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.CULL_FACE);
+  }
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);

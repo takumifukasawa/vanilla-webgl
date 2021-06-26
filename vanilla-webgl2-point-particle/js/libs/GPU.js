@@ -12,9 +12,9 @@ const createWhite1x1 = () => {
 
 export default class GPU {
   static Primitives = {
-    Points: 0,
-    Lines: 1,
-    Triangles: 2,
+    Points: 'Points',
+    Lines: 'Lines',
+    Triangles: 'Triangles',
   };
   static UniformTypes = {
     Matrix4fv: 0,
