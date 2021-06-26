@@ -22,6 +22,10 @@ const actors = [];
 
 const states = {
   isResized: false,
+  viewportWidth: 0,
+  viewportHeight: 0,
+  mouseX: 0,
+  mouseY: 0,
 };
 
 let startTime = null;
@@ -95,7 +99,7 @@ uniform mat4 uProjectionMatrix;
 
 void main() {
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
-  gl_PointSize = 10.;
+  gl_PointSize = 50.;
 }
 `;
 
@@ -105,7 +109,12 @@ precision mediump float;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(gl_PointCoord, 0, 0.5);
+  vec2 coord = gl_PointCoord.xy * vec2(2) - vec2(1);
+  float c = mix(1., 0., length(coord));
+  if(c < .5) {
+    discard;
+  }
+  outColor = vec4(.8, .6, .2, c);
 }
 `;
 
@@ -295,16 +304,17 @@ const particleGeometry = new Geometry({
   attributes: {
     aPosition: {
       // prettier-ignore
-      data: [
-        -0.5, 0.5, 0.5,
-        0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        0.5, -0.5, 0.5,
-        -0.5, 0.5, -0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,
-     ],
+      data: new Array(2000).fill(0).map(() => {
+        const xRange = 10;
+        const yRange = 10;
+        const zRange = 10;
+        const x = Math.random() * xRange - xRange * 0.5;
+        const y = Math.random() * yRange - yRange * 0.5;
+        const z = Math.random() * zRange - zRange * 0.5;
+        return [
+          x, y, z
+        ]
+      }).flat(),
       stride: 3,
     },
   },
@@ -339,26 +349,6 @@ const particleMeshActor = new MeshActor({
     material: particleMaterial,
   }),
 });
-// particleMeshActor.addComponent(
-//   new ScriptComponent({
-//     updateFunc: function ({ actor, time, deltaTime }) {
-//       const t = Matrix4.multiplyMatrices(
-//         Matrix4.createTranslationMatrix(
-//           new Vector3(
-//             Math.sin(time * 0.2) * 0.5,
-//             Math.sin(time * 0.4) * 0.9,
-//             Math.sin(time * 0.9) * 0.8
-//           )
-//         ),
-//         Matrix4.createRotationXMatrix(time * 0.7),
-//         Matrix4.createRotationYMatrix(time * 0.8),
-//         Matrix4.createRotationZMatrix(time * 0.9),
-//         Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-//       );
-//       actor.worldTransform = t;
-//     },
-//   })
-// );
 
 actors.push(particleMeshActor);
 
@@ -435,9 +425,11 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 0.5);
-      const targetWidth = wrapperElement.offsetWidth * ratio;
-      const targetHeight = wrapperElement.offsetHeight * ratio;
+      const ratio = Math.min(window.devicePixelRatio, 1.5);
+      states.viewportWidth = wrapperElement.offsetWidth;
+      states.viewportHeight = wrapperElement.offsetHeight;
+      const targetWidth = states.viewportWidth * ratio;
+      const targetHeight = states.viewportHeight * ratio;
       canvasElement.width = targetWidth;
       canvasElement.height = targetHeight;
       gpu.setSize(targetWidth, targetHeight);
@@ -446,12 +438,24 @@ const tick = (t) => {
     }
   }
 
+  // gpu.getGl().colorMask(true, true, true, true);
+  // gpu.getGl().colorMask(false, false, false, true);
   gpu.clear(0, 0, 0, 1);
 
   // update
   {
+    const w = 10;
+    const h = 10;
+    const dumping = 0.05;
+    const targetX = w * states.mouseX;
+    const targetY = h * states.mouseY;
+    perspectiveCamera.position.x +=
+      (targetX - perspectiveCamera.position.x) * dumping;
+    perspectiveCamera.position.y +=
+      (targetY - perspectiveCamera.position.y) * dumping;
+    perspectiveCamera.position.z = 10;
     const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-      new Vector3(0, 0, 10),
+      perspectiveCamera.position,
       new Vector3(0, 0, 0),
       new Vector3(0, 1, 0)
     );
@@ -488,6 +492,16 @@ const main = () => {
   onWindowResize();
   window.addEventListener('resize', () => {
     onWindowResize();
+  });
+  window.addEventListener('mousemove', (e) => {
+    const ww = wrapperElement.offsetWidth;
+    const wh = wrapperElement.offsetWidth;
+    const mx = e.clientX;
+    const my = e.clientY;
+    const x = (mx / ww) * 2 - 1;
+    const y = ((my / wh) * 2 - 1) * -1;
+    states.mouseX = x;
+    states.mouseY = y;
   });
   requestAnimationFrame(tick);
 };

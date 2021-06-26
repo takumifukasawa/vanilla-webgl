@@ -2,7 +2,9 @@ import Texture from './Texture.js';
 
 const createWhite1x1 = () => {
   const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', {
+    premultipliedAlpha: false, // Ask for non-premultiplied alpha
+  });
   canvas.width = 1;
   canvas.height = 1;
   ctx.fillStyle = 'white';
@@ -133,6 +135,7 @@ export default class GPU {
       }
     }
 
+    // TODO: indicesがあるかないかどうかでも見るべき？
     if (primitiveType === GPU.Primitives.Points) {
       // 第一引数は実質pointのみ
       gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
