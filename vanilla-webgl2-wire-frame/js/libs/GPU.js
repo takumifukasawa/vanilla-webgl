@@ -12,9 +12,9 @@ const createWhite1x1 = () => {
 
 export default class GPU {
   static Primitives = {
-    Point: 0,
-    Line: 1,
-    Triangle: 2,
+    Points: 0,
+    Lines: 1,
+    Triangles: 2,
   };
   static UniformTypes = {
     Matrix4fv: 0,
@@ -70,7 +70,11 @@ export default class GPU {
 
     gl.useProgram(program);
 
-    const primitives = [gl.POINTS, gl.LINES, gl.TRIANGLES];
+    const primitives = {
+      [GPU.Primitives.Points]: gl.POINTS,
+      [GPU.Primitives.Lines]: gl.LINES,
+      [GPU.Primitives.Triangles]: gl.TRIANGLES,
+    };
 
     const attributeKeys = Object.keys(this.attributes);
     for (let i = 0; i < attributeKeys.length; i++) {

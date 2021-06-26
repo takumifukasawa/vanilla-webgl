@@ -1,14 +1,15 @@
-// import GPU from './GPU.js';
-import Shader from './Shader.js';
+import GPU from './../GPU.js';
+import Shader from '../Shader.js';
 
 export default class Material {
-  constructor({ gpu, vertexShader, fragmentShader, uniforms }) {
+  constructor({ gpu, vertexShader, fragmentShader, uniforms, primitiveType }) {
     this.uniforms = uniforms;
     this.shader = new Shader({
       gpu,
       vertexShader,
       fragmentShader,
     });
+    this.primitiveType = primitiveType || GPU.Primitives.Triangles;
   }
 
   // getTextureUniforms() {

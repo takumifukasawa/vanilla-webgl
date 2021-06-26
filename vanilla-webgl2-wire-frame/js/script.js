@@ -1,5 +1,5 @@
 import GPU from './libs/GPU.js';
-import Material from './libs/Material.js';
+import Material from './libs/materials/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 // import Mesh from './libs/Mesh.js';
@@ -127,7 +127,7 @@ const geometry = new Geometry({
         0.5, 0.5, -0.5,
         -0.5, 0.5, 0.5,
         0.5, 0.5, 0.5,
-        // bottom: 2,3,6,7
+        // bottom: 2,.3,6,7
         -0.5, -0.5, 0.5,
         0.5, -0.5, 0.5,
         -0.5, -0.5, -0.5,
@@ -171,7 +171,6 @@ const geometry = new Geometry({
       ]
     })
     .flat(),
-  primitiveType: GPU.Primitives.Triangle,
 });
 
 const material = new Material({
@@ -216,6 +215,7 @@ const material = new Material({
       data: null,
     },
   },
+  primitiveType: GPU.Primitives.Triangles,
 });
 
 (async () => {
@@ -292,7 +292,7 @@ const render = ({
   gpu.setIndices(geometry.indices);
   // gpu.setTextures(material.textures);
   gpu.setUniforms(material.uniforms);
-  gpu.draw(geometry.indices.data.length, GPU.Primitives.Triangle);
+  gpu.draw(geometry.indices.data.length, GPU.Primitives.Triangles);
   gpu.resetData();
 };
 
