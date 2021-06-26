@@ -30,7 +30,7 @@ let startTime = null;
 let beforeTime = null;
 let deltaTime = 0;
 
-const vertexShader = `#version 300 es
+const planeVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
@@ -51,7 +51,7 @@ void main() {
 }
 `;
 
-const fragmentShader = `#version 300 es
+const planeFragmentShader = `#version 300 es
 precision mediump float;
 
 in vec2 vUv;
@@ -83,6 +83,34 @@ void main() {
   }
 
   outColor = texColor;
+}
+`;
+
+const particleVertexShader = `#version 300 es
+
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec2 aUv;
+
+out vec2 vUv;
+
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+void main() {
+  vUv = aUv;
+  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+}
+`;
+
+const particleFragmentShader = `#version 300 es
+precision mediump float;
+
+in vec2 vUv;
+out vec4 outColor;
+
+void main() {
+  outColor = vec4(vUv, 0, 1);
 }
 `;
 
@@ -172,13 +200,12 @@ const planeGeometry = new Geometry({
       ]
     })
     .flat(),
-  primitiveType: GPU.Primitives.Triangle,
 });
 
 const planeMaterial = new Material({
   gpu,
-  vertexShader,
-  fragmentShader,
+  vertexShader: planeVertexShader,
+  fragmentShader: planeFragmentShader,
   uniforms: {
     uModelMatrix: {
       type: GPU.UniformTypes.Matrix4fv,
@@ -217,6 +244,7 @@ const planeMaterial = new Material({
       data: null,
     },
   },
+  primitiveType: GPU.Primitives.Triangle,
 });
 
 (async () => {
@@ -243,6 +271,7 @@ const planeMeshActor = new MeshActor({
     material: planeMaterial,
   }),
 });
+
 planeMeshActor.addComponent(
   new ScriptComponent({
     updateFunc: function ({ actor, time, deltaTime }) {
@@ -263,7 +292,106 @@ planeMeshActor.addComponent(
     },
   })
 );
+
 actors.push(planeMeshActor);
+
+const particleGeometry = new Geometry({
+  gpu,
+  attributes: {
+    aPosition: {
+      // prettier-ignore
+      data: [
+        // front: 0,1,2,3
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        //  back: 5,4,7,6
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, -0.5,
+        0.5, -0.5, -0.5,
+        -0.5, -0.5, -0.5,
+        // left: 4,0,6,2
+        -0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5, 0.5,
+        // right: 1,5,3,7
+        0.5, 0.5, 0.5,
+        0.5, 0.5, -0.5,
+        0.5, -0.5, 0.5,
+        0.5, -0.5, -0.5,
+        // top: 4,5,0,1
+        -0.5, 0.5, -0.5,
+        0.5, 0.5, -0.5,
+        -0.5, 0.5, 0.5,
+        0.5, 0.5, 0.5,
+        // bottom: 2,3,6,7
+        -0.5, -0.5, 0.5,
+        0.5, -0.5, 0.5,
+        -0.5, -0.5, -0.5,
+        0.5, -0.5, -0.5,
+      ],
+      stride: 3,
+    },
+    aUv: {
+      data: new Array(6)
+        .fill(0)
+        .map(() => {
+          // prettier-ignore
+          return [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+          ]
+        })
+        .flat(),
+      stride: 2,
+    },
+  },
+  indices: new Array(6)
+    .fill(0)
+    .map((_, i) => {
+      const offset = i * 4;
+      // prettier-ignore
+      return  [
+        0 + offset, 2 + offset, 1 + offset,
+        1 + offset, 2 + offset, 3 + offset,
+      ]
+    })
+    .flat(),
+});
+
+const particleMaterial = new Material({
+  gpu,
+  vertexShader: particleVertexShader,
+  fragmentShader: particleFragmentShader,
+  uniforms: {
+    uModelMatrix: {
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
+    },
+    uViewMatrix: {
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
+    },
+    uProjectionMatrix: {
+      type: GPU.UniformTypes.Matrix4fv,
+      data: Matrix4.identity().getArray(),
+    },
+  },
+  primitiveType: GPU.Primitives.Triangle,
+});
+
+const particleMeshActor = new MeshActor({
+  meshComponent: new MeshComponent({
+    geometry: particleGeometry,
+    material: particleMaterial,
+  }),
+});
+
+actors.push(particleMeshActor);
 
 const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 20);
 
