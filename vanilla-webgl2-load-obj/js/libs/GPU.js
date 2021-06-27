@@ -138,10 +138,7 @@ export default class GPU {
     }
 
     // TODO: indicesがあるかないかどうかでも見るべき？
-    if (primitiveType === GPU.Primitives.Points) {
-      // 第一引数は実質pointのみ
-      gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
-    } else {
+    if (this.indices) {
       // indices
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
       // draw
@@ -151,6 +148,22 @@ export default class GPU {
         gl.UNSIGNED_SHORT,
         startVertexOffset
       );
+    } else {
+      gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
     }
+    // if (primitiveType === GPU.Primitives.Points) {
+    //   // 第一引数は実質pointのみ
+    //   gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
+    // } else {
+    //   // indices
+    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
+    //   // draw
+    //   gl.drawElements(
+    //     primitives[primitiveType],
+    //     vertexCount,
+    //     gl.UNSIGNED_SHORT,
+    //     startVertexOffset
+    //   );
+    // }
   }
 }

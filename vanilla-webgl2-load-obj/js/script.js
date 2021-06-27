@@ -123,7 +123,7 @@ const init = async () => {
         stride: 2,
       },
     },
-    indices: objGeometry.indices,
+    // indices: objGeometry.indices,
   });
 
   const planeMaterial = new Material({
@@ -170,6 +170,8 @@ const init = async () => {
     },
     primitiveType: GPU.Primitives.Triangle,
   });
+
+  console.log(planeGeometry);
 
   const planeMeshActor = new MeshActor({
     meshComponent: new MeshComponent({
@@ -373,8 +375,16 @@ const render = ({
       material.primitiveType
     );
   } else {
-    gpu.setIndices(geometry.indices);
-    gpu.draw(geometry.indices.data.length, material.primitiveType);
+    if (geometry.indices) {
+      gpu.setIndices(geometry.indices);
+      gpu.draw(geometry.indices.data.length, material.primitiveType);
+    } else {
+      gpu.setIndices(geometry.indices);
+      gpu.draw(
+        geometry.attributes.aPosition.data.length / 3,
+        material.primitiveType
+      );
+    }
   }
   gpu.resetData();
 };

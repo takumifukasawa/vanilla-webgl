@@ -16,9 +16,11 @@ export default class Geometry {
       };
       return acc;
     }, {});
-    this.indices = {
-      data: indices,
-      buffer: new IndexBuffer({ gl, data: indices }),
-    };
+    if (indices) {
+      this.indices = {
+        data: indices,
+        buffer: new IndexBuffer({ gl, data: indices }),
+      };
+    }
   }
 }
