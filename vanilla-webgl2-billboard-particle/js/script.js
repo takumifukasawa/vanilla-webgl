@@ -92,23 +92,33 @@ const particleVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
+layout (location = 2) in vec2 aOffset;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
+uniform float uBillboardSize;
+
+out vec2 vUv;
 
 void main() {
-  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+  vUv = aUv;
+  vec4 viewPosition = uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+  viewPosition.xy += aOffset * uBillboardSize;
+  gl_Position = uProjectionMatrix * viewPosition;
 }
 `;
 
 const particleFragmentShader = `#version 300 es
 precision mediump float;
 
+in vec2 vUv;
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(.8, .6, .2, 1);
+  vec2 coord = vUv * vec2(2) - vec2(1);
+  float c = 1. - length(coord);
+  outColor = vec4(.8, .6, .5, c);
 }
 `;
 
@@ -315,14 +325,44 @@ const particleGeometry = new Geometry({
           const baseZ = Math.random() * 10 - 5;
           // prettier-ignore
           return [
-            baseX -0.5, baseY + 0.5, baseZ,
-            baseX + 0.5, baseY + 0.5, baseZ,
-            baseX -0.5, baseY -0.5, baseZ,
-            baseX + 0.5, baseY -0.5, baseZ,
+            baseX, baseY, baseZ,
+            baseX, baseY, baseZ,
+            baseX, baseY, baseZ,
+            baseX, baseY, baseZ,
           ];
         })
         .flat(),
       stride: 3,
+    },
+    aUv: {
+      data: new Array(2000)
+        .fill(0)
+        .map(() => {
+          // prettier-ignore
+          return [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+          ]
+        })
+        .flat(),
+      stride: 2,
+    },
+    aOffset: {
+      data: new Array(2000)
+        .fill(0)
+        .map(() => {
+          // prettier-ignore
+          return [
+            -0.5, 0.5,
+            0.5, 0.5,
+            -0.5, -0.5,
+            0.5, -0.5,
+          ];
+        })
+        .flat(),
+      stride: 2,
     },
   },
   indices: new Array(2000)
@@ -354,6 +394,10 @@ const particleMaterial = new Material({
     uProjectionMatrix: {
       type: GPU.UniformTypes.Matrix4fv,
       data: Matrix4.identity().getArray(),
+    },
+    uBillboardSize: {
+      type: GPU.UniformTypes.Float,
+      data: 0.25,
     },
   },
   primitiveType: GPU.Primitives.Triangles,
@@ -391,23 +435,31 @@ const render = ({
   const gl = gpu.getGl();
 
   gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
   gl.enable(gl.CULL_FACE);
 
   if (material.transparent) {
+    gl.depthMask(false);
     gl.enable(gl.BLEND);
     switch (material.blendType) {
       case GPU.BlendTypes.Alpha:
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(
+          gl.SRC_ALPHA,
+          gl.ONE_MINUS_SRC_ALPHA,
+          gl.ONE,
+          gl.ONE
+        );
         break;
       case GPU.BlendTypes.Additive:
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
         break;
       default:
         throw 'should specify blend type';
     }
   } else {
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ZERO);
   }
 
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });

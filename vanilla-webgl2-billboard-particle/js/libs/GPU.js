@@ -21,6 +21,7 @@ export default class GPU {
   static UniformTypes = {
     Matrix4fv: 'Matrix4fv',
     Texture2D: 'Texture2D',
+    Float: 'Float',
   };
   static BlendTypes = {
     Alpha: 'Alpha',
@@ -117,6 +118,9 @@ export default class GPU {
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
+        case GPU.UniformTypes.Float:
+          gl.uniform1f(location, data);
+          break;
         case GPU.UniformTypes.Matrix4fv:
           gl.uniformMatrix4fv(location, false, data);
           break;

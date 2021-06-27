@@ -16,7 +16,6 @@ export default class Geometry {
       };
       return acc;
     }, {});
-    console.log(indices);
     this.indices = {
       data: indices,
       buffer: new IndexBuffer({ gl, data: indices }),
