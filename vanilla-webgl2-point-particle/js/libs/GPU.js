@@ -2,9 +2,7 @@ import Texture from './Texture.js';
 
 const createWhite1x1 = () => {
   const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d', {
-    premultipliedAlpha: false, // Ask for non-premultiplied alpha
-  });
+  const ctx = canvas.getContext('2d');
   canvas.width = 1;
   canvas.height = 1;
   ctx.fillStyle = 'white';
