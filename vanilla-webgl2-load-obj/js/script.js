@@ -97,7 +97,7 @@ void main() {
 `;
 
 const init = async () => {
-  const objGeometry = await loadObj('./model/cube.obj');
+  const data = await loadObj('./model/sphere-32x32.obj');
 
   //
   // vertex positions
@@ -110,23 +110,21 @@ const init = async () => {
   // |   /     |   /
   // | /       | /
   // 2 ------- 3
-  const planeGeometry = new Geometry({
+  const objGeometry = new Geometry({
     gpu,
     attributes: {
       aPosition: {
-        // prettier-ignore
-        data: objGeometry.positions,
+        data: data.positions,
         stride: 3,
       },
       aUv: {
-        data: objGeometry.uvs,
+        data: data.uvs,
         stride: 2,
       },
     },
-    // indices: objGeometry.indices,
   });
 
-  const planeMaterial = new Material({
+  const objMaterial = new Material({
     gpu,
     vertexShader: planeVertexShader,
     fragmentShader: planeFragmentShader,
@@ -171,16 +169,14 @@ const init = async () => {
     primitiveType: GPU.Primitives.Triangle,
   });
 
-  console.log(planeGeometry);
-
-  const planeMeshActor = new MeshActor({
+  const objMeshActor = new MeshActor({
     meshComponent: new MeshComponent({
-      geometry: planeGeometry,
-      material: planeMaterial,
+      geometry: objGeometry,
+      material: objMaterial,
     }),
   });
 
-  planeMeshActor.addComponent(
+  objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
         const t = Matrix4.multiplyMatrices(
@@ -201,7 +197,7 @@ const init = async () => {
     })
   );
 
-  actors.push(planeMeshActor);
+  actors.push(objMeshActor);
 
   //
   // vertex positions
@@ -315,7 +311,7 @@ const init = async () => {
   actors.push(particleMeshActor);
 };
 
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 20);
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 40);
 
 const onWindowResize = () => {
   states.isResized = true;
