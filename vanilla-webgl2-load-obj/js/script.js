@@ -8,8 +8,6 @@ import Actor from './libs/Actor.js';
 import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
-import loadImg from './utils/loadImg.js';
-import Texture from './libs/Texture.js';
 import loadObj from './libs/loadObj.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
