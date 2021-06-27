@@ -111,9 +111,6 @@ out vec4 outColor;
 void main() {
   vec2 coord = gl_PointCoord.xy * vec2(2) - vec2(1);
   float c = mix(1., 0., length(coord));
-  if(c < .5) {
-    discard;
-  }
   outColor = vec4(.8, .6, .2, c);
 }
 `;
@@ -373,23 +370,31 @@ const render = ({
   const gl = gpu.getGl();
 
   gl.enable(gl.DEPTH_TEST);
-  gl.depthFunc(gl.LEQUAL);
   gl.enable(gl.CULL_FACE);
 
   if (material.transparent) {
+    gl.depthMask(false);
     gl.enable(gl.BLEND);
     switch (material.blendType) {
       case GPU.BlendTypes.Alpha:
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(
+          gl.SRC_ALPHA,
+          gl.ONE_MINUS_SRC_ALPHA,
+          gl.ONE,
+          gl.ONE
+        );
         break;
       case GPU.BlendTypes.Additive:
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
         break;
       default:
         throw 'should specify blend type';
     }
   } else {
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL);
     gl.disable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ZERO);
   }
 
   material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
