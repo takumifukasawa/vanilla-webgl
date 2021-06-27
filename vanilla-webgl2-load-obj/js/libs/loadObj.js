@@ -86,9 +86,9 @@ export default async function loadObj(path) {
   }
 
   return {
-    positions,
-    uvs,
-    normals,
-    indices,
+    positions: positions.flat(),
+    uvs: uvs.flat(),
+    normals: normals.flat(),
+    indices: indices.flat(),
   };
 }
