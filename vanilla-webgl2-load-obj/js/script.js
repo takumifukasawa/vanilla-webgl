@@ -60,37 +60,28 @@ void main() {
 }
 `;
 
-const particleVertexShader = `#version 300 es
-
+const floorVertexShader = `#version 300 es
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
-layout (location = 2) in vec2 aOffset;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
-uniform float uBillboardSize;
 
 out vec2 vUv;
 
 void main() {
   vUv = aUv;
-  vec4 viewPosition = uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
-  viewPosition.xy += aOffset * uBillboardSize;
-  gl_Position = uProjectionMatrix * viewPosition;
+  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
 }
 `;
 
-const particleFragmentShader = `#version 300 es
+const floorFragmentShader = `#version 300 es
 precision mediump float;
-
 in vec2 vUv;
 out vec4 outColor;
-
 void main() {
-  vec2 coord = vUv * vec2(2) - vec2(1);
-  float c = 1. - length(coord);
-  outColor = vec4(.8, .6, .5, c);
+  outColor = vec4(vUv, 1., 1.);
 }
 `;
 
@@ -207,75 +198,37 @@ const init = async () => {
   // |   /       |
   // | /         |
   // 2 --------- 3
-  const particleGeometry = new Geometry({
+  const floorGeometry = new Geometry({
     gpu,
     attributes: {
       aPosition: {
-        data: new Array(2000)
-          .fill(0)
-          .map(() => {
-            const baseX = Math.random() * 10 - 5;
-            const baseY = Math.random() * 10 - 5;
-            const baseZ = Math.random() * 10 - 5;
-            // prettier-ignore
-            return [
-            baseX, baseY, baseZ,
-            baseX, baseY, baseZ,
-            baseX, baseY, baseZ,
-            baseX, baseY, baseZ,
-          ];
-          })
-          .flat(),
+        // prettier-ignore
+        data: [
+          -3, 3, 0,
+          3, 3, 0,
+          -3, -3, 0,
+          3, -3, 0,
+        ],
         stride: 3,
       },
       aUv: {
-        data: new Array(2000)
-          .fill(0)
-          .map(() => {
-            // prettier-ignore
-            return [
-            0, 0,
-            1, 0,
-            0, 1,
-            1, 1
-          ]
-          })
-          .flat(),
-        stride: 2,
-      },
-      aOffset: {
-        data: new Array(2000)
-          .fill(0)
-          .map(() => {
-            // prettier-ignore
-            return [
-            -0.5, 0.5,
-            0.5, 0.5,
-            -0.5, -0.5,
-            0.5, -0.5,
-          ];
-          })
-          .flat(),
+        // prettier-ignore
+        data: [
+          0, 0,
+          1, 0,
+          0, 1,
+          1, 1,
+        ],
         stride: 2,
       },
     },
-    indices: new Array(2000)
-      .fill(0)
-      .map((_, i) => {
-        const offset = i * 4;
-        // prettier-ignore
-        return  [
-          0 + offset, 2 + offset, 1 + offset,
-          1 + offset, 2 + offset, 3 + offset,
-        ]
-      })
-      .flat(),
+    indices: [0, 2, 1, 1, 2, 3],
   });
 
-  const particleMaterial = new Material({
+  const floorMaterial = new Material({
     gpu,
-    vertexShader: particleVertexShader,
-    fragmentShader: particleFragmentShader,
+    vertexShader: floorVertexShader,
+    fragmentShader: floorFragmentShader,
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
@@ -289,24 +242,30 @@ const init = async () => {
         type: GPU.UniformTypes.Matrix4fv,
         data: Matrix4.identity().getArray(),
       },
-      uBillboardSize: {
-        type: GPU.UniformTypes.Float,
-        data: 0.25,
-      },
     },
     primitiveType: GPU.Primitives.Triangles,
-    transparent: true,
-    blendType: GPU.BlendTypes.Additive,
   });
 
-  const particleMeshActor = new MeshActor({
+  const floorMeshActor = new MeshActor({
     meshComponent: new MeshComponent({
-      geometry: particleGeometry,
-      material: particleMaterial,
+      geometry: floorGeometry,
+      material: floorMaterial,
     }),
   });
 
-  actors.push(particleMeshActor);
+  floorMeshActor.addComponent(
+    new ScriptComponent({
+      startFunc: function ({ actor, time, deltaTime }) {
+        const t = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
+          Matrix4.createRotationXMatrix(Math.PI * 0.5)
+        );
+        actor.worldTransform = t;
+      },
+    })
+  );
+
+  actors.push(floorMeshActor);
 };
 
 const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 40);
@@ -414,6 +373,11 @@ const tick = (t) => {
   // gpu.getGl().colorMask(true, true, true, true);
   // gpu.getGl().colorMask(false, false, false, true);
   gpu.clear(0, 0, 0, 1);
+
+  // start
+  {
+    actors.forEach((actor) => actor.start({ time, deltaTime }));
+  }
 
   // update
   {

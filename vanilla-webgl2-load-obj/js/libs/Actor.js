@@ -21,6 +21,15 @@ export default class Actor {
   //     this.components(index, 1);
   //   }
   // }
+  start({ time, deltaTime }) {
+    for (let i = 0; i < this.components.length; i++) {
+      const component = this.components[i];
+      if (!component.isStarted) {
+        component.start({ actor: this, time, deltaTime });
+        component.isStarted = true;
+      }
+    }
+  }
   update({ time, deltaTime }) {
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
