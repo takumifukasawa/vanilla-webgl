@@ -42,7 +42,7 @@ const directionalLight = new DirectionalLight({
   position: Vector3.one(),
 });
 
-const objVertexShader = `#version 300 es
+const baseVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
@@ -62,32 +62,7 @@ void main() {
 }
 `;
 
-const floorVertexShader = `#version 300 es
-layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec2 aUv;
-
-uniform mat4 uModelMatrix;
-uniform mat4 uViewMatrix;
-uniform mat4 uProjectionMatrix;
-
-out vec2 vUv;
-
-void main() {
-  vUv = aUv;
-  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
-}
-`;
-
-const floorFragmentShader = `#version 300 es
-precision mediump float;
-in vec2 vUv;
-out vec4 outColor;
-void main() {
-  outColor = vec4(vUv, 1., 1.);
-}
-`;
-
-const phongFragmentShader = `#version 300 es
+const lambertFragmentShader = `#version 300 es
 precision mediump float;
 uniform vec3 uDirectionalLightPosition;
 in vec3 vNormal;
@@ -102,7 +77,7 @@ void main() {
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/sphere-16x16.obj');
+  const data = await loadObj('./model/sphere-32x32.obj');
 
   const objGeometry = new Geometry({
     gpu,
@@ -124,8 +99,8 @@ const init = async () => {
 
   const objMaterial = new Material({
     gpu,
-    vertexShader: objVertexShader,
-    fragmentShader: phongFragmentShader,
+    vertexShader: baseVertexShader,
+    fragmentShader: lambertFragmentShader,
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
@@ -211,14 +186,24 @@ const init = async () => {
         ],
         stride: 2,
       },
+      aNormal: {
+        // prettier-ignore
+        data: [
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+          0, 0, 1,
+        ],
+        stride: 3,
+      },
     },
     indices: [0, 2, 1, 1, 2, 3],
   });
 
   const floorMaterial = new Material({
     gpu,
-    vertexShader: floorVertexShader,
-    fragmentShader: floorFragmentShader,
+    vertexShader: baseVertexShader,
+    fragmentShader: lambertFragmentShader,
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
@@ -231,6 +216,10 @@ const init = async () => {
       uProjectionMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
         data: Matrix4.identity().getArray(),
+      },
+      uDirectionalLightPosition: {
+        type: GPU.UniformTypes.Vector3f,
+        data: directionalLight.position.getArray(),
       },
     },
     primitiveType: GPU.Primitives.Triangles,
