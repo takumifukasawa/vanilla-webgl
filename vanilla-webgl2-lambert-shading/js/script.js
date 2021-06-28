@@ -2,7 +2,7 @@ import GPU from './libs/GPU.js';
 import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
-import { Matrix4 } from './libs/Matrix.js';
+import { Matrix4 } from './libs/Matrix4.js';
 import { Vector3 } from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
 import MeshActor from './libs/MeshActor.js';
@@ -51,13 +51,14 @@ layout (location = 2) in vec3 aNormal;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
+uniform mat4 uNormalMatrix;
 
 out vec2 vUv;
 out vec3 vNormal;
 
 void main() {
   vUv = aUv;
-  vNormal = aNormal;
+  vNormal = normalize(uNormalMatrix * vec4(normalize(aNormal), 1.)).xyz;
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
 }
 `;
@@ -66,7 +67,6 @@ const lambertFragmentShader = `#version 300 es
 precision mediump float;
 uniform vec3 uDirectionalLightPosition;
 in vec3 vNormal;
-in vec3 vWorldPosition;
 out vec4 outColor;
 void main() {
   vec3 L = normalize(uDirectionalLightPosition);
@@ -114,6 +114,10 @@ const init = async () => {
         type: GPU.UniformTypes.Matrix4fv,
         data: Matrix4.identity().getArray(),
       },
+      uNormalMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
       uDirectionalLightPosition: {
         type: GPU.UniformTypes.Vector3f,
         data: directionalLight.position.getArray(),
@@ -132,21 +136,20 @@ const init = async () => {
   objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4
-          .multiplyMatrices
-          // Matrix4.createTranslationMatrix(
-          //   new Vector3(
-          //     Math.sin(time * 0.2) * 0.5,
-          //     Math.sin(time * 0.4) * 0.9,
-          //     Math.sin(time * 0.9) * 0.8
-          //   )
-          // ),
-          // Matrix4.createRotationXMatrix(time * 0.7),
-          // Matrix4.createRotationYMatrix(time * 0.8),
-          // Matrix4.createRotationZMatrix(time * 0.9)
-          // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-          ();
-        actor.worldTransform = t;
+        // const t = Matrix4
+        //   .multiplyMatrices(
+        //   //   new Vector3(
+        //   //     Math.sin(time * 0.2) * 0.5,
+        //   //     Math.sin(time * 0.4) * 0.9,
+        //   //     Math.sin(time * 0.9) * 0.8
+        //   //   )
+        //   // ),
+        //   // Matrix4.createRotationXMatrix(time * 0.7),
+        //   // Matrix4.createRotationYMatrix(time * 0.8)
+        //   // Matrix4.createRotationZMatrix(time * 0.9)
+        //   // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
+        //   );
+        // actor.worldTransform = t;
       },
     })
   );
@@ -217,6 +220,10 @@ const init = async () => {
         type: GPU.UniformTypes.Matrix4fv,
         data: Matrix4.identity().getArray(),
       },
+      uNormalMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
       uDirectionalLightPosition: {
         type: GPU.UniformTypes.Vector3f,
         data: directionalLight.position.getArray(),
@@ -261,6 +268,7 @@ const render = ({
   modelMatrix,
   viewMatrix,
   projectionMatrix,
+  normalMatrix,
 }) => {
   // stateの切り替えはアプリケーションレベルで行う
   const gl = gpu.getGl();
@@ -293,7 +301,13 @@ const render = ({
     gl.blendFunc(gl.ONE, gl.ZERO);
   }
 
-  material.updateUniforms({ modelMatrix, viewMatrix, projectionMatrix });
+  material.updateUniforms({
+    modelMatrix,
+    viewMatrix,
+    projectionMatrix,
+    normalMatrix,
+  });
+
   gpu.setShader(material.shader);
   gpu.setAttributes(geometry.attributes);
   // gpu.setTextures(material.textures);
@@ -390,8 +404,9 @@ const tick = (t) => {
         geometry: meshActor.meshComponent.geometry,
         material: meshActor.meshComponent.material,
         modelMatrix: meshActor.worldTransform,
-        viewMatrix: perspectiveCamera.cameraMatrix.getInvertMatrix(),
+        viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
+        normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
       });
     });
   }

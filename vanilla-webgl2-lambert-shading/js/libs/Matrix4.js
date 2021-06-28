@@ -262,8 +262,29 @@ export class Matrix4 {
     return m;
   }
 
+  transpose() {
+    const tmpM = this.clone();
+    this.m00 = tmpM.m00;
+    this.m01 = tmpM.m10;
+    this.m02 = tmpM.m20;
+    this.m03 = tmpM.m30;
+    this.m10 = tmpM.m01;
+    this.m11 = tmpM.m11;
+    this.m12 = tmpM.m21;
+    this.m13 = tmpM.m31;
+    this.m20 = tmpM.m02;
+    this.m21 = tmpM.m12;
+    this.m22 = tmpM.m22;
+    this.m23 = tmpM.m32;
+    this.m30 = tmpM.m03;
+    this.m31 = tmpM.m13;
+    this.m32 = tmpM.m32;
+    this.m33 = tmpM.m33;
+    return this;
+  }
+
   // ref: https://github.com/gregtatum/mdn-model-view-projection/blob/master/shared/matrices.js
-  getInvertMatrix() {
+  inverse() {
     // Adapted from: https://github.com/mrdoob/three.js/blob/master/src/math/Matrix4.js
 
     // Performance note: Try not to allocate memory during a loop. This is done here
@@ -411,7 +432,24 @@ export class Matrix4 {
       result[i] /= determinant;
     }
 
-    return new Matrix4(...result);
+    this.m00 = result[0];
+    this.m01 = result[1];
+    this.m02 = result[2];
+    this.m03 = result[3];
+    this.m10 = result[4];
+    this.m11 = result[5];
+    this.m12 = result[6];
+    this.m13 = result[7];
+    this.m20 = result[8];
+    this.m21 = result[9];
+    this.m22 = result[10];
+    this.m23 = result[11];
+    this.m30 = result[12];
+    this.m31 = result[13];
+    this.m32 = result[14];
+    this.m33 = result[15];
+
+    return this;
   }
 
   // fov ... rad

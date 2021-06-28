@@ -35,8 +35,8 @@ export default class Material {
   //   return textureUniforms;
   // }
 
-  updateUniforms({ modelMatrix, viewMatrix, projectionMatrix }) {
-    // 特殊な扱いのmatrixは明示的にupdate
+  // 特殊な扱いのmatrixは明示的にupdate
+  updateUniforms({ modelMatrix, viewMatrix, projectionMatrix, normalMatrix }) {
     const uniformModelMatrix =
       this.uniforms[
         Object.keys(this.uniforms).find((name) => name === 'uModelMatrix')
@@ -59,6 +59,13 @@ export default class Material {
       ];
     if (uniformProjectionMatrix) {
       uniformProjectionMatrix.data = projectionMatrix.getArray();
+    }
+    const uniformNormalMatrix =
+      this.uniforms[
+        Object.keys(this.uniforms).find((name) => name === 'uNormalMatrix')
+      ];
+    if (uniformNormalMatrix) {
+      uniformNormalMatrix.data = normalMatrix.getArray();
     }
   }
 }
