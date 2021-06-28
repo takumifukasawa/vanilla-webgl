@@ -86,7 +86,7 @@ void main() {
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/sphere-32x32.obj');
+  const data = await loadObj('./model/suzanne.obj');
 
   //
   // vertex positions
@@ -168,7 +168,8 @@ const init = async () => {
   objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
+        const t = Matrix4
+          .multiplyMatrices
           // Matrix4.createTranslationMatrix(
           //   new Vector3(
           //     Math.sin(time * 0.2) * 0.5,
@@ -176,11 +177,11 @@ const init = async () => {
           //     Math.sin(time * 0.9) * 0.8
           //   )
           // ),
-          Matrix4.createRotationXMatrix(time * 0.7),
-          Matrix4.createRotationYMatrix(time * 0.8),
-          Matrix4.createRotationZMatrix(time * 0.9)
+          // Matrix4.createRotationXMatrix(time * 0.7),
+          // Matrix4.createRotationYMatrix(time * 0.8),
+          // Matrix4.createRotationZMatrix(time * 0.9)
           // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-        );
+          ();
         actor.worldTransform = t;
       },
     })
