@@ -86,7 +86,7 @@ void main() {
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/sphere-32x32.obj');
+  const data = await loadObj('./model/suzanne.obj');
 
   //
   // vertex positions

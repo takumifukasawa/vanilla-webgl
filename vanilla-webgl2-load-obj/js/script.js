@@ -189,16 +189,6 @@ const init = async () => {
 
   actors.push(objMeshActor);
 
-  //
-  // vertex positions
-  //
-  // 0 ----------1
-  // |         / |
-  // |       /   |
-  // |     /     |
-  // |   /       |
-  // | /         |
-  // 2 --------- 3
   const floorGeometry = new Geometry({
     gpu,
     attributes: {
