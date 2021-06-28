@@ -77,7 +77,7 @@ void main() {
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/sphere-32x32.obj');
+  const data = await loadObj('./model/suzanne.obj');
 
   const objGeometry = new Geometry({
     gpu,
@@ -348,7 +348,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 0.5);
+      const ratio = Math.min(window.devicePixelRatio, 1.5);
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
       const targetWidth = states.viewportWidth * ratio;
