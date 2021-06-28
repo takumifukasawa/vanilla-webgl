@@ -9,6 +9,7 @@ import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import loadObj from './libs/loadObj.js';
+import DirectionalLight from './libs/DirectionalLight.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -31,32 +32,33 @@ let startTime = null;
 let beforeTime = null;
 let deltaTime = 0;
 
-const planeVertexShader = `#version 300 es
+let objMeshActor;
+let floorMeshActor;
+
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 40);
+
+const directionalLight = new DirectionalLight({
+  color: Vector3.one(),
+  position: Vector3.one(),
+});
+
+const objVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
+layout (location = 2) in vec3 aNormal;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 
 out vec2 vUv;
+out vec3 vNormal;
 
 void main() {
   vUv = aUv;
+  vNormal = aNormal;
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
-}
-`;
-
-const planeFragmentShader = `#version 300 es
-precision mediump float;
-
-in vec2 vUv;
-
-out vec4 outColor;
-
-void main() {
-  outColor = vec4(vUv, 1., 1.);
 }
 `;
 
@@ -85,20 +87,23 @@ void main() {
 }
 `;
 
-const init = async () => {
-  const data = await loadObj('./model/suzanne.obj');
+const phongFragmentShader = `#version 300 es
+precision mediump float;
+uniform vec3 uDirectionalLightPosition;
+in vec3 vNormal;
+in vec3 vWorldPosition;
+out vec4 outColor;
+void main() {
+  vec3 L = normalize(uDirectionalLightPosition);
+  vec3 N = vNormal;
+  float diffuse = dot(L, N);
+  outColor = vec4(vec3(diffuse), 1.);
+}
+`;
 
-  //
-  // vertex positions
-  //
-  //      4----------5
-  //    / |        / |
-  //  /   |      /   |
-  // 0 ------- 1     |
-  // |    6----|-----7
-  // |   /     |   /
-  // | /       | /
-  // 2 ------- 3
+const init = async () => {
+  const data = await loadObj('./model/sphere-16x16.obj');
+
   const objGeometry = new Geometry({
     gpu,
     attributes: {
@@ -110,13 +115,17 @@ const init = async () => {
         data: data.uvs,
         stride: 2,
       },
+      aNormal: {
+        data: data.normals,
+        stride: 3,
+      },
     },
   });
 
   const objMaterial = new Material({
     gpu,
-    vertexShader: planeVertexShader,
-    fragmentShader: planeFragmentShader,
+    vertexShader: objVertexShader,
+    fragmentShader: phongFragmentShader,
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
@@ -130,35 +139,15 @@ const init = async () => {
         type: GPU.UniformTypes.Matrix4fv,
         data: Matrix4.identity().getArray(),
       },
-      uTextureXPlus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
-      },
-      uTextureXMinus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
-      },
-      uTextureYPlus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
-      },
-      uTextureYMinus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
-      },
-      uTextureZPlus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
-      },
-      uTextureZMinus: {
-        type: GPU.UniformTypes.Texture2D,
-        data: null,
+      uDirectionalLightPosition: {
+        type: GPU.UniformTypes.Vector3f,
+        data: directionalLight.position.getArray(),
       },
     },
     primitiveType: GPU.Primitives.Triangle,
   });
 
-  const objMeshActor = new MeshActor({
+  objMeshActor = new MeshActor({
     meshComponent: new MeshComponent({
       geometry: objGeometry,
       material: objMaterial,
@@ -168,7 +157,8 @@ const init = async () => {
   objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
+        const t = Matrix4
+          .multiplyMatrices
           // Matrix4.createTranslationMatrix(
           //   new Vector3(
           //     Math.sin(time * 0.2) * 0.5,
@@ -176,11 +166,11 @@ const init = async () => {
           //     Math.sin(time * 0.9) * 0.8
           //   )
           // ),
-          Matrix4.createRotationXMatrix(time * 0.7),
-          Matrix4.createRotationYMatrix(time * 0.8),
-          Matrix4.createRotationZMatrix(time * 0.9)
+          // Matrix4.createRotationXMatrix(time * 0.7),
+          // Matrix4.createRotationYMatrix(time * 0.8),
+          // Matrix4.createRotationZMatrix(time * 0.9)
           // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-        );
+          ();
         actor.worldTransform = t;
       },
     })
@@ -246,7 +236,7 @@ const init = async () => {
     primitiveType: GPU.Primitives.Triangles,
   });
 
-  const floorMeshActor = new MeshActor({
+  floorMeshActor = new MeshActor({
     meshComponent: new MeshComponent({
       geometry: floorGeometry,
       material: floorMaterial,
@@ -267,8 +257,6 @@ const init = async () => {
 
   actors.push(floorMeshActor);
 };
-
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 40);
 
 const onWindowResize = () => {
   states.isResized = true;
@@ -370,8 +358,7 @@ const tick = (t) => {
     }
   }
 
-  // gpu.getGl().colorMask(true, true, true, true);
-  // gpu.getGl().colorMask(false, false, false, true);
+  // clear context
   gpu.clear(0, 0, 0, 1);
 
   // start

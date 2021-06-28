@@ -18,6 +18,7 @@ export default class GPU {
   };
   static UniformTypes = {
     Matrix4fv: 'Matrix4fv',
+    Vector3f: 'Vector3f',
     Texture2D: 'Texture2D',
     Float: 'Float',
   };
@@ -121,6 +122,9 @@ export default class GPU {
           break;
         case GPU.UniformTypes.Matrix4fv:
           gl.uniformMatrix4fv(location, false, data);
+          break;
+        case GPU.UniformTypes.Vector3f:
+          gl.uniform3fv(location, data);
           break;
         case GPU.UniformTypes.Texture2D:
           // TODO: textureが最大数よりも大きくなるときの対応が必要

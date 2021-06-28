@@ -14,8 +14,14 @@ export class Vector3 {
     this.z /= s;
     return this;
   }
+  getArray() {
+    return [this.x, this.y, this.z];
+  }
   static zero() {
     return new Vector3(0, 0, 0);
+  }
+  static one() {
+    return new Vector3(1, 1, 1);
   }
   static subVectors(a, b) {
     const x = a.x - b.x;
