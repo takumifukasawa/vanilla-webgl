@@ -77,7 +77,8 @@ void main() {
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/suzanne.obj');
+  // const data = await loadObj('./model/suzanne.obj');
+  const data = await loadObj('./model/torus-48x48.obj');
 
   const objGeometry = new Geometry({
     gpu,
@@ -136,20 +137,19 @@ const init = async () => {
   objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        // const t = Matrix4
-        //   .multiplyMatrices(
-        //   //   new Vector3(
-        //   //     Math.sin(time * 0.2) * 0.5,
-        //   //     Math.sin(time * 0.4) * 0.9,
-        //   //     Math.sin(time * 0.9) * 0.8
-        //   //   )
-        //   // ),
-        //   // Matrix4.createRotationXMatrix(time * 0.7),
-        //   // Matrix4.createRotationYMatrix(time * 0.8)
-        //   // Matrix4.createRotationZMatrix(time * 0.9)
-        //   // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
-        //   );
-        // actor.worldTransform = t;
+        const t = Matrix4.multiplyMatrices(
+          //   new Vector3(
+          //     Math.sin(time * 0.2) * 0.5,
+          //     Math.sin(time * 0.4) * 0.9,
+          //     Math.sin(time * 0.9) * 0.8
+          //   )
+          // ),
+          Matrix4.createRotationXMatrix(time * 0.2),
+          Matrix4.createRotationYMatrix(time * 0.3),
+          Matrix4.createRotationZMatrix(time * 0.4)
+          // Matrix4.createScalingMatrix(new Vector3(1.4, 2, 1.2))
+        );
+        actor.worldTransform = t;
       },
     })
   );
@@ -243,7 +243,7 @@ const init = async () => {
     new ScriptComponent({
       startFunc: function ({ actor, time, deltaTime }) {
         const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
+          Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
           Matrix4.createRotationXMatrix(Math.PI * 0.5)
         );
         actor.worldTransform = t;
