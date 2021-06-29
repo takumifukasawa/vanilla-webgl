@@ -85,9 +85,8 @@ void main() {
   vec3 vertexPosition = vWorldPosition;
   vec3 cameraPosition = uCameraPosition;
 
-  vec3 PtoL = lightDir;
+  vec3 PtoL = lightDir; // for directional light
   vec3 PtoE = normalize(cameraPosition - vertexPosition);
-  vec3 H = normalize(PtoL + PtoE);
   vec3 R = reflect(-PtoL, normal);
 
   float diffuse = max(0., dot(PtoL, normal));
