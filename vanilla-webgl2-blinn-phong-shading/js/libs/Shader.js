@@ -28,7 +28,7 @@ export default class Shader {
 
     const programInfo = gl.getProgramInfoLog(this.program);
     if (programInfo.length > 0) {
-      throw Info;
+      throw programInfo;
     }
   }
   getProgram() {
