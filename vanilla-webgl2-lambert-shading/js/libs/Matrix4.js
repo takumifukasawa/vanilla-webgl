@@ -64,6 +64,10 @@ export class Matrix4 {
     return this;
   }
 
+  getTranslationVector() {
+    return new Vector3(this.m30, this.m31, this.m32);
+  }
+
   static createRotationXMatrix(rad) {
     const c = Math.cos(rad);
     const s = Math.sin(rad);
@@ -183,7 +187,6 @@ export class Matrix4 {
   }
 
   clone() {
-    // prettier-ignore
     return Matrix4.cloneMatrix(this);
   }
 
@@ -227,8 +230,11 @@ export class Matrix4 {
     return m;
   }
 
-  multiplyMatrix(b) {
+  // AxB
+  // れつオーダーなので B->Aでかける
+  multiplyMatrix(targetMatrix) {
     const a = this.clone();
+    const b = targetMatrix.clone();
 
     this.m00 = a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20 + a.m03 * b.m30;
     this.m01 = a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21 + a.m03 * b.m31;
@@ -278,7 +284,7 @@ export class Matrix4 {
     this.m23 = tmpM.m32;
     this.m30 = tmpM.m03;
     this.m31 = tmpM.m13;
-    this.m32 = tmpM.m32;
+    this.m32 = tmpM.m23;
     this.m33 = tmpM.m33;
     return this;
   }

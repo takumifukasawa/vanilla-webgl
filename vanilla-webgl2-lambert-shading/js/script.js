@@ -406,7 +406,7 @@ const tick = (t) => {
         modelMatrix: meshActor.worldTransform,
         viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
-        normalMatrix: meshActor.worldTransform.clone().transpose().inverse(),
+        normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
       });
     });
   }

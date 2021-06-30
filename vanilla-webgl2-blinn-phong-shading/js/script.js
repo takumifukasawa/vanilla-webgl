@@ -35,7 +35,7 @@ let deltaTime = 0;
 let objMeshActor;
 let floorMeshActor;
 
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 40);
+const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 20);
 
 const directionalLight = new DirectionalLight({
   color: Vector3.one(),
@@ -84,7 +84,9 @@ void main() {
   vec3 vertexPosition = vWorldPosition;
   vec3 cameraPosition = uCameraPosition;
 
+  // vec3 N = normalize((uNormalMatrix * vec4(normalize(vNormal), 1.)).xyz);
   vec3 N = normalize((uNormalMatrix * vec4(normalize(vNormal), 1.)).xyz);
+ //  vec3 N = normalize((nm * vec4(normalize(vNormal), 1.)).xyz);
 
   vec3 PtoL = lightDir; // for directional light
   vec3 PtoE = normalize(cameraPosition - vertexPosition);
@@ -205,10 +207,10 @@ const init = async () => {
       aPosition: {
         // prettier-ignore
         data: [
-          -3, 3, 0,
-          3, 3, 0,
-          -3, -3, 0,
-          3, -3, 0,
+          -3, 0, -3,
+          3, 0, -3,
+          -3, 0, 3,
+          3, 0, 3,
         ],
         stride: 3,
       },
@@ -225,10 +227,10 @@ const init = async () => {
       aNormal: {
         // prettier-ignore
         data: [
-          0, 0, 1,
-          0, 0, 1,
-          0, 0, 1,
-          0, 0, 1,
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
+          0, 1, 0,
         ],
         stride: 3,
       },
@@ -281,11 +283,19 @@ const init = async () => {
     new ScriptComponent({
       startFunc: function ({ actor, time, deltaTime }) {
         const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
-          Matrix4.createRotationXMatrix(Math.PI * 0.5)
+          Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0))
+          // Matrix4.createRotationXMatrix(Math.PI * -0.5)
         );
         actor.worldTransform = t;
       },
+      // updateFunc: function ({ actor, time, deltaTime }) {
+      //   const t = Matrix4.multiplyMatrices(
+      //     Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
+      //     Matrix4.createRotationXMatrix(Math.PI * 0.5)
+      //   );
+      //   actor.worldTransform = t;
+      //   // console.log(t.clone());
+      // },
     })
   );
 
@@ -411,8 +421,8 @@ const tick = (t) => {
 
   // update
   {
-    const w = 10;
-    const h = 10;
+    const w = 5;
+    const h = 5;
     const dumping = 0.05;
     const targetX = w * states.mouseX;
     const targetY = h * states.mouseY;
@@ -443,11 +453,11 @@ const tick = (t) => {
         deltaTime,
         geometry: meshActor.meshComponent.geometry,
         material: meshActor.meshComponent.material,
-        modelMatrix: meshActor.worldTransform.clone(),
+        modelMatrix: meshActor.worldTransform,
         viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
-        // normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        normalMatrix: meshActor.worldTransform.clone().transpose().inverse(),
+        normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+        // normalMatrix: meshActor.worldTransform.clone().transpose().inverse(),
         cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
       });
     });
