@@ -117,7 +117,10 @@ void main() {
   color += diffuseColor * diffuse;
   color += specularColor * pow(specular, specularPower);
 
-  outColor = vec4(vec3(diffuse), 1.);
+  // for debug
+  // color = vec3(diffuse)
+
+  outColor = vec4(color, 1.);
 }
 `;
 
