@@ -111,7 +111,7 @@ void main() {
 
   float height = texture(uHeightMap, vUv).r;
 
-  float heightRate = .02;
+  float heightRate = .04;
 
   vec2 offsetUv = ((EtoP.xy) / EtoP.z) * height * heightRate;
   vec2 uv = vUv - offsetUv;
@@ -129,10 +129,12 @@ void main() {
 
   vec3 diffuseColor = texture(uBaseColorMap, uv).rgb;
   vec3 specularColor = envMapColor.rgb;
+  vec3 environmentColor = vec3(.025);
 
   vec3 color = vec3(0.);
   color += diffuseColor * diffuse;
-  // color += specularColor * pow(specular, specularPower);
+  color += specularColor * pow(specular, specularPower);
+  color += environmentColor;
 
   // for debug
   // color = envMapColor.xyz;
