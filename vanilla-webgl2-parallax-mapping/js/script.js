@@ -102,8 +102,6 @@ void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
 
-  float normalPower = 1.;
-
   vec3 PtoL = lightDir; // for directional light
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
@@ -116,8 +114,14 @@ void main() {
   vec2 offsetUv = ((EtoP.xy) / EtoP.z) * height * heightRate;
   vec2 uv = vUv - offsetUv;
 
+  float normalBlend = 1.;
+
   vec4 nt = texture(uNormalMap, uv) * 2. - 1.;
-  vec3 N = normalize(mat3(vTangent, vBinormal, vNormal) * nt.xyz) * normalPower;
+  vec3 N = mix(
+    vNormal,
+    normalize(mat3(vTangent, vBinormal, vNormal) * nt.xyz),
+    normalBlend
+  );
 
   vec3 cubeMapDir = reflect(EtoP, N);
   vec4 envMapColor = texture(uCubeMap, cubeMapDir);

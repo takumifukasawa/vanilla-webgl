@@ -100,10 +100,14 @@ void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
 
-  float normalPower = .3;
+  float normalBlend = .05;
 
   vec4 nt = texture(uNormalMap, vUv) * 2. - 1.;
-  vec3 N = normalize(mat3(vTangent, vBinormal, vNormal) * nt.xyz) * normalPower;
+  vec3 N = mix(
+    vNormal,
+    normalize(mat3(vTangent, vBinormal, vNormal) * nt.xyz),
+    normalBlend
+  );
 
   vec3 PtoL = lightDir; // for directional light
   vec3 PtoE = normalize(cameraPosition - worldPosition);
@@ -137,12 +141,18 @@ const init = async () => {
 
   const [normalMapImg, ...cubeMapImages] = await Promise.all([
     loadImg('./img/Tiles_Wall_001_normal.jpg'),
-    loadImg('./img/skybox-px.jpg'),
-    loadImg('./img/skybox-py.jpg'),
-    loadImg('./img/skybox-pz.jpg'),
-    loadImg('./img/skybox-nx.jpg'),
-    loadImg('./img/skybox-ny.jpg'),
-    loadImg('./img/skybox-nz.jpg'),
+    // loadImg('./img/skybox-px.jpg'),
+    // loadImg('./img/skybox-py.jpg'),
+    // loadImg('./img/skybox-pz.jpg'),
+    // loadImg('./img/skybox-nx.jpg'),
+    // loadImg('./img/skybox-ny.jpg'),
+    // loadImg('./img/skybox-nz.jpg'),
+    loadImg('./img/dir-px.png'),
+    loadImg('./img/dir-py.png'),
+    loadImg('./img/dir-pz.png'),
+    loadImg('./img/dir-nx.png'),
+    loadImg('./img/dir-ny.png'),
+    loadImg('./img/dir-nz.png'),
   ]);
 
   const normalMapTexture = new Texture({ gpu, img: normalMapImg });
