@@ -1,11 +1,15 @@
-export default class CubeMap {
+import GLObject from './GLObject.js';
+
+export default class CubeMap extends GLObject {
   #texture;
 
-  get texture() {
+  get glObject() {
     return this.#texture;
   }
 
   constructor({ gpu, images, targets }) {
+    super();
+
     const gl = gpu.gl;
 
     this.#texture = gl.createTexture();

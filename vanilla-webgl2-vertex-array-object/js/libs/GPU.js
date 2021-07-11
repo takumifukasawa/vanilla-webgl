@@ -142,7 +142,7 @@ export default class GPU {
             type === GPU.UniformTypes.Texture2D
               ? gl.TEXTURE_2D
               : gl.TEXTURE_CUBE_MAP,
-            data ? data.texture : this.dummyTexture.texture,
+            data ? data.glObject : this.dummyTexture.glObject,
           );
           gl.uniform1i(location, activeTextureIndex);
           activeTextureIndex++;

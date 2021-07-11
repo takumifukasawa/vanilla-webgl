@@ -1,11 +1,15 @@
-export default class Texture {
+import GLObject from './GLObject.js';
+
+export default class Texture extends GLObject {
   #texture;
 
-  get texture() {
+  get glObject() {
     return this.#texture;
   }
 
   constructor({ gpu, img }) {
+    super();
+
     const gl = gpu.gl;
 
     this.#texture = gl.createTexture();
