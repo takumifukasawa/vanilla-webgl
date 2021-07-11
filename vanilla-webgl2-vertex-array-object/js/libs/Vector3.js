@@ -48,4 +48,13 @@ export class Vector3 {
   equals(v) {
     return this.x === v.x && this.y === v.y && this.z === v.z;
   }
+  static getTangent(n) {
+    if (n.equals(new Vector3(0, -1, 0))) {
+      return Vector3.crossVectors(n, new Vector3(0, 0, 1));
+    }
+    if (n.equals(new Vector3(0, 1, 0))) {
+      return Vector3.crossVectors(n, new Vector3(0, 0, 1));
+    }
+    return Vector3.crossVectors(n, new Vector3(0, -1, 0));
+  }
 }
