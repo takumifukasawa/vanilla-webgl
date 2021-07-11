@@ -33,7 +33,7 @@ export default class GPU {
     this.shader = null;
     // this.attributes = null;
     this.uniforms = null;
-    // this.indices = null;
+    this.indices = null;
     this.dummyTexture = new Texture({ gpu: this, img: createWhite1x1() });
   }
   setShader(shader) {
@@ -45,9 +45,9 @@ export default class GPU {
   setVertex(vao) {
     this.vao = vao;
   }
-  // setIndices(indices) {
-  //   this.indices = indices;
-  // }
+  setIndices(indices) {
+    this.indices = indices;
+  }
   setUniforms(uniforms) {
     this.uniforms = uniforms;
   }
@@ -154,27 +154,27 @@ export default class GPU {
     // indices
     // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
     // draw
-    gl.drawElements(
-      primitives[primitiveType],
-      vertexCount,
-      gl.UNSIGNED_SHORT,
-      startVertexOffset,
-    );
+    // gl.drawElements(
+    //   primitives[primitiveType],
+    //   vertexCount,
+    //   gl.UNSIGNED_SHORT,
+    //   startVertexOffset,
+    // );
 
-    // // TODO: indicesがあるかないかどうかでも見るべき？
-    // if (this.indices) {
-    //   // indices
-    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
-    //   // draw
-    //   gl.drawElements(
-    //     primitives[primitiveType],
-    //     vertexCount,
-    //     gl.UNSIGNED_SHORT,
-    //     startVertexOffset,
-    //   );
-    // } else {
-    //   gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
-    // }
+    // TODO: indicesがあるかないかどうかでも見るべき？
+    if (this.indices) {
+      // indices
+      // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices.buffer.getBuffer());
+      // draw
+      gl.drawElements(
+        primitives[primitiveType],
+        vertexCount,
+        gl.UNSIGNED_SHORT,
+        startVertexOffset,
+      );
+    } else {
+      gl.drawArrays(primitives[primitiveType], startVertexOffset, vertexCount);
+    }
 
     // if (primitiveType === GPU.Primitives.Points) {
     //   // 第一引数は実質pointのみ

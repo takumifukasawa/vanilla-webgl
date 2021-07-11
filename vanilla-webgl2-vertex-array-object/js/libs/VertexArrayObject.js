@@ -1,5 +1,6 @@
 export default class VertexArrayObject {
   #vao;
+  #hasIndices;
 
   get glObject() {
     return this.#vao;
