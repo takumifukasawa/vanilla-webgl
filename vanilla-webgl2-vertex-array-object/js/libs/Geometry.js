@@ -1,5 +1,5 @@
 import Attribute from './Attribute.js';
-import { Vector3 } from './Vector3.js';
+import Vector3 from './Vector3.js';
 import VertexArrayObject from './VertexArrayObject.js';
 
 export default class Geometry {

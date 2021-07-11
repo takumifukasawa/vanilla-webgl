@@ -1,5 +1,5 @@
 import Camera from './Camera.js';
-import { Matrix4 } from './Matrix4.js';
+import Matrix4 from './Matrix4.js';
 
 export default class PerspectiveCamera extends Camera {
   constructor(fov, aspect, nearClip, farClip) {

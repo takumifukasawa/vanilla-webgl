@@ -1,6 +1,6 @@
-import { Vector3 } from './Vector3.js';
+import Vector3 from './Vector3.js';
 
-export class Matrix4 {
+export default class Matrix4 {
   // prettier-ignore
   constructor(
     m00, m01, m02, m03,
