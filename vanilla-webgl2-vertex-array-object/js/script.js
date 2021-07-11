@@ -14,6 +14,7 @@ import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
 import CubeMap from './libs/CubeMap.js';
 import Attribute from './libs/Attribute.js';
+import Renderer from './libs/Renderer.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -38,6 +39,8 @@ let deltaTime = 0;
 
 let objMeshActor;
 let floorMeshActor;
+
+const renderer = new Renderer();
 
 const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
@@ -412,73 +415,6 @@ const onWindowResize = () => {
   states.isResized = true;
 };
 
-// NOTE: renderer的なクラスにするのがよい
-const render = ({
-  gpu,
-  time,
-  deltaTime,
-  geometry,
-  material,
-  modelMatrix,
-  viewMatrix,
-  projectionMatrix,
-  normalMatrix,
-  cameraPosition,
-}) => {
-  // stateの切り替えはアプリケーションレベルで行う
-  const gl = gpu.gl;
-
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-
-  if (material.transparent) {
-    gl.depthMask(false);
-    gl.enable(gl.BLEND);
-    switch (material.blendType) {
-      case GPU.BlendTypes.Alpha:
-        gl.blendFuncSeparate(
-          gl.SRC_ALPHA,
-          gl.ONE_MINUS_SRC_ALPHA,
-          gl.ONE,
-          gl.ONE,
-        );
-        break;
-      case GPU.BlendTypes.Additive:
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
-        break;
-      default:
-        throw 'should specify blend type';
-    }
-  } else {
-    gl.depthMask(true);
-    gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ZERO);
-  }
-
-  material.updateUniforms({
-    modelMatrix,
-    viewMatrix,
-    projectionMatrix,
-    normalMatrix,
-    cameraPosition,
-  });
-
-  gpu.setShader(material.shader);
-  gpu.setVertex(geometry.vao);
-  // gpu.setAttributes(geometry.attributes);
-  // gpu.setTextures(material.textures);
-  gpu.setUniforms(material.uniforms);
-  if (geometry.indices) {
-    gpu.setIndices(geometry.indices);
-    gpu.draw(geometry.indices.length, material.primitiveType);
-  } else {
-    // TODO: attributeのvertexにtypeをもたせる
-    gpu.draw(geometry.vertexCount, material.primitiveType);
-  }
-  gpu.resetData();
-};
-
 const tick = (t) => {
   // skip first frame
   if (startTime === null) {
@@ -543,7 +479,7 @@ const tick = (t) => {
       (actor) => actor.type === Actor.Types.MeshActor,
     );
     meshActors.forEach((meshActor) => {
-      render({
+      renderer.render({
         gpu,
         time,
         deltaTime,
