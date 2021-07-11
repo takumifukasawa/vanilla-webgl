@@ -185,99 +185,104 @@ const init = async () => {
 
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
 
-  // const objGeometry = new Geometry({
-  //   gpu,
-  //   attributes: {
-  //     aPosition: {
-  //       data: data.positions,
-  //       stride: 3,
-  //     },
-  //     aUv: {
-  //       data: data.uvs,
-  //       stride: 2,
-  //     },
-  //     aNormal: {
-  //       data: data.normals,
-  //       stride: 3,
-  //     },
-  //   },
-  // });
+  const objGeometry = new Geometry({
+    gpu,
+    attributes: [
+      {
+        type: Attribute.Types.Position,
+        data: data.positions,
+        stride: 3,
+      },
+      {
+        type: Attribute.Types.Uv,
+        data: data.uvs,
+        stride: 2,
+      },
+      {
+        type: Attribute.Types.Normal,
+        data: data.normals,
+        stride: 3,
+      },
+      Attribute.createTangent(data.normals),
+      Attribute.createBinormal(data.normals),
+    ],
+  });
 
-  // const objMaterial = new Material({
-  //   gpu,
-  //   vertexShader: baseVertexShader,
-  //   fragmentShader: fragmentShader,
-  //   uniforms: {
-  //     uModelMatrix: {
-  //       type: GPU.UniformTypes.Matrix4fv,
-  //       data: Matrix4.identity().getArray(),
-  //     },
-  //     uInvModelMatrix: {
-  //       type: GPU.UniformTypes.Matrix4fv,
-  //       data: Matrix4.identity().getArray(),
-  //     },
-  //     uViewMatrix: {
-  //       type: GPU.UniformTypes.Matrix4fv,
-  //       data: Matrix4.identity().getArray(),
-  //     },
-  //     uProjectionMatrix: {
-  //       type: GPU.UniformTypes.Matrix4fv,
-  //       data: Matrix4.identity().getArray(),
-  //     },
-  //     uNormalMatrix: {
-  //       type: GPU.UniformTypes.Matrix4fv,
-  //       data: Matrix4.identity().getArray(),
-  //     },
-  //     uDirectionalLightPosition: {
-  //       type: GPU.UniformTypes.Vector3f,
-  //       data: directionalLight.position.getArray(),
-  //     },
-  //     uCameraPosition: {
-  //       type: GPU.UniformTypes.Vector3f,
-  //       data: Vector3.one().getArray(),
-  //     },
-  //     uBaseColorMap: {
-  //       type: GPU.UniformTypes.Texture2D,
-  //       data: baseColorMapTexture,
-  //     },
-  //     uNormalMap: {
-  //       type: GPU.UniformTypes.Texture2D,
-  //       data: normalMapTexture,
-  //     },
-  //     uHeightMap: {
-  //       type: GPU.UniformTypes.Texture2D,
-  //       data: heightMapTexture,
-  //     },
-  //     uCubeMap: {
-  //       type: GPU.UniformTypes.CubeMap,
-  //       data: cubeMapTexture,
-  //     },
-  //   },
-  //   primitiveType: GPU.Primitives.Triangle,
-  // });
+  const objMaterial = new Material({
+    gpu,
+    vertexShader: baseVertexShader,
+    fragmentShader: fragmentShader,
+    uniforms: {
+      uModelMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
+      uInvModelMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
+      uViewMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
+      uProjectionMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
+      uNormalMatrix: {
+        type: GPU.UniformTypes.Matrix4fv,
+        data: Matrix4.identity().getArray(),
+      },
+      uDirectionalLightPosition: {
+        type: GPU.UniformTypes.Vector3f,
+        data: directionalLight.position.getArray(),
+      },
+      uCameraPosition: {
+        type: GPU.UniformTypes.Vector3f,
+        data: Vector3.one().getArray(),
+      },
+      uBaseColorMap: {
+        type: GPU.UniformTypes.Texture2D,
+        data: baseColorMapTexture,
+      },
+      uNormalMap: {
+        type: GPU.UniformTypes.Texture2D,
+        data: normalMapTexture,
+      },
+      uHeightMap: {
+        type: GPU.UniformTypes.Texture2D,
+        data: heightMapTexture,
+      },
+      uCubeMap: {
+        type: GPU.UniformTypes.CubeMap,
+        data: cubeMapTexture,
+      },
+    },
+    primitiveType: GPU.Primitives.Triangle,
+  });
 
-  // objMeshActor = new MeshActor({
-  //   name: 'obj',
-  //   meshComponent: new MeshComponent({
-  //     geometry: objGeometry,
-  //     material: objMaterial,
-  //   }),
-  // });
+  objMeshActor = new MeshActor({
+    name: 'obj',
+    meshComponent: new MeshComponent({
+      geometry: objGeometry,
+      material: objMaterial,
+    }),
+  });
 
-  // objMeshActor.addComponent(
-  //   new ScriptComponent({
-  //     updateFunc: function ({ actor, time, deltaTime }) {
-  //       const t = Matrix4.multiplyMatrices(
-  //         Matrix4.createRotationYMatrix(time * 0.3),
-  //         Matrix4.createRotationXMatrix(time * 0.4),
-  //         Matrix4.createRotationZMatrix(time * 0.5),
-  //       );
-  //       actor.worldTransform = t;
-  //     },
-  //   }),
-  // );
+  objMeshActor.addComponent(
+    new ScriptComponent({
+      updateFunc: function ({ actor, time, deltaTime }) {
+        const t = Matrix4.multiplyMatrices(
+          Matrix4.createRotationYMatrix(time * 0.3),
+          Matrix4.createRotationXMatrix(time * 0.4),
+          Matrix4.createRotationZMatrix(time * 0.5),
+        );
+        actor.worldTransform = t;
+      },
+    }),
+  );
 
-  // actors.push(objMeshActor);
+  actors.push(objMeshActor);
 
   //
   // plane vertex positions
