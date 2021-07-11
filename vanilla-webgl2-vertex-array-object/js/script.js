@@ -326,6 +326,12 @@ const init = async () => {
         ],
         stride: 3,
       },
+      {
+        type: Attribute.Types.Tangent,
+      },
+      {
+        type: Attribute.Types.Binormal,
+      },
     ],
     indices: [0, 2, 1, 1, 2, 3],
   });

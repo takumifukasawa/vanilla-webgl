@@ -31,50 +31,56 @@ export default class Geometry {
     this.attributes = attributes;
     this.indices = indices;
 
-    if (normal && autoGenerateTangents) {
-      const tangents = [];
-      for (let i = 0; i < normal.data.length; i += 3) {
-        const n = new Vector3(
-          normal.data[i],
-          normal.data[i + 1],
-          normal.data[i + 2],
-        );
-        const t = getTangent(n);
-        tangents.push(...t.getArray());
-      }
-      this.attributes.push({
-        type: Attribute.Types.Tangent,
-        data: tangents,
-        stride: 3,
-      });
-    }
-
-    if (normal && autoGenerateBinormals) {
-      const binormals = [];
-      for (let i = 0; i < normal.data.length; i += 3) {
-        const n = new Vector3(
-          normal.data[i],
-          normal.data[i + 1],
-          normal.data[i + 2],
-        );
-        const t = getTangent(n);
-        const b = Vector3.crossVectors(n, t);
-        binormals.push(...b.getArray());
-      }
-      this.attributes.push({
-        type: Attribute.Types.Binormal,
-        data: binormals,
-        stride: 3,
-      });
-    }
-
     this.attributes = [...this.attributes].map((attribute, i) => {
+      const location =
+        attribute.location === undefined ? i : attribute.location;
+
+      if (normal) {
+        switch (attribute.type) {
+          case Attribute.Types.Tangent:
+            const tangents = [];
+            for (let i = 0; i < normal.data.length; i += 3) {
+              const n = new Vector3(
+                normal.data[i],
+                normal.data[i + 1],
+                normal.data[i + 2],
+              );
+              const t = getTangent(n);
+              tangents.push(...t.getArray());
+            }
+            return {
+              ...attribute,
+              data: tangents,
+              location,
+              stride: 3,
+            };
+
+          case Attribute.Types.Binormal:
+            const binormals = [];
+            for (let i = 0; i < normal.data.length; i += 3) {
+              const n = new Vector3(
+                normal.data[i],
+                normal.data[i + 1],
+                normal.data[i + 2],
+              );
+              const t = getTangent(n);
+              const b = Vector3.crossVectors(n, t);
+              binormals.push(...b.getArray());
+            }
+            return {
+              ...attribute,
+              data: binormals,
+              location,
+              stride: 3,
+            };
+        }
+      }
+
       return {
         ...attribute,
-        location: attribute.location === undefined ? i : attribute.location,
+        location,
       };
     });
-    console.log(this.attributes);
 
     this.vao = new VertexArrayObject({
       gl,
