@@ -1,3 +1,4 @@
+import Attribute from './Attribute.js';
 import IndexBuffer from './IndexBuffer.js';
 import { Vector3 } from './Vector3.js';
 import VertexArrayObject from './VertexArrayObject.js';
@@ -23,50 +24,57 @@ export default class Geometry {
   }) {
     const gl = gpu.getGl();
 
-    if (attributes.aNormal && autoGenerateTangents) {
+    const normal = attributes.find(
+      ({ type }) => type === Attribute.Types.Normal,
+    );
+
+    this.attributes = attributes;
+    this.indices = indices;
+
+    if (normal && autoGenerateTangents) {
       const tangents = [];
-      for (let i = 0; i < attributes.aNormal.data.length; i += 3) {
+      for (let i = 0; i < normal.data.length; i += 3) {
         const n = new Vector3(
-          attributes.aNormal.data[i],
-          attributes.aNormal.data[i + 1],
-          attributes.aNormal.data[i + 2],
+          normal.data[i],
+          normal.data[i + 1],
+          normal.data[i + 2],
         );
         const t = getTangent(n);
         tangents.push(...t.getArray());
       }
-      attributes.aTangent = {
+      this.attributes.push({
+        type: Attribute.Types.Tangent,
         data: tangents,
         stride: 3,
-      };
+      });
     }
 
-    if (attributes.aNormal && autoGenerateBinormals) {
+    if (normal && autoGenerateBinormals) {
       const binormals = [];
-      for (let i = 0; i < attributes.aNormal.data.length; i += 3) {
+      for (let i = 0; i < normal.data.length; i += 3) {
         const n = new Vector3(
-          attributes.aNormal.data[i],
-          attributes.aNormal.data[i + 1],
-          attributes.aNormal.data[i + 2],
+          normal.data[i],
+          normal.data[i + 1],
+          normal.data[i + 2],
         );
         const t = getTangent(n);
         const b = Vector3.crossVectors(n, t);
         binormals.push(...b.getArray());
       }
-      attributes.aBinormal = {
+      this.attributes.push({
+        type: Attribute.Types.Binormal,
         data: binormals,
         stride: 3,
-      };
+      });
     }
 
-    this.attributes = Object.keys(attributes).map((name, i) => {
-      const { data, stride, location } = attributes[name];
-      const a = {
-        data,
-        stride,
-        location: location === undefined ? i : location,
+    this.attributes = [...this.attributes].map((attribute, i) => {
+      return {
+        ...attribute,
+        location: attribute.location === undefined ? i : attribute.location,
       };
-      return a;
     });
+    console.log(this.attributes);
 
     this.vao = new VertexArrayObject({
       gl,
@@ -82,5 +90,12 @@ export default class Geometry {
     //     buffer: new IndexBuffer({ gl, data: indices }),
     //   };
     // }
+  }
+
+  get vertexCount() {
+    const position = this.attributes.find(
+      ({ type }) => type === Attribute.Types.Position,
+    );
+    return position ? position.data.length / 3 : 0;
   }
 }
