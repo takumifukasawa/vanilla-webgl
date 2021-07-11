@@ -458,6 +458,7 @@ export class Matrix4 {
     return this;
   }
 
+  // ref: https://marina.sys.wakayama-u.ac.jp/~tokoi/?date=20090829
   static getOrthographicMatrix(left, right, bottom, top, near, far) {
     const m00 = 2 / (right - left);
     const m11 = 2 / (top - bottom);
