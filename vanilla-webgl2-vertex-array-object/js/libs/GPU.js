@@ -11,6 +11,7 @@ const createWhite1x1 = () => {
 };
 
 export default class GPU {
+  #gl;
   static Primitives = {
     Points: 'Points',
     Lines: 'Lines',
@@ -29,7 +30,7 @@ export default class GPU {
     None: 'None',
   };
   constructor({ canvasElement }) {
-    this.gl = canvasElement.getContext('webgl2');
+    this.#gl = canvasElement.getContext('webgl2');
     this.shader = null;
     // this.attributes = null;
     this.uniforms = null;
@@ -60,10 +61,10 @@ export default class GPU {
     this.indices = null;
   }
   setSize(width, height) {
-    this.gl.viewport(0, 0, width, height);
+    this.#gl.viewport(0, 0, width, height);
   }
   clear(r, g, b, a) {
-    const gl = this.gl;
+    const gl = this.#gl;
     gl.clearColor(r, g, b, a);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -73,11 +74,11 @@ export default class GPU {
       throw 'has gl error.';
     }
   }
-  getGl() {
-    return this.gl;
+  get gl() {
+    return this.#gl;
   }
   draw(vertexCount, primitiveType, startVertexOffset = 0) {
-    const gl = this.gl;
+    const gl = this.#gl;
     const program = this.shader.glObject;
 
     gl.useProgram(program);

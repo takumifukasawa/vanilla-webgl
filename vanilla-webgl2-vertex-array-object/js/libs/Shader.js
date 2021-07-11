@@ -7,7 +7,7 @@ export default class Shader extends GLObject {
 
   constructor({ gpu, vertexShader, fragmentShader }) {
     super();
-    const gl = gpu.getGl();
+    const gl = gpu.gl;
     this.program = null;
     const vs = gl.createShader(gl.VERTEX_SHADER);
     const fs = gl.createShader(gl.FRAGMENT_SHADER);

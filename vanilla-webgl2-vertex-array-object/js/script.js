@@ -426,7 +426,7 @@ const render = ({
   cameraPosition,
 }) => {
   // stateの切り替えはアプリケーションレベルで行う
-  const gl = gpu.getGl();
+  const gl = gpu.gl;
 
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);

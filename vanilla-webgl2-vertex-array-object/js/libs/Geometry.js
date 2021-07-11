@@ -4,7 +4,7 @@ import VertexArrayObject from './VertexArrayObject.js';
 
 export default class Geometry {
   constructor({ gpu, attributes, indices }) {
-    const gl = gpu.getGl();
+    const gl = gpu.gl;
 
     this.indices = indices;
 

@@ -6,7 +6,7 @@ export default class Texture {
   }
 
   constructor({ gpu, img }) {
-    const gl = gpu.getGl();
+    const gl = gpu.gl;
 
     this.#texture = gl.createTexture();
 
