@@ -218,31 +218,31 @@ const init = async () => {
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uInvModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uViewMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uProjectionMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uNormalMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uDirectionalLightPosition: {
         type: GPU.UniformTypes.Vector3f,
-        data: directionalLight.position.getArray(),
+        data: directionalLight.position,
       },
       uCameraPosition: {
         type: GPU.UniformTypes.Vector3f,
-        data: Vector3.one().getArray(),
+        data: Vector3.one(),
       },
       uBaseColorMap: {
         type: GPU.UniformTypes.Texture2D,
@@ -343,31 +343,31 @@ const init = async () => {
     uniforms: {
       uModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uInvModelMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uViewMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uProjectionMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uNormalMatrix: {
         type: GPU.UniformTypes.Matrix4fv,
-        data: Matrix4.identity().getArray(),
+        data: Matrix4.identity(),
       },
       uDirectionalLightPosition: {
         type: GPU.UniformTypes.Vector3f,
-        data: directionalLight.position.getArray(),
+        data: directionalLight.position,
       },
       uCameraPosition: {
         type: GPU.UniformTypes.Vector3f,
-        data: Vector3.one().getArray(),
+        data: Vector3.one(),
       },
       uBaseColorMap: {
         type: GPU.UniformTypes.Texture2D,

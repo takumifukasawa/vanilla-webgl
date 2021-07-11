@@ -48,7 +48,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uModelMatrix')
       ];
     if (uniformModelMatrix) {
-      uniformModelMatrix.data = modelMatrix.getArray();
+      uniformModelMatrix.data = modelMatrix;
     }
 
     const uniformInvModelMatrix =
@@ -56,7 +56,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uInvModelMatrix')
       ];
     if (uniformInvModelMatrix) {
-      uniformInvModelMatrix.data = modelMatrix.clone().inverse().getArray();
+      uniformInvModelMatrix.data = modelMatrix.clone().inverse();
     }
 
     const uniformViewMatrix =
@@ -64,7 +64,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uViewMatrix')
       ];
     if (uniformViewMatrix) {
-      uniformViewMatrix.data = viewMatrix.getArray();
+      uniformViewMatrix.data = viewMatrix;
     }
 
     const uniformProjectionMatrix =
@@ -72,7 +72,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uProjectionMatrix')
       ];
     if (uniformProjectionMatrix) {
-      uniformProjectionMatrix.data = projectionMatrix.getArray();
+      uniformProjectionMatrix.data = projectionMatrix;
     }
 
     const uniformNormalMatrix =
@@ -80,7 +80,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uNormalMatrix')
       ];
     if (uniformNormalMatrix) {
-      uniformNormalMatrix.data = normalMatrix.getArray();
+      uniformNormalMatrix.data = normalMatrix;
     }
 
     const uniformCameraPosition =
@@ -88,7 +88,7 @@ export default class Material {
         Object.keys(this.uniforms).find((name) => name === 'uCameraPosition')
       ];
     if (uniformCameraPosition) {
-      uniformCameraPosition.data = cameraPosition.getArray();
+      uniformCameraPosition.data = cameraPosition;
     }
   }
 }

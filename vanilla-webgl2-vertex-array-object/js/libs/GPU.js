@@ -129,10 +129,10 @@ export default class GPU {
           gl.uniform1f(location, data);
           break;
         case GPU.UniformTypes.Matrix4fv:
-          gl.uniformMatrix4fv(location, false, data);
+          gl.uniformMatrix4fv(location, false, data.getArray());
           break;
         case GPU.UniformTypes.Vector3f:
-          gl.uniform3fv(location, data);
+          gl.uniform3fv(location, data.getArray());
           break;
         case GPU.UniformTypes.Texture2D:
         case GPU.UniformTypes.CubeMap:
