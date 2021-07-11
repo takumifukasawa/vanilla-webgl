@@ -1,5 +1,12 @@
-export default class Shader {
+import GLObject from './GLObject.js';
+
+export default class Shader extends GLObject {
+  get glObject() {
+    return this.program;
+  }
+
   constructor({ gpu, vertexShader, fragmentShader }) {
+    super();
     const gl = gpu.getGl();
     this.program = null;
     const vs = gl.createShader(gl.VERTEX_SHADER);
@@ -30,8 +37,5 @@ export default class Shader {
     if (programInfo.length > 0) {
       throw programInfo;
     }
-  }
-  getProgram() {
-    return this.program;
   }
 }

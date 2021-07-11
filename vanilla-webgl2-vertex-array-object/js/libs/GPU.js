@@ -78,7 +78,7 @@ export default class GPU {
   }
   draw(vertexCount, primitiveType, startVertexOffset = 0) {
     const gl = this.gl;
-    const program = this.shader.getProgram();
+    const program = this.shader.glObject;
 
     gl.useProgram(program);
 

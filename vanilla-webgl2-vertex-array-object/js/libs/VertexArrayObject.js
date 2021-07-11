@@ -1,12 +1,14 @@
-export default class VertexArrayObject {
+import GLObject from './GLObject.js';
+
+export default class VertexArrayObject extends GLObject {
   #vao;
-  #hasIndices;
 
   get glObject() {
     return this.#vao;
   }
 
   constructor({ gl, attributes, indices }) {
+    super();
     this.#vao = gl.createVertexArray();
     gl.bindVertexArray(this.#vao);
     attributes.forEach((attribute, i) => {
@@ -16,6 +18,7 @@ export default class VertexArrayObject {
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
       gl.enableVertexAttribArray(location);
       gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
+      // unbuffer するとエラーになる
       // gl.bindBuffer(gl.ARRAY_BUFFER, null);
     });
     if (indices) {
@@ -26,6 +29,7 @@ export default class VertexArrayObject {
         new Int16Array(indices),
         gl.STATIC_DRAW,
       );
+      // unbuffer するとエラーになる
       // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
     gl.bindVertexArray(null);
