@@ -1,5 +1,7 @@
 import GPU from './GPU.js';
 import Shader from './Shader.js';
+import { Matrix4 } from './Matrix4.js';
+import { Vector3 } from './Vector3.js';
 
 export default class Material {
   #uniforms;
@@ -7,6 +9,7 @@ export default class Material {
   #primitiveType;
   #blendType;
   #transparent;
+  #useCommonUniforms;
 
   get uniforms() {
     return this.#uniforms;
@@ -36,8 +39,8 @@ export default class Material {
     primitiveType,
     transparent,
     blendType,
+    useUtilityUniforms = true,
   }) {
-    this.#uniforms = uniforms;
     this.#shader = new Shader({
       gpu,
       vertexShader,
@@ -49,19 +52,42 @@ export default class Material {
     if (this.#transparent && blendType) {
       this.#blendType = blendType;
     }
+
+    this.#uniforms = {
+      ...uniforms,
+      ...(useUtilityUniforms
+        ? {
+            uModelMatrix: {
+              type: GPU.UniformTypes.Matrix4fv,
+              data: Matrix4.identity(),
+            },
+            uInvModelMatrix: {
+              type: GPU.UniformTypes.Matrix4fv,
+              data: Matrix4.identity(),
+            },
+            uViewMatrix: {
+              type: GPU.UniformTypes.Matrix4fv,
+              data: Matrix4.identity(),
+            },
+            uProjectionMatrix: {
+              type: GPU.UniformTypes.Matrix4fv,
+              data: Matrix4.identity(),
+            },
+            uNormalMatrix: {
+              type: GPU.UniformTypes.Matrix4fv,
+              data: Matrix4.identity(),
+            },
+            uCameraPosition: {
+              type: GPU.UniformTypes.Vector3f,
+              data: Vector3.one(),
+            },
+          }
+        : {}),
+    };
   }
 
-  // getTextureUniforms() {
-  //   const textureUniforms = [];
-  //   Object.keys(this.#uniforms).forEach((name) => {
-  //     if (this.#uniforms[name].type === GPU.UniformTypes.Texture2D) {
-  //       textureUniforms[name] = this.#uniforms[name];
-  //     }
-  //   });
-  //   return textureUniforms;
-  // }
-
-  // 特殊な扱いのmatrixは明示的にupdate
+  // NOTE:
+  // - transform などの matrix 更新
   updateUniforms({
     modelMatrix,
     viewMatrix,
