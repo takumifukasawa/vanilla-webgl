@@ -290,6 +290,8 @@ const init = async () => {
   // | /         |
   // 2 --------- 3
 
+  const floorNormalData = [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0];
+
   const floorGeometry = new Geometry({
     gpu,
     attributes: [
@@ -317,21 +319,11 @@ const init = async () => {
       },
       {
         type: Attribute.Types.Normal,
-        // prettier-ignore
-        data: [
-          0, 1, 0,
-          0, 1, 0,
-          0, 1, 0,
-          0, 1, 0,
-        ],
+        data: floorNormalData,
         stride: 3,
       },
-      {
-        type: Attribute.Types.Tangent,
-      },
-      {
-        type: Attribute.Types.Binormal,
-      },
+      Attribute.createTangent(floorNormalData),
+      Attribute.createBinormal(floorNormalData),
     ],
     indices: [0, 2, 1, 1, 2, 3],
   });
