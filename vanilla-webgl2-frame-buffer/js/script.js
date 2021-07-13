@@ -161,6 +161,91 @@ void main() {
 }
 `;
 
+const createBackground = () => {
+  const backgroundVertexShader = `#version 300 es
+
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec2 aUv;
+
+out vec2 vUv;
+
+void main() {
+  vUv = aUv;
+  gl_Position = vec4(aPosition, 1.);
+}
+`;
+
+  const backgroundFragmentShader = `#version 300 es
+
+precision mediump float;
+
+in vec2 vUv;
+
+out vec4 outColor;
+
+void main() {
+  outColor = vec4(vUv, 0., 1.);
+}
+`;
+
+  //
+  // plane vertex positions
+  //
+  // 0 ----------1
+  // |         / |
+  // |       /   |
+  // |     /     |
+  // |   /       |
+  // | /         |
+  // 2 --------- 3
+
+  const backgroundGeometry = new Geometry({
+    gpu,
+    attributes: [
+      {
+        type: Attribute.Types.Position,
+        // prettier-ignore
+        data: [
+          -1, 1, 1,
+          1, 1, 1,
+          -1, -1, 1,
+          1, -1, 1,
+        ],
+        stride: 3,
+      },
+      {
+        type: Attribute.Types.Uv,
+        // prettier-ignore
+        data: [
+          0, 0,
+          1, 0,
+          0, 1,
+          1, 1,
+        ],
+        stride: 2,
+      },
+    ],
+    indices: [0, 2, 1, 1, 2, 3],
+  });
+
+  const backgroundMaterial = new Material({
+    gpu,
+    vertexShader: backgroundVertexShader,
+    fragmentShader: backgroundFragmentShader,
+    primitiveType: GPU.Primitives.Triangle,
+  });
+
+  const backgroundMeshActor = new MeshActor({
+    name: 'background',
+    meshComponent: new MeshComponent({
+      geometry: backgroundGeometry,
+      material: backgroundMaterial,
+    }),
+  });
+
+  actors.push(backgroundMeshActor);
+};
+
 const init = async () => {
   const data = await loadObj('./model/sphere-32x32.obj');
 
@@ -182,6 +267,8 @@ const init = async () => {
       // loadImg('./img/dir-ny.png'),
       // loadImg('./img/dir-nz.png'),
     ]);
+
+  createBackground();
 
   const baseColorMapTexture = new Texture({ gpu, img: baseColorMapImg });
 
@@ -385,7 +472,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 1.5);
+      const ratio = Math.min(window.devicePixelRatio, 0.5);
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
       const targetWidth = states.viewportWidth * ratio;

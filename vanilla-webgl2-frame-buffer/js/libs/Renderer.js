@@ -18,7 +18,11 @@ export default class Renderer {
     const gl = gpu.gl;
 
     // check depth
-    gl.enable(gl.DEPTH_TEST);
+    if(material.depthTest) {
+      gl.enable(gl.DEPTH_TEST);
+    } else {
+      gl.disable(gl.DEPTH_TEST);
+    }
 
     // culling
     switch (material.face) {
@@ -37,6 +41,8 @@ export default class Renderer {
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT_AND_BACK);
         break;
+      default:
+        throw "invalid material face parameter";
     }
 
     if (material.transparent) {

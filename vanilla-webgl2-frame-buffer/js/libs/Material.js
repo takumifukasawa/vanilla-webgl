@@ -10,6 +10,7 @@ export default class Material {
   #blendType;
   #transparent;
   #face;
+  #depthTest;
 
   static Face = {
     Front: 'Front', // default
@@ -42,6 +43,10 @@ export default class Material {
     return this.#face;
   }
 
+  get depthTest() {
+    return this.#depthTest;
+  }
+
   constructor({
     gpu,
     vertexShader,
@@ -51,6 +56,7 @@ export default class Material {
     transparent,
     blendType,
     face = Material.Face.Front,
+    depthTest = true,
     useUtilityUniforms = true,
   }) {
     this.#shader = new Shader({
@@ -67,6 +73,8 @@ export default class Material {
     }
 
     this.#face = face;
+
+    this.#depthTest = depthTest;
 
     this.#uniforms = {
       ...uniforms,
