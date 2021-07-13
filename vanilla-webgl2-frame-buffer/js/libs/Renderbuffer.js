@@ -55,5 +55,7 @@ export default class Renderbuffer extends GLObject {
         height,
       );
     }
+
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
   }
 }

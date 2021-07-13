@@ -476,8 +476,8 @@ const tick = (t) => {
 
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
-      const targetWidth = states.viewportWidth * ratio;
-      const targetHeight = states.viewportHeight * ratio;
+      const targetWidth = Math.floor(states.viewportWidth * ratio);
+      const targetHeight = Math.floor(states.viewportHeight * ratio);
       canvasElement.width = targetWidth;
       canvasElement.height = targetHeight;
 
@@ -565,7 +565,7 @@ const tick = (t) => {
 
   beforeTime = time;
 
-  // requestAnimationFrame(tick);
+  requestAnimationFrame(tick);
 };
 
 const main = async () => {

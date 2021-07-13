@@ -20,8 +20,8 @@ export default class Texture extends GLObject {
     width,
     height,
     mipmap = true,
-    wrapS = Texture.Wrap.Repeat,
-    wrapT = Texture.Wrap.Repeat,
+    wrapS = Texture.Wrap.ClampToEdge,
+    wrapT = Texture.Wrap.ClampToEdge,
   }) {
     super(gpu);
 
@@ -74,6 +74,7 @@ export default class Texture extends GLObject {
 
   setSize(width, height) {
     const gl = this.#gpu.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.#texture);
     // prettier-ignore
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.#img);
   }
