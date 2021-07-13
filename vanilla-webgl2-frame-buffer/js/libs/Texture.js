@@ -3,6 +3,7 @@ import GLObject from './GLObject.js';
 export default class Texture extends GLObject {
   #texture;
   #img;
+  #gpu;
 
   static Wrap = {
     Repeat: 'Repeat',
@@ -24,9 +25,11 @@ export default class Texture extends GLObject {
   }) {
     super(gpu);
 
+    this.#gpu = gpu;
+
     this.#img = img || null;
 
-    const gl = gpu.gl;
+    const gl = this.#gpu.gl;
 
     this.#texture = gl.createTexture();
 
@@ -69,7 +72,8 @@ export default class Texture extends GLObject {
     // gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
-  setSize({ width, height }) {
+  setSize(width, height) {
+    const gl = this.#gpu.gl;
     // prettier-ignore
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.#img);
   }

@@ -13,6 +13,8 @@ export default class Framebuffer extends GLObject {
     const gl = gpu.gl;
 
     this.#framebuffer = gl.createFramebuffer();
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.#framebuffer);
   }
 
   setSize() {}

@@ -68,7 +68,7 @@ export default class GPU {
     gl.clearColor(r, g, b, a);
     gl.clearDepth(1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.flush();
+    // gl.flush();
     const e = gl.getError();
     if (e !== gl.NO_ERROR) {
       throw 'has gl error.';
@@ -77,15 +77,26 @@ export default class GPU {
   get gl() {
     return this.#gl;
   }
-  unbindTexture() {
-    this.#gl.bindTexture(this.#gl.TEXTURE_2D, null);
-  }
-  unbindRenderbuffer() {
-    this.#gl.bindRenderbuffer(this.#gl.RENDERBUFFER, null);
-  }
-  unbindFramebuffer() {
-    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
-  }
+
+  // bindTexture(texture) {
+  //   this.#gl.bindTexture(this.#gl.TEXTURE_2D, texture.glObject);
+  // }
+  // bindRenderbuffer(renderBuffer) {
+  //   this.#gl.bindRenderbuffer(this.#gl.RENDERBUFFER, renderBuffer.glObject);
+  // }
+  // bindFramebuffer(framebuffer) {
+  //   this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, framebuffer.glObject);
+  // }
+
+  // unbindTexture() {
+  //   this.#gl.bindTexture(this.#gl.TEXTURE_2D, null);
+  // }
+  // unbindRenderbuffer() {
+  //   this.#gl.bindRenderbuffer(this.#gl.RENDERBUFFER, null);
+  // }
+  // unbindFramebuffer() {
+  //   this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
+  // }
 
   // unbindTexture() {
   //   this.#gl.bindTexture(gl.TEXTURE_2D, null);

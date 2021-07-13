@@ -473,20 +473,23 @@ const tick = (t) => {
   {
     if (states.isResized) {
       const ratio = Math.min(window.devicePixelRatio, 0.5);
+
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
       const targetWidth = states.viewportWidth * ratio;
       const targetHeight = states.viewportHeight * ratio;
       canvasElement.width = targetWidth;
       canvasElement.height = targetHeight;
+
       gpu.setSize(targetWidth, targetHeight);
+
       perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
+
+      renderTarget.setSize(targetWidth, targetHeight);
+
       states.isResized = false;
     }
   }
-
-  // clear context
-  gpu.clear(0, 0, 0, 1);
 
   // start
   {
@@ -520,7 +523,30 @@ const tick = (t) => {
     const meshActors = actors.filter(
       (actor) => actor.type === Actor.Types.MeshActor,
     );
-    meshActors.forEach((meshActor) => {
+
+    gpu.gl.flush();
+    // FIXME: this is render target test
+    gpu.gl.bindFramebuffer(
+      gpu.gl.FRAMEBUFFER,
+      renderTarget.framebuffer.glObject,
+    );
+    gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gpu.gl.clearDepth(1.0);
+    gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+
+    meshActors.forEach((meshActor, i) => {
+      // FIXME: this is render target test
+      if (i === 2) {
+        gpu.gl.flush();
+        // clear context
+        gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
+        // gpu.clear(0, 0, 0, 1);
+        // clear
+        gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gpu.gl.clearDepth(1.0);
+        gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+      }
+
       renderer.render({
         gpu,
         time,
@@ -539,7 +565,7 @@ const tick = (t) => {
 
   beforeTime = time;
 
-  requestAnimationFrame(tick);
+  // requestAnimationFrame(tick);
 };
 
 const main = async () => {
