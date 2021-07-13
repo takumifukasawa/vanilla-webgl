@@ -1,3 +1,5 @@
+import Material from './Material.js';
+
 export default class Renderer {
   constructor() {}
   render({
@@ -15,8 +17,27 @@ export default class Renderer {
     // stateの切り替えはアプリケーションレベルで行う
     const gl = gpu.gl;
 
+    // check depth
     gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
+
+    // culling
+    switch (material.face) {
+      case Material.Face.Front:
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
+        break;
+      case Material.Face.Back:
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.FRONT);
+        break;
+      case Material.Face.DoubleSide:
+        gl.disable(gl.CULL_FACE);
+        break;
+      case Material.Face.None:
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.FRONT_AND_BACK);
+        break;
+    }
 
     if (material.transparent) {
       gl.depthMask(false);

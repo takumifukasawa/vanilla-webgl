@@ -9,7 +9,14 @@ export default class Material {
   #primitiveType;
   #blendType;
   #transparent;
-  #useCommonUniforms;
+  #face;
+
+  static Face = {
+    Front: 'Front', // default
+    Back: 'Back',
+    None: 'None',
+    DoubleSide: 'DoubleSide',
+  };
 
   get uniforms() {
     return this.#uniforms;
@@ -31,6 +38,10 @@ export default class Material {
     return this.#transparent;
   }
 
+  get face() {
+    return this.#face;
+  }
+
   constructor({
     gpu,
     vertexShader,
@@ -39,6 +50,7 @@ export default class Material {
     primitiveType,
     transparent,
     blendType,
+    face = Material.Face.Front,
     useUtilityUniforms = true,
   }) {
     this.#shader = new Shader({
@@ -49,9 +61,12 @@ export default class Material {
     this.#primitiveType = primitiveType || GPU.Primitives.Triangles;
     this.#transparent = !!transparent;
     this.#blendType = GPU.BlendTypes.None;
+
     if (this.#transparent && blendType) {
       this.#blendType = blendType;
     }
+
+    this.#face = face;
 
     this.#uniforms = {
       ...uniforms,
