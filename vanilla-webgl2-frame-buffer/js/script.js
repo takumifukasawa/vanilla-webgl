@@ -161,6 +161,38 @@ void main() {
 }
 `;
 
+const floorVertexShader = `#version 300 es
+
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec2 aUv;
+
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+out vec2 vUv;
+
+void main() {
+  vUv = aUv;
+  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+}
+`;
+
+const floorFragmentShader = `#version 300 es
+
+precision mediump float;
+
+in vec2 vUv;
+
+uniform sampler2D uSceneTexture;
+
+out vec4 outColor;
+
+void main() {
+  outColor = texture(uSceneTexture, vUv);
+}
+`;
+
 const createBackground = () => {
   const backgroundVertexShader = `#version 300 es
 
@@ -404,28 +436,12 @@ const init = async () => {
 
   const floorMaterial = new Material({
     gpu,
-    vertexShader: baseVertexShader,
-    fragmentShader: fragmentShader,
+    vertexShader: floorVertexShader,
+    fragmentShader: floorFragmentShader,
     uniforms: {
-      uDirectionalLightPosition: {
-        type: GPU.UniformTypes.Vector3f,
-        data: directionalLight.position,
-      },
-      uBaseColorMap: {
+      uSceneTexture: {
         type: GPU.UniformTypes.Texture2D,
-        data: baseColorMapTexture,
-      },
-      uNormalMap: {
-        type: GPU.UniformTypes.Texture2D,
-        data: normalMapTexture,
-      },
-      uHeightMap: {
-        type: GPU.UniformTypes.Texture2D,
-        data: heightMapTexture,
-      },
-      uCubeMap: {
-        type: GPU.UniformTypes.CubeMap,
-        data: cubeMapTexture,
+        data: renderTarget.texture,
       },
     },
     primitiveType: GPU.Primitives.Triangles,
@@ -442,10 +458,10 @@ const init = async () => {
   floorMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
-        );
-        actor.worldTransform = t;
+        // const t = Matrix4.multiplyMatrices(
+        //   Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
+        // );
+        // actor.worldTransform = t;
       },
     }),
   );
@@ -472,7 +488,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 0.5);
+      const ratio = Math.min(window.devicePixelRatio, 1.5);
 
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
