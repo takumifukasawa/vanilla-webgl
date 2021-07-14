@@ -189,11 +189,11 @@ uniform sampler2D uSceneTexture;
 out vec4 outColor;
 
 void main() {
-  outColor = texture(uSceneTexture, vUv);
+  outColor = texture(uSceneTexture, vec2(vUv.x, 1. - vUv.y)); // flipY
 }
 `;
 
-const createBackground = () => {
+const createBackground = async (baseTexture) => {
   const backgroundVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
@@ -213,10 +213,13 @@ precision mediump float;
 
 in vec2 vUv;
 
+uniform sampler2D uBaseColorMap;
+
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(vUv, 0., 1.);
+  outColor = texture(uBaseColorMap, vUv);
+  // outColor = vec4(vUv, 0., 1.);
 }
 `;
 
@@ -264,6 +267,12 @@ void main() {
     gpu,
     vertexShader: backgroundVertexShader,
     fragmentShader: backgroundFragmentShader,
+    uniforms: {
+      uBaseColorMap: {
+        type: GPU.UniformTypes.Texture2D,
+        data: baseTexture,
+      },
+    },
     primitiveType: GPU.Primitives.Triangle,
   });
 
@@ -281,26 +290,32 @@ void main() {
 const init = async () => {
   const data = await loadObj('./model/sphere-32x32.obj');
 
-  const [baseColorMapImg, normalMapImg, heightMapImg, ...cubeMapImages] =
-    await Promise.all([
-      loadImg('./img/Tiles_Wall_001_basecolor.jpg'),
-      loadImg('./img/Tiles_Wall_001_normal.jpg'),
-      loadImg('./img/Tiles_Wall_001_height.png'),
-      loadImg('./img/skybox-px.jpg'),
-      loadImg('./img/skybox-py.jpg'),
-      loadImg('./img/skybox-pz.jpg'),
-      loadImg('./img/skybox-nx.jpg'),
-      loadImg('./img/skybox-ny.jpg'),
-      loadImg('./img/skybox-nz.jpg'),
-      // loadImg('./img/dir-px.png'),
-      // loadImg('./img/dir-py.png'),
-      // loadImg('./img/dir-pz.png'),
-      // loadImg('./img/dir-nx.png'),
-      // loadImg('./img/dir-ny.png'),
-      // loadImg('./img/dir-nz.png'),
-    ]);
+  const [
+    uvMapImg,
+    baseColorMapImg,
+    normalMapImg,
+    heightMapImg,
+    ...cubeMapImages
+  ] = await Promise.all([
+    loadImg('./img/uv-checker.png'),
+    loadImg('./img/Tiles_Wall_001_basecolor.jpg'),
+    loadImg('./img/Tiles_Wall_001_normal.jpg'),
+    loadImg('./img/Tiles_Wall_001_height.png'),
+    loadImg('./img/skybox-px.jpg'),
+    loadImg('./img/skybox-py.jpg'),
+    loadImg('./img/skybox-pz.jpg'),
+    loadImg('./img/skybox-nx.jpg'),
+    loadImg('./img/skybox-ny.jpg'),
+    loadImg('./img/skybox-nz.jpg'),
+    // loadImg('./img/dir-px.png'),
+    // loadImg('./img/dir-py.png'),
+    // loadImg('./img/dir-pz.png'),
+    // loadImg('./img/dir-nx.png'),
+    // loadImg('./img/dir-ny.png'),
+    // loadImg('./img/dir-nz.png'),
+  ]);
 
-  createBackground();
+  const uvMapTexture = new Texture({ gpu, img: uvMapImg });
 
   const baseColorMapTexture = new Texture({ gpu, img: baseColorMapImg });
 
@@ -309,6 +324,8 @@ const init = async () => {
   const heightMapTexture = new Texture({ gpu, img: heightMapImg });
 
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
+
+  await createBackground(uvMapTexture);
 
   const objGeometry = new Geometry({
     gpu,
@@ -396,8 +413,6 @@ const init = async () => {
   // | /         |
   // 2 --------- 3
 
-  const floorNormalData = [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0];
-
   const floorGeometry = new Geometry({
     gpu,
     attributes: [
@@ -405,10 +420,10 @@ const init = async () => {
         type: Attribute.Types.Position,
         // prettier-ignore
         data: [
-          -3, 0, -3,
-          3, 0, -3,
-          -3, 0, 3,
-          3, 0, 3,
+          -1, 1, 0,
+          1, 1, 0,
+          -1, -1, 0,
+          1, -1, 0,
         ],
         stride: 3,
       },
@@ -423,13 +438,6 @@ const init = async () => {
         ],
         stride: 2,
       },
-      {
-        type: Attribute.Types.Normal,
-        data: floorNormalData,
-        stride: 3,
-      },
-      Attribute.createTangent(floorNormalData),
-      Attribute.createBinormal(floorNormalData),
     ],
     indices: [0, 2, 1, 1, 2, 3],
   });
@@ -442,6 +450,7 @@ const init = async () => {
       uSceneTexture: {
         type: GPU.UniformTypes.Texture2D,
         data: renderTarget.texture,
+        // data: uvMapTexture,
       },
     },
     primitiveType: GPU.Primitives.Triangles,
@@ -458,10 +467,10 @@ const init = async () => {
   floorMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        // const t = Matrix4.multiplyMatrices(
-        //   Matrix4.createTranslationMatrix(new Vector3(0, -1.5, 0)),
-        // );
-        // actor.worldTransform = t;
+        const t = Matrix4.multiplyMatrices(
+          Matrix4.createScalingMatrix(new Vector3(2, 2, 2)),
+        );
+        actor.worldTransform = t;
       },
     }),
   );

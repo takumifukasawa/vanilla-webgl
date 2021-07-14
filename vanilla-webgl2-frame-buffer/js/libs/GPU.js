@@ -171,12 +171,14 @@ export default class GPU {
         case GPU.UniformTypes.Texture2D:
         case GPU.UniformTypes.CubeMap:
           // TODO: textureが最大数よりも大きくなるときの対応が必要
+          const texture = data ? data : this.dummyTexture.glObject;
           gl.activeTexture(textureUnits[activeTextureIndex]);
+          // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!texture.flipY);
           gl.bindTexture(
             type === GPU.UniformTypes.Texture2D
               ? gl.TEXTURE_2D
               : gl.TEXTURE_CUBE_MAP,
-            data ? data.glObject : this.dummyTexture.glObject,
+            texture.glObject,
           );
           gl.uniform1i(location, activeTextureIndex);
           activeTextureIndex++;
