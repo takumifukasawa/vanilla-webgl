@@ -1,11 +1,43 @@
 import Material from './Material.js';
 
 export default class Renderer {
-  constructor() {}
+  #renderTarget;
+  #gpu;
+
+  constructor({ gpu }) {
+    this.#gpu = gpu;
+  }
+
+  setRenderTarget(renderTarget) {
+    const gl = this.#gpu.gl;
+    this.#renderTarget = renderTarget;
+    if (this.#renderTarget) {
+      gl.bindFramebuffer(
+        gl.FRAMEBUFFER,
+        this.#renderTarget.framebuffer.glObject,
+      );
+    }
+  }
+
+  clearRenderTarget() {
+    const gl = this.#gpu.gl;
+    this.#renderTarget = null;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+
+  clear(r, g, b, a) {
+    const gl = this.#gpu.gl;
+    gl.clearColor(r, g, b, a);
+    gl.clearDepth(1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    // gl.flush();
+    const e = gl.getError();
+    if (e !== gl.NO_ERROR) {
+      throw 'has gl error.';
+    }
+  }
+
   render({
-    gpu,
-    time,
-    deltaTime,
     geometry,
     material,
     modelMatrix,
@@ -15,10 +47,10 @@ export default class Renderer {
     cameraPosition,
   }) {
     // stateの切り替えはアプリケーションレベルで行う
-    const gl = gpu.gl;
+    const gl = this.#gpu.gl;
 
     // check depth
-    if(material.depthTest) {
+    if (material.depthTest) {
       gl.enable(gl.DEPTH_TEST);
     } else {
       gl.disable(gl.DEPTH_TEST);
@@ -42,7 +74,7 @@ export default class Renderer {
         gl.cullFace(gl.FRONT_AND_BACK);
         break;
       default:
-        throw "invalid material face parameter";
+        throw 'invalid material face parameter';
     }
 
     if (material.transparent) {
@@ -78,18 +110,18 @@ export default class Renderer {
       cameraPosition,
     });
 
-    gpu.setShader(material.shader);
-    gpu.setVertex(geometry.vao);
+    this.#gpu.setShader(material.shader);
+    this.#gpu.setVertex(geometry.vao);
     // gpu.setAttributes(geometry.attributes);
     // gpu.setTextures(material.textures);
-    gpu.setUniforms(material.uniforms);
+    this.#gpu.setUniforms(material.uniforms);
     if (geometry.indices) {
-      gpu.setIndices(geometry.indices);
-      gpu.draw(geometry.indices.length, material.primitiveType);
+      this.#gpu.setIndices(geometry.indices);
+      this.#gpu.draw(geometry.indices.length, material.primitiveType);
     } else {
       // TODO: attributeのvertexにtypeをもたせる
-      gpu.draw(geometry.vertexCount, material.primitiveType);
+      this.#gpu.draw(geometry.vertexCount, material.primitiveType);
     }
-    gpu.resetData();
+    this.#gpu.resetData();
   }
 }

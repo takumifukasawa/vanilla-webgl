@@ -41,7 +41,7 @@ let deltaTime = 0;
 let objMeshActor;
 let floorMeshActor;
 
-const renderer = new Renderer();
+const renderer = new Renderer({ gpu });
 
 const renderTarget = new RenderTarget({ gpu });
 
@@ -552,30 +552,34 @@ const tick = (t) => {
     );
 
     gpu.gl.flush();
-    // FIXME: this is render target test
-    gpu.gl.bindFramebuffer(
-      gpu.gl.FRAMEBUFFER,
-      renderTarget.framebuffer.glObject,
-    );
-    gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gpu.gl.clearDepth(1.0);
-    gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+
+    // // FIXME: this is render target test
+    // gpu.gl.bindFramebuffer(
+    //   gpu.gl.FRAMEBUFFER,
+    //   renderTarget.framebuffer.glObject,
+    // );
+    // gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    // gpu.gl.clearDepth(1.0);
+    // gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+
+    renderer.setRenderTarget(renderTarget);
+    renderer.clear();
 
     meshActors.forEach((meshActor, i) => {
-      // // FIXME: this is render target test
       if (i === 2) {
-        gpu.gl.flush();
-        // clear context
-        gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
-        // gpu.clear(0, 0, 0, 1);
-        // clear
-        gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gpu.gl.clearDepth(1.0);
-        gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+        // gpu.gl.flush();
+        renderer.clearRenderTarget();
+        renderer.clear();
+        // // clear context
+        // gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
+        // // gpu.clear(0, 0, 0, 1);
+        // // clear
+        // gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        // gpu.gl.clearDepth(1.0);
+        // gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
       }
 
       renderer.render({
-        gpu,
         time,
         deltaTime,
         geometry: meshActor.meshComponent.geometry,
