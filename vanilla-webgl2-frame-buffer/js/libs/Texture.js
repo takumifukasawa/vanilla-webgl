@@ -22,6 +22,7 @@ export default class Texture extends GLObject {
     mipmap = true,
     wrapS = Texture.Wrap.ClampToEdge,
     wrapT = Texture.Wrap.ClampToEdge,
+    flipY = false,
   }) {
     super(gpu);
 
@@ -34,6 +35,8 @@ export default class Texture extends GLObject {
     this.#texture = gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, this.#texture);
+
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!flipY);
 
     if (width && height) {
       // prettier-ignore

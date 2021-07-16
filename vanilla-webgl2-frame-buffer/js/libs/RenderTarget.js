@@ -51,6 +51,7 @@ export default class RenderTarget {
       width: 1,
       height: 1,
       mipmap: false,
+      flipY: true,
     });
 
     // frame buffer に texture を紐付け

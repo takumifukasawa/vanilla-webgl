@@ -189,7 +189,8 @@ uniform sampler2D uSceneTexture;
 out vec4 outColor;
 
 void main() {
-  outColor = texture(uSceneTexture, vec2(vUv.x, 1. - vUv.y)); // flipY
+  // outColor = texture(uSceneTexture, vec2(vUv.x, 1. - vUv.y)); // flipY
+  outColor = texture(uSceneTexture, vUv); // flipY
 }
 `;
 
@@ -226,13 +227,13 @@ void main() {
   //
   // plane vertex positions
   //
-  // 0 ----------1
+  // 3 ----------2
   // |         / |
   // |       /   |
   // |     /     |
   // |   /       |
   // | /         |
-  // 2 --------- 3
+  // 0 --------- 1
 
   const backgroundGeometry = new Geometry({
     gpu,
@@ -241,10 +242,10 @@ void main() {
         type: Attribute.Types.Position,
         // prettier-ignore
         data: [
-          -1, 1, 1,
-          1, 1, 1,
           -1, -1, 1,
           1, -1, 1,
+          1, 1, 1,
+          -1, 1, 1,
         ],
         stride: 3,
       },
@@ -252,15 +253,15 @@ void main() {
         type: Attribute.Types.Uv,
         // prettier-ignore
         data: [
-          0, 0,
-          1, 0,
           0, 1,
           1, 1,
+          1, 0,
+          0, 0,
         ],
         stride: 2,
       },
     ],
-    indices: [0, 2, 1, 1, 2, 3],
+    indices: [0, 1, 2, 0, 2, 3],
   });
 
   const backgroundMaterial = new Material({
@@ -405,13 +406,13 @@ const init = async () => {
   //
   // plane vertex positions
   //
-  // 0 ----------1
+  // 3 --------- 2
   // |         / |
   // |       /   |
   // |     /     |
   // |   /       |
   // | /         |
-  // 2 --------- 3
+  // 0 --------- 1
 
   const floorGeometry = new Geometry({
     gpu,
@@ -420,10 +421,10 @@ const init = async () => {
         type: Attribute.Types.Position,
         // prettier-ignore
         data: [
-          -1, 1, 0,
-          1, 1, 0,
-          -1, -1, 0,
-          1, -1, 0,
+          -1, -1, 1,
+          1, -1, 1,
+          1, 1, 1,
+          -1, 1, 1,
         ],
         stride: 3,
       },
@@ -433,13 +434,13 @@ const init = async () => {
         data: [
           0, 0,
           1, 0,
-          0, 1,
           1, 1,
+          0, 1,
         ],
         stride: 2,
       },
     ],
-    indices: [0, 2, 1, 1, 2, 3],
+    indices: [0, 1, 2, 0, 2, 3],
   });
 
   const floorMaterial = new Material({
@@ -560,7 +561,7 @@ const tick = (t) => {
     gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
 
     meshActors.forEach((meshActor, i) => {
-      // FIXME: this is render target test
+      // // FIXME: this is render target test
       if (i === 2) {
         gpu.gl.flush();
         // clear context
