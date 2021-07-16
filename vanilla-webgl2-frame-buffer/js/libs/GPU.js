@@ -173,7 +173,6 @@ export default class GPU {
           // TODO: textureが最大数よりも大きくなるときの対応が必要
           const texture = data ? data : this.dummyTexture.glObject;
           gl.activeTexture(textureUnits[activeTextureIndex]);
-          // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!texture.flipY);
           gl.bindTexture(
             type === GPU.UniformTypes.Texture2D
               ? gl.TEXTURE_2D

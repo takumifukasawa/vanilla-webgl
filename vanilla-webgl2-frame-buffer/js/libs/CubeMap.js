@@ -21,9 +21,18 @@ export default class CubeMap extends GLObject {
       gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
       gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
       gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+      // gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+      // gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+      // gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+      // gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+      // gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+      // gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
     ];
 
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.#texture);
+
+    // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
     images.forEach((img, i) => {
       gl.texImage2D(targets[i], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
