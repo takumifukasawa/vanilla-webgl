@@ -551,32 +551,16 @@ const tick = (t) => {
       (actor) => actor.type === Actor.Types.MeshActor,
     );
 
-    gpu.gl.flush();
-
-    // // FIXME: this is render target test
-    // gpu.gl.bindFramebuffer(
-    //   gpu.gl.FRAMEBUFFER,
-    //   renderTarget.framebuffer.glObject,
-    // );
-    // gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    // gpu.gl.clearDepth(1.0);
-    // gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+    gpu.flush();
 
     renderer.setRenderTarget(renderTarget);
     renderer.clear();
 
     meshActors.forEach((meshActor, i) => {
+      // planeは画面に描画したいので最後だけrenderTargetを解除
       if (i === 2) {
-        // gpu.gl.flush();
         renderer.clearRenderTarget();
         renderer.clear();
-        // // clear context
-        // gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
-        // // gpu.clear(0, 0, 0, 1);
-        // // clear
-        // gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        // gpu.gl.clearDepth(1.0);
-        // gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
       }
 
       renderer.render({
@@ -588,7 +572,6 @@ const tick = (t) => {
         viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
         projectionMatrix: perspectiveCamera.projectionMatrix,
         normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        // normalMatrix: meshActor.worldTransform.clone().transpose().inverse(),
         cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
       });
     });

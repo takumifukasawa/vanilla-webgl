@@ -63,17 +63,20 @@ export default class GPU {
   setSize(width, height) {
     this.#gl.viewport(0, 0, width, height);
   }
-  clear(r, g, b, a) {
-    const gl = this.#gl;
-    gl.clearColor(r, g, b, a);
-    gl.clearDepth(1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    // gl.flush();
-    const e = gl.getError();
-    if (e !== gl.NO_ERROR) {
-      throw 'has gl error.';
-    }
+  flush() {
+    this.#gl.flush();
   }
+  // clear(r, g, b, a) {
+  //   const gl = this.#gl;
+  //   gl.clearColor(r, g, b, a);
+  //   gl.clearDepth(1.0);
+  //   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  //   // gl.flush();
+  //   const e = gl.getError();
+  //   if (e !== gl.NO_ERROR) {
+  //     throw 'has gl error.';
+  //   }
+  // }
   get gl() {
     return this.#gl;
   }
