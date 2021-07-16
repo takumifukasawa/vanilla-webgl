@@ -8,6 +8,7 @@ import Actor from './libs/Actor.js';
 import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
+import CameraComponent from './libs/CameraComponent.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import loadImg from './utils/loadImg.js';
@@ -46,6 +47,16 @@ const renderer = new Renderer({ gpu });
 const renderTarget = new RenderTarget({ gpu });
 
 const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
+
+const perspectiveCameraActor = new Actor({
+  components: [
+    new CameraComponent({
+      type: CameraComponent.Types.Perspective,
+    }),
+  ],
+});
+
+actors.push(perspectiveCameraActor);
 
 const directionalLight = new DirectionalLight({
   color: Vector3.one(),

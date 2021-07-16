@@ -1,8 +1,8 @@
 import Actor from './Actor.js';
 
 export default class MeshActor extends Actor {
-  constructor({ meshComponent, name }) {
-    super({ type: Actor.Types.MeshActor, name });
+  constructor({ name, meshComponent }) {
+    super({ name, type: Actor.Types.MeshActor });
     this.meshComponent = meshComponent;
   }
 }

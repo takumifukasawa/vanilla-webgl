@@ -3,10 +3,12 @@ import Matrix4 from './Matrix4.js';
 export default class Actor {
   static Types = {
     MeshActor: 'MeshActor',
+    None: 'None',
   };
-  constructor({ type, name }) {
-    this.type = type;
+  constructor(args = {}) {
+    const { name, type, components = [] } = args;
     this.name = name || '';
+    this.type = type || Actor.Types.None;
     this.components = [];
     this.worldTransform = Matrix4.identity();
   }
@@ -35,6 +37,12 @@ export default class Actor {
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
       component.update({ actor: this, time, deltaTime });
+    }
+  }
+  setSize({ width, height }) {
+    for (let i = 0; i < this.components.length; i++) {
+      const component = this.components[i];
+      component.setSize({ actor: this, width, height });
     }
   }
 }
