@@ -10,7 +10,7 @@ export default class OrthographicCamera extends Camera {
   farClip;
 
   constructor(left, right, bottom, top, nearClip, farClip) {
-    super();
+    super({ type: Camera.Types.OrthographicCamera });
     this.left = left;
     this.right = right;
     this.bottom = bottom;

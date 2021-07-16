@@ -1,14 +1,14 @@
 import GPU from './libs/GPU.js';
 import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
-import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import Matrix4 from './libs/Matrix4.js';
 import Vector3 from './libs/Vector3.js';
 import Actor from './libs/Actor.js';
+import CameraActor from './libs/CameraActor.js';
 import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
-import CameraComponent from './libs/CameraComponent.js';
+import PerspectiveCameraComponent from './libs/PerspectiveCameraComponent.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import loadImg from './utils/loadImg.js';
@@ -46,14 +46,10 @@ const renderer = new Renderer({ gpu });
 
 const renderTarget = new RenderTarget({ gpu });
 
-const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
+// const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
-const perspectiveCameraActor = new Actor({
-  components: [
-    new CameraComponent({
-      type: CameraComponent.Types.Perspective,
-    }),
-  ],
+const perspectiveCameraActor = new CameraActor({
+  components: [new PerspectiveCameraComponent(0.5, 1, 0.1, 50)],
 });
 
 actors.push(perspectiveCameraActor);
@@ -521,7 +517,11 @@ const tick = (t) => {
 
       gpu.setSize(targetWidth, targetHeight);
 
-      perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
+      actors.forEach((actor) =>
+        actor.setSize({ width: targetWidth, height: targetHeight }),
+      );
+
+      // perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
 
       renderTarget.setSize(targetWidth, targetHeight);
 
@@ -541,17 +541,24 @@ const tick = (t) => {
     const dumping = 0.05;
     const targetX = w * states.mouseX;
     const targetY = h * states.mouseY;
-    perspectiveCamera.position.x +=
-      (targetX - perspectiveCamera.position.x) * dumping;
-    perspectiveCamera.position.y +=
-      (targetY - perspectiveCamera.position.y) * dumping;
-    perspectiveCamera.position.z = 15;
-    const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-      perspectiveCamera.position,
-      new Vector3(0, 0, 0),
-      new Vector3(0, 1, 0),
-    );
-    perspectiveCamera.cameraMatrix = lookAtCameraMatrix;
+    // perspectiveCamera.position.x +=
+    //   (targetX - perspectiveCamera.position.x) * dumping;
+    // perspectiveCamera.position.y +=
+    //   (targetY - perspectiveCamera.position.y) * dumping;
+    // perspectiveCamera.position.z = 15;
+
+    perspectiveCameraActor.position.x +=
+      (targetX - perspectiveCameraActor.position.x) * dumping;
+    perspectiveCameraActor.position.y +=
+      (targetY - perspectiveCameraActor.position.y) * dumping;
+    perspectiveCameraActor.position.z = 15;
+
+    // const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
+    //   perspectiveCamera.position,
+    //   new Vector3(0, 0, 0),
+    //   new Vector3(0, 1, 0),
+    // );
+    // perspectiveCamera.cameraMatrix = lookAtCameraMatrix;
 
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
@@ -577,13 +584,23 @@ const tick = (t) => {
       renderer.render({
         time,
         deltaTime,
+        // geometry: meshActor.meshComponent.geometry,
+        // material: meshActor.meshComponent.material,
+        // modelMatrix: meshActor.worldTransform,
+        // viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
+        // projectionMatrix: perspectiveCamera.projectionMatrix,
+        // normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+        // cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
         geometry: meshActor.meshComponent.geometry,
         material: meshActor.meshComponent.material,
         modelMatrix: meshActor.worldTransform,
-        viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
-        projectionMatrix: perspectiveCamera.projectionMatrix,
+        viewMatrix: perspectiveCameraActor.camera.cameraMatrix
+          .clone()
+          .inverse(),
+        projectionMatrix: perspectiveCameraActor.camera.projectionMatrix,
         normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
+        cameraPosition:
+          perspectiveCameraActor.camera.cameraMatrix.getTranslationVector(),
       });
     });
   }

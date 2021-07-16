@@ -1,4 +1,5 @@
 import Matrix4 from './Matrix4.js';
+import Vector3 from './Vector3.js';
 
 export default class Actor {
   static Types = {
@@ -9,8 +10,9 @@ export default class Actor {
     const { name, type, components = [] } = args;
     this.name = name || '';
     this.type = type || Actor.Types.None;
-    this.components = [];
+    this.components = components;
     this.worldTransform = Matrix4.identity();
+    this.position = Vector3.zero();
   }
   addComponent(component) {
     this.components.push(component);
