@@ -422,10 +422,10 @@ const init = async () => {
         type: Attribute.Types.Position,
         // prettier-ignore
         data: [
-          -1, -1, 1,
-          1, -1, 1,
-          1, 1, 1,
-          -1, 1, 1,
+          -1, -1, 0,
+          1, -1, 0,
+          1, 1, 0,
+          -1, 1, 0,
         ],
         stride: 3,
       },
@@ -433,10 +433,10 @@ const init = async () => {
         type: Attribute.Types.Uv,
         // prettier-ignore
         data: [
-          0, 1,
-          1, 1,
-          1, 0,
           0, 0,
+          1, 0,
+          1, 1,
+          0, 1,
         ],
         stride: 2,
       },
@@ -477,7 +477,7 @@ const init = async () => {
     }),
   );
 
-  // actors.push(floorMeshActor);
+  actors.push(floorMeshActor);
 };
 
 const onWindowResize = () => {
@@ -553,26 +553,26 @@ const tick = (t) => {
 
     gpu.gl.flush();
     // FIXME: this is render target test
-    // gpu.gl.bindFramebuffer(
-    //   gpu.gl.FRAMEBUFFER,
-    //   renderTarget.framebuffer.glObject,
-    // );
+    gpu.gl.bindFramebuffer(
+      gpu.gl.FRAMEBUFFER,
+      renderTarget.framebuffer.glObject,
+    );
     gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gpu.gl.clearDepth(1.0);
     gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
 
     meshActors.forEach((meshActor, i) => {
       // // FIXME: this is render target test
-      // if (i === 2) {
-      //   gpu.gl.flush();
-      //   // clear context
-      //   gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
-      //   // gpu.clear(0, 0, 0, 1);
-      //   // clear
-      //   gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-      //   gpu.gl.clearDepth(1.0);
-      //   gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
-      // }
+      if (i === 2) {
+        gpu.gl.flush();
+        // clear context
+        gpu.gl.bindFramebuffer(gpu.gl.FRAMEBUFFER, null);
+        // gpu.clear(0, 0, 0, 1);
+        // clear
+        gpu.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gpu.gl.clearDepth(1.0);
+        gpu.gl.clear(gpu.gl.COLOR_BUFFER_BIT | gpu.gl.DEPTH_BUFFER_BIT);
+      }
 
       renderer.render({
         gpu,

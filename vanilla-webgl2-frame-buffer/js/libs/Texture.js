@@ -36,9 +36,11 @@ export default class Texture extends GLObject {
 
     gl.bindTexture(gl.TEXTURE_2D, this.#texture);
 
-    // NOTE: 常に必要？
-    // gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!flipY);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!flipY);
+    // NOTE:
+    // - imgがない時も呼ばれるようにしてもいいかもしれない
+    if (this.#img) {
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !!flipY);
+    }
 
     if (width && height) {
       // prettier-ignore
