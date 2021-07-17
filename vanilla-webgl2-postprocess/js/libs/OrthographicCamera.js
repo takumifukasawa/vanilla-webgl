@@ -21,22 +21,17 @@ export default class OrthographicCamera extends Camera {
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix();
-    this.lookAt = Vector3.zero();
   }
 
   // aspect: w / h
-  updateProjectionMatrix() {
+  updateProjectionMatrix(left, right, bottom, top) {
     this.projectionMatrix = Matrix4.getOrthographicMatrix(
-      this.left,
-      this.right,
-      this.bottom,
-      this.top,
+      left,
+      right,
+      bottom,
+      top,
       this.nearClip,
       this.farClip,
     );
-  }
-
-  update() {
-    super.update();
   }
 }

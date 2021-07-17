@@ -11,7 +11,6 @@ export default class PerspectiveCamera extends Camera {
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix(aspect);
-    this.lookAt = Vector3.zero;
   }
 
   // aspect: w / h
@@ -22,9 +21,5 @@ export default class PerspectiveCamera extends Camera {
       this.nearClip,
       this.farClip,
     );
-  }
-
-  update() {
-    super.update();
   }
 }

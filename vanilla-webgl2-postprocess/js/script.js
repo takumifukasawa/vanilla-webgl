@@ -3,13 +3,14 @@ import Material from './libs/Material.js';
 import Geometry from './libs/Geometry.js';
 import Matrix4 from './libs/Matrix4.js';
 import Vector3 from './libs/Vector3.js';
+import MeshActor from './libs/MeshActor.js';
 import Actor from './libs/Actor.js';
 import CameraActor from './libs/CameraActor.js';
-import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
-import PerspectiveCameraComponent from './libs/PerspectiveCameraComponent.js';
-import OrthographicCameraComponent from './libs/OrthographicCameraComponent.js';
+import PerspectiveCamera from './libs/PerspectiveCamera.js';
+// import OrthographicCameraComponent from './libs/OrthographicCameraComponent.js';
+import OrthographicCamera from './libs/OrthographicCamera.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import loadImg from './utils/loadImg.js';
@@ -18,6 +19,7 @@ import CubeMap from './libs/CubeMap.js';
 import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
+import Component from './libs/Component.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -50,8 +52,9 @@ const renderTarget = new RenderTarget({ gpu });
 // const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
 const perspectiveCameraActor = new CameraActor({
-  // components: [new PerspectiveCameraComponent(0.5, 1, 0.1, 50)],
-  components: [new OrthographicCameraComponent(-3, 3, -3, 3, 0.1, 50)],
+  camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
+  // camera: new OrthographicCamera(-3, 3, -3, 3, 0.1, 50),
+  lookAt: Vector3.zero(),
 });
 
 actors.push(perspectiveCameraActor);
@@ -571,6 +574,8 @@ const tick = (t) => {
       (actor) => actor.type === Actor.Types.MeshActor,
     );
 
+    const camera = perspectiveCameraActor.camera;
+
     gpu.flush();
 
     renderer.setRenderTarget(renderTarget);
@@ -582,6 +587,9 @@ const tick = (t) => {
         renderer.clearRenderTarget();
         renderer.clear();
       }
+
+      // console.log(camera.cameraMatrix.clone());
+      // console.log(camera.cameraMatrix.clone());
 
       renderer.render({
         time,
@@ -596,13 +604,10 @@ const tick = (t) => {
         geometry: meshActor.meshComponent.geometry,
         material: meshActor.meshComponent.material,
         modelMatrix: meshActor.worldTransform,
-        viewMatrix: perspectiveCameraActor.camera.cameraMatrix
-          .clone()
-          .inverse(),
-        projectionMatrix: perspectiveCameraActor.camera.projectionMatrix,
+        viewMatrix: camera.cameraMatrix.clone().inverse(),
+        projectionMatrix: camera.projectionMatrix,
         normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        cameraPosition:
-          perspectiveCameraActor.camera.cameraMatrix.getTranslationVector(),
+        cameraPosition: camera.cameraMatrix.getTranslationVector(),
       });
     });
   }

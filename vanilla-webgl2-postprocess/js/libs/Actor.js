@@ -4,15 +4,22 @@ import Vector3 from './Vector3.js';
 export default class Actor {
   static Types = {
     MeshActor: 'MeshActor',
+    CameraActor: 'CameraActor',
     None: 'None',
   };
   constructor(args = {}) {
     const { name, type, components = [] } = args;
     this.name = name || '';
     this.type = type || Actor.Types.None;
-    this.components = components;
+    this.components = components || [];
     this.worldTransform = Matrix4.identity();
     this.position = Vector3.zero();
+  }
+  findComponent(type) {
+    const component = this.components.find((component) => {
+      return component.type === type;
+    });
+    return component || null;
   }
   addComponent(component) {
     this.components.push(component);
