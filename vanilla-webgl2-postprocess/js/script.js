@@ -9,6 +9,7 @@ import MeshActor from './libs/MeshActor.js';
 import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import PerspectiveCameraComponent from './libs/PerspectiveCameraComponent.js';
+import OrthographicCameraComponent from './libs/OrthographicCameraComponent.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import loadImg from './utils/loadImg.js';
@@ -49,7 +50,8 @@ const renderTarget = new RenderTarget({ gpu });
 // const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
 const perspectiveCameraActor = new CameraActor({
-  components: [new PerspectiveCameraComponent(0.5, 1, 0.1, 50)],
+  // components: [new PerspectiveCameraComponent(0.5, 1, 0.1, 50)],
+  components: [new OrthographicCameraComponent(-3, 3, -3, 3, 0.1, 50)],
 });
 
 actors.push(perspectiveCameraActor);

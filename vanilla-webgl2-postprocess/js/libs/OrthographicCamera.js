@@ -1,5 +1,6 @@
 import Camera from './Camera.js';
 import Matrix4 from './Matrix4.js';
+import Vector3 from './Vector3.js';
 
 export default class OrthographicCamera extends Camera {
   left;
@@ -20,7 +21,9 @@ export default class OrthographicCamera extends Camera {
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix();
+    this.lookAt = Vector3.zero();
   }
+
   // aspect: w / h
   updateProjectionMatrix() {
     this.projectionMatrix = Matrix4.getOrthographicMatrix(
@@ -31,5 +34,9 @@ export default class OrthographicCamera extends Camera {
       this.nearClip,
       this.farClip,
     );
+  }
+
+  update() {
+    super.update();
   }
 }
