@@ -197,13 +197,13 @@ precision mediump float;
 
 in vec2 vUv;
 
-uniform sampler2D uSceneTexture;
+uniform sampler2D uBaseColorMap;
 
 out vec4 outColor;
 
 void main() {
-  // outColor = texture(uSceneTexture, vec2(vUv.x, 1. - vUv.y)); // flipY
-  outColor = texture(uSceneTexture, vUv); // flipY
+  // outColor = texture(uBaseColorMap, vec2(vUv.x, 1. - vUv.y)); // flipY
+  outColor = texture(uBaseColorMap, vUv); // flipY
 }
 `;
 
@@ -461,10 +461,9 @@ const init = async () => {
     vertexShader: floorVertexShader,
     fragmentShader: floorFragmentShader,
     uniforms: {
-      uSceneTexture: {
+      uBaseColorMap: {
         type: GPU.UniformTypes.Texture2D,
-        data: renderTarget.texture,
-        // data: uvMapTexture,
+        data: uvMapTexture,
       },
     },
     primitiveType: GPU.Primitives.Triangles,
@@ -578,16 +577,10 @@ const tick = (t) => {
 
     gpu.flush();
 
-    renderer.setRenderTarget(renderTarget);
+    // renderer.setRenderTarget(renderTarget);
     renderer.clear();
 
     meshActors.forEach((meshActor, i) => {
-      // planeは画面に描画したいので最後だけrenderTargetを解除
-      if (i === 2) {
-        renderer.clearRenderTarget();
-        renderer.clear();
-      }
-
       // console.log(camera.cameraMatrix.clone());
       // console.log(camera.cameraMatrix.clone());
 

@@ -9,9 +9,10 @@ export default class Camera {
     OrthographicCamera: 'OrthographicCamera',
   };
 
-  constructor({ type }) {
+  constructor({ type, renderTarget }) {
     this.type = type;
     this.cameraMatrix = Matrix4.identity();
+    this.projectionMatrix = Matrix4.identity();
   }
 
   updateProjectionMatrix() {

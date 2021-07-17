@@ -8,7 +8,9 @@ export default class CameraActor extends Actor {
     super({ ...args, type: Actor.Types.CameraActor });
     this.camera = args.camera;
     this.lookAt = args.lookAt || null;
+    this.renderTarget = args.renderTarget || null;
   }
+
   setSize({ width, height }) {
     super.setSize({ width, height });
 
@@ -24,6 +26,7 @@ export default class CameraActor extends Actor {
       this.camera.updateProjectionMatrix(width / height);
     }
   }
+
   update({ time, deltaTime }) {
     super.update({ time, deltaTime });
     if (this.lookAt) {
@@ -34,5 +37,13 @@ export default class CameraActor extends Actor {
       );
       this.camera.cameraMatrix = lookAtCameraMatrix;
     }
+  }
+
+  setRenderTarget(renderTarget) {
+    this.renderTarget = renderTarget;
+  }
+
+  clearRenderTarget() {
+    this.renderTarget = null;
   }
 }
