@@ -255,100 +255,6 @@ void main() {
 }
 `;
 
-const createBackground = async (baseTexture) => {
-  const backgroundVertexShader = `#version 300 es
-
-layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec2 aUv;
-
-out vec2 vUv;
-
-void main() {
-  vUv = aUv;
-  gl_Position = vec4(aPosition, 1.);
-}
-`;
-
-  const backgroundFragmentShader = `#version 300 es
-
-precision mediump float;
-
-in vec2 vUv;
-
-uniform sampler2D uBaseColorMap;
-
-out vec4 outColor;
-
-void main() {
-  outColor = texture(uBaseColorMap, vUv);
-  // outColor = vec4(vUv, 0., 1.);
-}
-`;
-
-  //
-  // plane vertex positions
-  //
-  // 3 ----------2
-  // |         / |
-  // |       /   |
-  // |     /     |
-  // |   /       |
-  // | /         |
-  // 0 --------- 1
-
-  const backgroundGeometry = new Geometry({
-    gpu,
-    attributes: [
-      {
-        type: Attribute.Types.Position,
-        // prettier-ignore
-        data: [
-          -1, -1, 1,
-          1, -1, 1,
-          1, 1, 1,
-          -1, 1, 1,
-        ],
-        stride: 3,
-      },
-      {
-        type: Attribute.Types.Uv,
-        // prettier-ignore
-        data: [
-          0, 0,
-          1, 0,
-          1, 1,
-          0, 1,
-        ],
-        stride: 2,
-      },
-    ],
-    indices: [0, 1, 2, 0, 2, 3],
-  });
-
-  const backgroundMaterial = new Material({
-    gpu,
-    vertexShader: backgroundVertexShader,
-    fragmentShader: backgroundFragmentShader,
-    uniforms: {
-      uBaseColorMap: {
-        type: GPU.UniformTypes.Texture2D,
-        data: baseTexture,
-      },
-    },
-    primitiveType: GPU.Primitives.Triangle,
-  });
-
-  const backgroundMeshActor = new MeshActor({
-    name: 'background',
-    meshComponent: new MeshComponent({
-      geometry: backgroundGeometry,
-      material: backgroundMaterial,
-    }),
-  });
-
-  actors.push(backgroundMeshActor);
-};
-
 const init = async () => {
   const data = await loadObj('./model/sphere-32x32.obj');
 
@@ -386,8 +292,6 @@ const init = async () => {
   const heightMapTexture = new Texture({ gpu, img: heightMapImg });
 
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
-
-  await createBackground(uvMapTexture);
 
   const objGeometry = new Geometry({
     gpu,
@@ -529,7 +433,9 @@ const init = async () => {
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
         const t = Matrix4.multiplyMatrices(
-          Matrix4.createScalingMatrix(new Vector3(2, 2, 2)),
+          Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
+          Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
+          Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
         );
         actor.worldTransform = t;
       },

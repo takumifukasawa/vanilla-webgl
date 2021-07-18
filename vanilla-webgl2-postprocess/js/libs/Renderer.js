@@ -45,8 +45,8 @@ export default class Renderer {
 
     if (postProcess) {
       this.setRenderTarget(postProcess.getRenderTarget(0));
-      this.clear();
     }
+    this.clear();
 
     // TODO:
     // - opqque -> transparent -> ui
