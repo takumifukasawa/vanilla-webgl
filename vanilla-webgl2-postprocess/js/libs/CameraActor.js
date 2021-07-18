@@ -9,6 +9,7 @@ export default class CameraActor extends Actor {
     this.camera = args.camera;
     this.lookAt = args.lookAt || null;
     this.renderTarget = args.renderTarget || null;
+    this.postProcesses = args.postProcesses || [];
   }
 
   setSize({ width, height }) {
@@ -46,4 +47,6 @@ export default class CameraActor extends Actor {
   clearRenderTarget() {
     this.renderTarget = null;
   }
+
+  render() {}
 }

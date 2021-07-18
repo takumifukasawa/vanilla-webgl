@@ -37,7 +37,34 @@ export default class Renderer {
     }
   }
 
-  render({
+  render({ cameraActor, meshActors }) {
+    const camera = cameraActor.camera;
+    meshActors.forEach((meshActor, i) => {
+      // console.log(camera.cameraMatrix.clone());
+      // console.log(camera.cameraMatrix.clone());
+
+      this.renderMesh({
+        // time,
+        // deltaTime,
+        // geometry: meshActor.meshComponent.geometry,
+        // material: meshActor.meshComponent.material,
+        // modelMatrix: meshActor.worldTransform,
+        // viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
+        // projectionMatrix: perspectiveCamera.projectionMatrix,
+        // normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+        // cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
+        geometry: meshActor.meshComponent.geometry,
+        material: meshActor.meshComponent.material,
+        modelMatrix: meshActor.worldTransform,
+        viewMatrix: camera.cameraMatrix.clone().inverse(),
+        projectionMatrix: camera.projectionMatrix,
+        normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+        cameraPosition: camera.cameraMatrix.getTranslationVector(),
+      });
+    });
+  }
+
+  renderMesh({
     geometry,
     material,
     modelMatrix,
