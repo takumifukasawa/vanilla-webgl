@@ -90,19 +90,19 @@ const perspectiveCameraActor = new CameraActor({
   camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
   // camera: new OrthographicCamera(-3, 3, -3, 3, 0.1, 50),
   lookAt: Vector3.zero(),
-  postProcess: new PostProcess({
-    gpu,
-    passes: [
-      new PostProcessPass({
-        gpu,
-        fragmentShader: mirrorFragmentShader,
-      }),
-      new PostProcessPass({
-        gpu,
-        fragmentShader: grayScaleFragmentShader,
-      }),
-    ],
-  }),
+  // postProcess: new PostProcess({
+  //   gpu,
+  //   passes: [
+  //     new PostProcessPass({
+  //       gpu,
+  //       fragmentShader: mirrorFragmentShader,
+  //     }),
+  //     new PostProcessPass({
+  //       gpu,
+  //       fragmentShader: grayScaleFragmentShader,
+  //     }),
+  //   ],
+  // }),
 });
 
 actors.push(perspectiveCameraActor);

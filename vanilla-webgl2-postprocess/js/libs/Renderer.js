@@ -62,27 +62,29 @@ export default class Renderer {
       });
     });
 
-    postProcess.passes.forEach((postProcessPass, i) => {
-      const isLastPass = i === cameraActor.postProcess.passes.length - 1;
-      if (isLastPass) {
-        // カメラにrenderTargetがついてないかつ、最後のpostProcessPassなら画面に出力
-        if (!cameraActor.renderTarget) {
-          this.clearRenderTarget();
-          this.clear();
+    if (postProcess) {
+      postProcess.passes.forEach((postProcessPass, i) => {
+        const isLastPass = i === cameraActor.postProcess.passes.length - 1;
+        if (isLastPass) {
+          // カメラにrenderTargetがついてないかつ、最後のpostProcessPassなら画面に出力
+          if (!cameraActor.renderTarget) {
+            this.clearRenderTarget();
+            this.clear();
+          } else {
+            this.setRenderTarget(camera.renderTarget);
+            this.clear();
+          }
         } else {
-          this.setRenderTarget(camera.renderTarget);
+          this.setRenderTarget(postProcess.getRenderTarget(i + 1));
           this.clear();
         }
-      } else {
-        this.setRenderTarget(postProcess.getRenderTarget(i + 1));
-        this.clear();
-      }
 
-      this.renderPostProcess({
-        postProcessPass,
-        renderTarget: postProcess.getRenderTarget(i),
+        this.renderPostProcess({
+          postProcessPass,
+          renderTarget: postProcess.getRenderTarget(i),
+        });
       });
-    });
+    }
   }
 
   renderMesh({
