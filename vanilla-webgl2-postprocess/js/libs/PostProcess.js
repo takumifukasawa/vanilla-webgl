@@ -1,11 +1,23 @@
-import RenderTarget from './libs/RenderTarget.js';
+import RenderTarget from './RenderTarget.js';
 
 export default class PostProcess {
-  #material;
+  #passes;
 
-  constructor({ gpu, material, outputToScreen = true }) {
-    this.renderTarget = new RenderTarget({ gpu });
-    this.outputToScreen = this.#material = material;
+  get passes() {
+    return this.#passes;
   }
-  render() {}
+
+  getRenderTarget(index) {
+    return this.passes[index].renderTarget;
+  }
+
+  constructor({ gpu, passes }) {
+    this.#passes = passes;
+  }
+
+  setSize(width, height) {
+    this.#passes.forEach((pass) => {
+      pass.setSize(width, height);
+    });
+  }
 }

@@ -2,14 +2,27 @@ import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 import Actor from './Actor.js';
 import Camera from './Camera.js';
+import RenderTarget from './RenderTarget.js';
 
 export default class CameraActor extends Actor {
+  #renderTarget;
+  #postProcess;
+
+  get renderTarget() {
+    return this.#renderTarget;
+  }
+
+  get postProcess() {
+    return this.#postProcess;
+  }
+
   constructor(args = {}) {
     super({ ...args, type: Actor.Types.CameraActor });
-    this.camera = args.camera;
-    this.lookAt = args.lookAt || null;
-    this.renderTarget = args.renderTarget || null;
-    this.postProcesses = args.postProcesses || [];
+    const { gpu, camera, lookAt, postProcess, renderTarget } = args;
+    this.camera = camera;
+    this.lookAt = lookAt || null;
+    this.#postProcess = postProcess || null;
+    this.#renderTarget = renderTarget;
   }
 
   setSize({ width, height }) {
@@ -26,6 +39,14 @@ export default class CameraActor extends Actor {
     } else {
       this.camera.updateProjectionMatrix(width / height);
     }
+
+    if (this.#renderTarget) {
+      this.#renderTarget.setSize(width, height);
+    }
+
+    if (this.#postProcess) {
+      this.#postProcess.setSize(width, height);
+    }
   }
 
   update({ time, deltaTime }) {
@@ -39,14 +60,4 @@ export default class CameraActor extends Actor {
       this.camera.cameraMatrix = lookAtCameraMatrix;
     }
   }
-
-  setRenderTarget(renderTarget) {
-    this.renderTarget = renderTarget;
-  }
-
-  clearRenderTarget() {
-    this.renderTarget = null;
-  }
-
-  render() {}
 }

@@ -1,3 +1,4 @@
+import GPU from './GPU.js';
 import Material from './Material.js';
 
 export default class Renderer {
@@ -25,7 +26,7 @@ export default class Renderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
-  clear(r, g, b, a) {
+  clear(r = 0, g = 0, b = 0, a = 1) {
     const gl = this.#gpu.gl;
     gl.clearColor(r, g, b, a);
     gl.clearDepth(1.0);
@@ -37,22 +38,20 @@ export default class Renderer {
     }
   }
 
+  // TODO:
+  // - camera に renderTarget が指定されている場合
   render({ cameraActor, meshActors }) {
-    const camera = cameraActor.camera;
-    meshActors.forEach((meshActor, i) => {
-      // console.log(camera.cameraMatrix.clone());
-      // console.log(camera.cameraMatrix.clone());
+    const { camera, postProcess } = cameraActor;
 
+    if (postProcess) {
+      this.setRenderTarget(postProcess.getRenderTarget(0));
+      this.clear();
+    }
+
+    // TODO:
+    // - opqque -> transparent -> ui
+    meshActors.forEach((meshActor, i) => {
       this.renderMesh({
-        // time,
-        // deltaTime,
-        // geometry: meshActor.meshComponent.geometry,
-        // material: meshActor.meshComponent.material,
-        // modelMatrix: meshActor.worldTransform,
-        // viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
-        // projectionMatrix: perspectiveCamera.projectionMatrix,
-        // normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        // cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
         geometry: meshActor.meshComponent.geometry,
         material: meshActor.meshComponent.material,
         modelMatrix: meshActor.worldTransform,
@@ -60,6 +59,28 @@ export default class Renderer {
         projectionMatrix: camera.projectionMatrix,
         normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
         cameraPosition: camera.cameraMatrix.getTranslationVector(),
+      });
+    });
+
+    postProcess.passes.forEach((postProcessPass, i) => {
+      const isLastPass = i === cameraActor.postProcess.passes.length - 1;
+      if (isLastPass) {
+        // カメラにrenderTargetがついてないかつ、最後のpostProcessPassなら画面に出力
+        if (!cameraActor.renderTarget) {
+          this.clearRenderTarget();
+          this.clear();
+        } else {
+          this.setRenderTarget(camera.renderTarget);
+          this.clear();
+        }
+      } else {
+        this.setRenderTarget(postProcessPass.renderTarget);
+        this.clear();
+      }
+
+      this.renderPostProcess({
+        postProcessPass,
+        renderTarget: postProcess.getRenderTarget(i),
       });
     });
   }
@@ -149,6 +170,38 @@ export default class Renderer {
       // TODO: attributeのvertexにtypeをもたせる
       this.#gpu.draw(geometry.vertexCount, material.primitiveType);
     }
+    this.#gpu.resetData();
+  }
+
+  // post process 用の render 設定は別にする
+  renderPostProcess({ postProcessPass, renderTarget }) {
+    const gl = this.#gpu.gl;
+
+    const { shader, geometry, uniforms } = postProcessPass;
+
+    gl.disable(gl.DEPTH_TEST);
+
+    gl.depthMask(true);
+    gl.depthFunc(gl.LEQUAL);
+    gl.disable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ZERO);
+
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+
+    postProcessPass.update({
+      renderTarget,
+    });
+
+    this.#gpu.setShader(shader);
+    this.#gpu.setVertex(geometry.vao);
+    // gpu.setAttributes(geometry.attributes);
+    // gpu.setTextures(material.textures);
+    this.#gpu.setUniforms(uniforms);
+
+    this.#gpu.setIndices(geometry.indices);
+    this.#gpu.draw(geometry.indices.length, GPU.Primitives.Triangles);
+
     this.#gpu.resetData();
   }
 }

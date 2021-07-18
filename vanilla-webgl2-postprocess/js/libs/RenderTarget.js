@@ -19,7 +19,7 @@ export default class RenderTarget {
     return this.#depthRenderbuffer;
   }
 
-  constructor({ gpu, width, height }) {
+  constructor({ gpu, width = 1, height = 1 }) {
     const gl = gpu.gl;
 
     this.#framebuffer = new Framebuffer({ gpu });
@@ -29,8 +29,10 @@ export default class RenderTarget {
 
     this.#depthRenderbuffer = new Renderbuffer({
       gpu,
-      width: 1,
-      height: 1,
+      width,
+      height,
+      // width: 1,
+      // height: 1,
       type: Renderbuffer.Types.Depth,
     });
 

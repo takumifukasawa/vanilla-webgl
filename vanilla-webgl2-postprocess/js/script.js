@@ -20,6 +20,8 @@ import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
 import Component from './libs/Component.js';
+import PostProcessPass from './libs/PostProcessPass.js';
+import PostProcess from './libs/PostProcess.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -51,10 +53,37 @@ const renderTarget = new RenderTarget({ gpu });
 
 // const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
+const ppFrag = `#version 300 es
+
+precision mediump float;
+
+in vec2 vUv;
+
+out vec4 outColor;
+
+uniform sampler2D uSceneTexture;
+
+void main() {
+  vec4 sceneColor = texture(uSceneTexture, vUv);
+  float gray = (sceneColor.r + sceneColor.g + sceneColor.b) * 0.333;
+  outColor = vec4(vec3(gray), 1.);
+}
+
+`;
+
 const perspectiveCameraActor = new CameraActor({
   camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
   // camera: new OrthographicCamera(-3, 3, -3, 3, 0.1, 50),
   lookAt: Vector3.zero(),
+  postProcess: new PostProcess({
+    gpu,
+    passes: [
+      new PostProcessPass({
+        gpu,
+        fragmentShader: ppFrag,
+      }),
+    ],
+  }),
 });
 
 actors.push(perspectiveCameraActor);
@@ -510,7 +539,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 1.5);
+      const ratio = Math.min(window.devicePixelRatio, 1.0);
 
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
@@ -573,12 +602,12 @@ const tick = (t) => {
       (actor) => actor.type === Actor.Types.MeshActor,
     );
 
-    const camera = perspectiveCameraActor.camera;
+    // const camera = perspectiveCameraActor.camera;
 
     gpu.flush();
 
     // renderer.setRenderTarget(renderTarget);
-    renderer.clear();
+    // renderer.clear();
 
     renderer.render({ meshActors, cameraActor: perspectiveCameraActor });
 
