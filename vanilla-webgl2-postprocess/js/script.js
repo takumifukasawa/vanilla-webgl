@@ -53,7 +53,23 @@ const renderTarget = new RenderTarget({ gpu });
 
 // const perspectiveCamera = new PerspectiveCamera(0.5, 1, 0.1, 50);
 
-const ppFrag = `#version 300 es
+const mirrorFragmentShader = `#version 300 es
+
+precision mediump float;
+
+in vec2 vUv;
+
+out vec4 outColor;
+
+uniform sampler2D uSceneTexture;
+
+void main() {
+  vec4 sceneColor = texture(uSceneTexture, vec2(1. - vUv.x, vUv.y));
+  outColor = sceneColor;
+}
+`;
+
+const grayScaleFragmentShader = `#version 300 es
 
 precision mediump float;
 
@@ -68,7 +84,6 @@ void main() {
   float gray = (sceneColor.r + sceneColor.g + sceneColor.b) * 0.333;
   outColor = vec4(vec3(gray), 1.);
 }
-
 `;
 
 const perspectiveCameraActor = new CameraActor({
@@ -80,7 +95,11 @@ const perspectiveCameraActor = new CameraActor({
     passes: [
       new PostProcessPass({
         gpu,
-        fragmentShader: ppFrag,
+        fragmentShader: mirrorFragmentShader,
+      }),
+      new PostProcessPass({
+        gpu,
+        fragmentShader: grayScaleFragmentShader,
       }),
     ],
   }),

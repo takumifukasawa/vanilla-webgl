@@ -74,7 +74,7 @@ export default class Renderer {
           this.clear();
         }
       } else {
-        this.setRenderTarget(postProcessPass.renderTarget);
+        this.setRenderTarget(postProcess.getRenderTarget(i + 1));
         this.clear();
       }
 
