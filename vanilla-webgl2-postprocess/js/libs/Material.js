@@ -4,6 +4,8 @@ import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 import Engine from './Engine.js';
 
+// TODO:
+// - useUtilityUniforms 関連の処理は本当は Material 内に持たせたくない
 export default class Material {
   #uniforms;
   #shader;

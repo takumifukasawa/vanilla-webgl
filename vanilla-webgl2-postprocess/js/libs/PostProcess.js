@@ -10,7 +10,8 @@ export default class PostProcess {
 
   constructor({ gpu, passes }) {
     this.#passes = passes;
-    this.#renderTargets = passes.map((pass, i) => new RenderTarget({ gpu }));
+    // TODO: カメラにrenderTargetがついてる場合は1つ無駄になっているので整理したい
+    this.#renderTargets = passes.map(() => new RenderTarget({ gpu }));
   }
 
   getRenderTarget(index) {
