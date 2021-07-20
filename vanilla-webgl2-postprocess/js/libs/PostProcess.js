@@ -25,4 +25,33 @@ export default class PostProcess {
       pass.setSize(width, height);
     });
   }
+
+  render({ renderer, cameraRenderTarget }) {
+    this.#passes.forEach((pass, i) => {
+      const isLastPass = i === this.#passes.length - 1;
+      if (isLastPass) {
+        // cameraのrenderTargetがついていたらそこに出力
+        if (cameraRenderTarget) {
+          renderer.setRenderTarget(cameraRenderTarget);
+          renderer.clear();
+        } else {
+          renderer.clearRenderTarget();
+          renderer.clear();
+        }
+      } else {
+        renderer.setRenderTarget(this.getRenderTarget(i + 1));
+        renderer.clear();
+      }
+
+      const { material, geometry } = pass;
+
+      renderer.setupRenderStates({ material });
+
+      pass.update({
+        renderTarget: this.getRenderTarget(i),
+      });
+
+      renderer.renderMesh({ geometry, material });
+    });
+  }
 }
