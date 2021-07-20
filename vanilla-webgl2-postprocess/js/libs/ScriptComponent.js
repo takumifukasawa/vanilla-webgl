@@ -1,8 +1,9 @@
 import Component from './Component.js';
+import Engine from './Engine.js';
 
 export default class ScriptComponent extends Component {
   constructor({ startFunc, updateFunc, renderFunc }) {
-    super({ type: Component.Types.LifeCycleComponent });
+    super({ type: Engine.ComponentType.ScriptComponent });
     this.startFunc = startFunc;
     this.updateFunc = updateFunc;
     this.renderFunc = renderFunc;

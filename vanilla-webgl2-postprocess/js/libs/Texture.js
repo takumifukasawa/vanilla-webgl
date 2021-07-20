@@ -1,14 +1,10 @@
+import Engine from './Engine.js';
 import GLObject from './GLObject.js';
 
 export default class Texture extends GLObject {
   #texture;
   #img;
   #gpu;
-
-  static Wrap = {
-    Repeat: 'Repeat',
-    ClampToEdge: 'ClampToEdge',
-  };
 
   get glObject() {
     return this.#texture;
@@ -20,8 +16,8 @@ export default class Texture extends GLObject {
     width,
     height,
     mipmap = true,
-    wrapS = Texture.Wrap.ClampToEdge,
-    wrapT = Texture.Wrap.ClampToEdge,
+    wrapS = Engine.TextureWrapType.ClampToEdge,
+    wrapT = Engine.TextureWrapType.ClampToEdge,
     flipY = true,
   }) {
     super(gpu);
@@ -59,18 +55,18 @@ export default class Texture extends GLObject {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
     switch (wrapS) {
-      case Texture.Wrap.Repeat:
+      case Engine.TextureWrapType.Repeat:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         break;
-      case Texture.Wrap.ClampToEdge:
+      case Engine.TextureWrapType.ClampToEdge:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         break;
     }
     switch (wrapT) {
-      case Texture.Wrap.Repeat:
+      case Engine.TextureWrapType.Repeat:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         break;
-      case Texture.Wrap.ClampToEdge:
+      case Engine.TextureWrapType.ClampToEdge:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         break;
     }

@@ -1,13 +1,7 @@
+import Engine from './Engine.js';
 import Vector3 from './Vector3.js';
 
 export default class Attribute {
-  static Types = {
-    Position: 'Position',
-    Normal: 'Normal',
-    Uv: 'UV',
-    Tangent: 'Tangent',
-    Binormal: 'Binormal',
-  };
   constructor({ type, data, stride, location }) {
     this.type = type;
     this.data = data;
@@ -26,7 +20,7 @@ export default class Attribute {
       tangents.push(...t.getArray());
     }
     return {
-      type: Attribute.Types.Tangent,
+      type: Engine.AttributeType.Tangent,
       data: tangents,
       stride: 3,
     };
@@ -44,7 +38,7 @@ export default class Attribute {
       binormals.push(...b.getArray());
     }
     return {
-      type: Attribute.Types.Binormal,
+      type: Engine.AttributeType.Binormal,
       data: binormals,
       stride: 3,
     };

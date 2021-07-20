@@ -1,9 +1,4 @@
 export default class Component {
-  static Types = {
-    MeshComponent: 'MeshComponent',
-    LifeCycleComponent: 'LifeCycleComponent',
-    CameraComponent: 'CameraComponent',
-  };
   constructor({ type }) {
     this.type = type;
     this.isStarted = false;

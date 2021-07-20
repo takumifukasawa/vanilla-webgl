@@ -1,5 +1,5 @@
+import Engine from './Engine.js';
 import GPU from './GPU.js';
-import Material from './Material.js';
 
 export default class Renderer {
   #renderTarget;
@@ -108,18 +108,18 @@ export default class Renderer {
 
     // culling
     switch (material.face) {
-      case Material.Face.Front:
+      case Engine.FaceType.Front:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         break;
-      case Material.Face.Back:
+      case Engine.FaceType.Back:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT);
         break;
-      case Material.Face.DoubleSide:
+      case Engine.FaceType.DoubleSide:
         gl.disable(gl.CULL_FACE);
         break;
-      case Material.Face.None:
+      case Engine.FaceType.None:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT_AND_BACK);
         break;
@@ -131,7 +131,7 @@ export default class Renderer {
       gl.depthMask(false);
       gl.enable(gl.BLEND);
       switch (material.blendType) {
-        case GPU.BlendTypes.Alpha:
+        case Engine.BlendType.Alpha:
           gl.blendFuncSeparate(
             gl.SRC_ALPHA,
             gl.ONE_MINUS_SRC_ALPHA,
@@ -139,7 +139,7 @@ export default class Renderer {
             gl.ONE,
           );
           break;
-        case GPU.BlendTypes.Additive:
+        case Engine.BlendType.Additive:
           gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
           break;
         default:
@@ -202,7 +202,7 @@ export default class Renderer {
     this.#gpu.setUniforms(uniforms);
 
     this.#gpu.setIndices(geometry.indices);
-    this.#gpu.draw(geometry.indices.length, GPU.Primitives.Triangles);
+    this.#gpu.draw(geometry.indices.length, Engine.PrimitiveType.Triangles);
 
     this.#gpu.resetData();
   }

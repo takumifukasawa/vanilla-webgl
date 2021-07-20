@@ -4,11 +4,6 @@ import Vector3 from './Vector3.js';
 export default class Camera {
   type;
 
-  static Types = {
-    PerspectiveCamera: 'PerspectiveCamera',
-    OrthographicCamera: 'OrthographicCamera',
-  };
-
   constructor({ type, renderTarget }) {
     this.type = type;
     this.cameraMatrix = Matrix4.identity();

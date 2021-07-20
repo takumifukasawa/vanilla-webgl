@@ -1,3 +1,4 @@
+import Engine from './Engine.js';
 import Framebuffer from './FrameBuffer.js';
 import Renderbuffer from './Renderbuffer.js';
 import Texture from './Texture.js';
@@ -33,7 +34,7 @@ export default class RenderTarget {
       height,
       // width: 1,
       // height: 1,
-      type: Renderbuffer.Types.Depth,
+      type: Engine.RenderbufferType.Depth,
     });
 
     // depth buffer を webgl に bind

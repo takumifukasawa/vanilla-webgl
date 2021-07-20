@@ -1,3 +1,4 @@
+import Engine from './Engine.js';
 import Texture from './Texture.js';
 
 const createWhite1x1 = () => {
@@ -12,23 +13,6 @@ const createWhite1x1 = () => {
 
 export default class GPU {
   #gl;
-  static Primitives = {
-    Points: 'Points',
-    Lines: 'Lines',
-    Triangles: 'Triangles',
-  };
-  static UniformTypes = {
-    Matrix4fv: 'Matrix4fv',
-    Vector3f: 'Vector3f',
-    Texture2D: 'Texture2D',
-    CubeMap: 'CubeMap',
-    Float: 'Float',
-  };
-  static BlendTypes = {
-    Alpha: 'Alpha',
-    Additive: 'Additive',
-    None: 'None',
-  };
   constructor({ canvasElement }) {
     this.#gl = canvasElement.getContext('webgl2');
     this.shader = null;
@@ -121,9 +105,9 @@ export default class GPU {
     gl.useProgram(program);
 
     const primitives = {
-      [GPU.Primitives.Points]: gl.POINTS,
-      [GPU.Primitives.Lines]: gl.LINES,
-      [GPU.Primitives.Triangles]: gl.TRIANGLES,
+      [Engine.PrimitiveType.Points]: gl.POINTS,
+      [Engine.PrimitiveType.Lines]: gl.LINES,
+      [Engine.PrimitiveType.Triangles]: gl.TRIANGLES,
     };
 
     gl.bindVertexArray(this.vao.glObject);
@@ -162,22 +146,22 @@ export default class GPU {
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
-        case GPU.UniformTypes.Float:
+        case Engine.UniformType.Float:
           gl.uniform1f(location, data);
           break;
-        case GPU.UniformTypes.Matrix4fv:
+        case Engine.UniformType.Matrix4fv:
           gl.uniformMatrix4fv(location, false, data.getArray());
           break;
-        case GPU.UniformTypes.Vector3f:
+        case Engine.UniformType.Vector3f:
           gl.uniform3fv(location, data.getArray());
           break;
-        case GPU.UniformTypes.Texture2D:
-        case GPU.UniformTypes.CubeMap:
+        case Engine.UniformType.Texture2D:
+        case Engine.UniformType.CubeMap:
           // TODO: textureが最大数よりも大きくなるときの対応が必要
           const texture = data ? data : this.dummyTexture.glObject;
           gl.activeTexture(textureUnits[activeTextureIndex]);
           gl.bindTexture(
-            type === GPU.UniformTypes.Texture2D
+            type === Engine.UniformType.Texture2D
               ? gl.TEXTURE_2D
               : gl.TEXTURE_CUBE_MAP,
             texture.glObject,

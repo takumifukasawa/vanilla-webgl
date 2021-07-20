@@ -1,6 +1,6 @@
 import Camera from './Camera.js';
+import Engine from './Engine.js';
 import Matrix4 from './Matrix4.js';
-import Vector3 from './Vector3.js';
 
 export default class OrthographicCamera extends Camera {
   left;
@@ -11,7 +11,7 @@ export default class OrthographicCamera extends Camera {
   farClip;
 
   constructor(left, right, bottom, top, nearClip, farClip) {
-    super({ type: Camera.Types.OrthographicCamera });
+    super({ type: Engine.CameraType.OrthographicCamera });
     this.left = left;
     this.right = right;
     this.bottom = bottom;

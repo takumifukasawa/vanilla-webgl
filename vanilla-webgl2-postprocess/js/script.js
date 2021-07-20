@@ -22,6 +22,7 @@ import RenderTarget from './libs/RenderTarget.js';
 import Component from './libs/Component.js';
 import PostProcessPass from './libs/PostProcessPass.js';
 import PostProcess from './libs/PostProcess.js';
+import Engine from './libs/Engine.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -297,17 +298,17 @@ const init = async () => {
     gpu,
     attributes: [
       {
-        type: Attribute.Types.Position,
+        type: Engine.AttributeType.Position,
         data: data.positions,
         stride: 3,
       },
       {
-        type: Attribute.Types.Uv,
+        type: Engine.AttributeType.Uv,
         data: data.uvs,
         stride: 2,
       },
       {
-        type: Attribute.Types.Normal,
+        type: Engine.AttributeType.Normal,
         data: data.normals,
         stride: 3,
       },
@@ -322,27 +323,27 @@ const init = async () => {
     fragmentShader: fragmentShader,
     uniforms: {
       uDirectionalLightPosition: {
-        type: GPU.UniformTypes.Vector3f,
+        type: Engine.UniformType.Vector3f,
         data: directionalLight.position,
       },
       uBaseColorMap: {
-        type: GPU.UniformTypes.Texture2D,
+        type: Engine.UniformType.Texture2D,
         data: baseColorMapTexture,
       },
       uNormalMap: {
-        type: GPU.UniformTypes.Texture2D,
+        type: Engine.UniformType.Texture2D,
         data: normalMapTexture,
       },
       uHeightMap: {
-        type: GPU.UniformTypes.Texture2D,
+        type: Engine.UniformType.Texture2D,
         data: heightMapTexture,
       },
       uCubeMap: {
-        type: GPU.UniformTypes.CubeMap,
+        type: Engine.UniformType.CubeMap,
         data: cubeMapTexture,
       },
     },
-    primitiveType: GPU.Primitives.Triangle,
+    primitiveType: Engine.PrimitiveType.Triangle,
   });
 
   objMeshActor = new MeshActor({
@@ -383,7 +384,7 @@ const init = async () => {
     gpu,
     attributes: [
       {
-        type: Attribute.Types.Position,
+        type: Engine.AttributeType.Position,
         // prettier-ignore
         data: [
           -1, -1, 0,
@@ -394,7 +395,7 @@ const init = async () => {
         stride: 3,
       },
       {
-        type: Attribute.Types.Uv,
+        type: Engine.AttributeType.Uv,
         // prettier-ignore
         data: [
           0, 0,
@@ -414,11 +415,11 @@ const init = async () => {
     fragmentShader: floorFragmentShader,
     uniforms: {
       uBaseColorMap: {
-        type: GPU.UniformTypes.Texture2D,
+        type: Engine.UniformType.Texture2D,
         data: uvMapTexture,
       },
     },
-    primitiveType: GPU.Primitives.Triangles,
+    primitiveType: Engine.PrimitiveType.Triangles,
   });
 
   floorMeshActor = new MeshActor({
@@ -524,7 +525,7 @@ const tick = (t) => {
   // render
   {
     const meshActors = actors.filter(
-      (actor) => actor.type === Actor.Types.MeshActor,
+      (actor) => actor.type === Engine.ActorType.MeshActor,
     );
 
     // const camera = perspectiveCameraActor.camera;

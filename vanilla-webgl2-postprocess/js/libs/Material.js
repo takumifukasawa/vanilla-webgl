@@ -2,6 +2,7 @@ import GPU from './GPU.js';
 import Shader from './Shader.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
+import Engine from './Engine.js';
 
 export default class Material {
   #uniforms;
@@ -11,13 +12,6 @@ export default class Material {
   #transparent;
   #face;
   #depthTest;
-
-  static Face = {
-    Front: 'Front', // default
-    Back: 'Back',
-    None: 'None',
-    DoubleSide: 'DoubleSide',
-  };
 
   get uniforms() {
     return this.#uniforms;
@@ -55,7 +49,7 @@ export default class Material {
     primitiveType,
     transparent,
     blendType,
-    face = Material.Face.Front,
+    face = Engine.FaceType.Front,
     depthTest = true,
     useUtilityUniforms = true,
   }) {
@@ -64,9 +58,9 @@ export default class Material {
       vertexShader,
       fragmentShader,
     });
-    this.#primitiveType = primitiveType || GPU.Primitives.Triangles;
+    this.#primitiveType = primitiveType || Engine.PrimitiveType.Triangles;
     this.#transparent = !!transparent;
-    this.#blendType = GPU.BlendTypes.None;
+    this.#blendType = Engine.BlendType.None;
 
     if (this.#transparent && blendType) {
       this.#blendType = blendType;
@@ -81,27 +75,27 @@ export default class Material {
       ...(useUtilityUniforms
         ? {
             uModelMatrix: {
-              type: GPU.UniformTypes.Matrix4fv,
+              type: Engine.UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uInvModelMatrix: {
-              type: GPU.UniformTypes.Matrix4fv,
+              type: Engine.UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uViewMatrix: {
-              type: GPU.UniformTypes.Matrix4fv,
+              type: Engine.UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uProjectionMatrix: {
-              type: GPU.UniformTypes.Matrix4fv,
+              type: Engine.UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uNormalMatrix: {
-              type: GPU.UniformTypes.Matrix4fv,
+              type: Engine.UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uCameraPosition: {
-              type: GPU.UniformTypes.Vector3f,
+              type: Engine.UniformType.Vector3f,
               data: Vector3.one(),
             },
           }

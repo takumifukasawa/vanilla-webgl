@@ -1,8 +1,7 @@
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 import Actor from './Actor.js';
-import Camera from './Camera.js';
-import RenderTarget from './RenderTarget.js';
+import Engine from './Engine.js';
 
 export default class CameraActor extends Actor {
   #renderTarget;
@@ -17,7 +16,7 @@ export default class CameraActor extends Actor {
   }
 
   constructor(args = {}) {
-    super({ ...args, type: Actor.Types.CameraActor });
+    super({ ...args, type: Engine.ActorType.CameraActor });
     const { gpu, camera, lookAt, postProcess, renderTarget } = args;
     this.camera = camera;
     this.lookAt = lookAt || null;
@@ -29,7 +28,7 @@ export default class CameraActor extends Actor {
     super.setSize({ width, height });
 
     const aspect = width / height;
-    if (this.camera.type === Camera.Types.OrthographicCamera) {
+    if (this.camera.type === Engine.CameraType.OrthographicCamera) {
       this.camera.updateProjectionMatrix(
         this.camera.left * aspect,
         this.camera.right * aspect,

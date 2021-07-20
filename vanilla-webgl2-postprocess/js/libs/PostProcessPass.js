@@ -1,7 +1,7 @@
 import GPU from './GPU.js';
 import Shader from './Shader.js';
 import Geometry from './Geometry.js';
-import Attribute from './Attribute.js';
+import Engine from './Engine.js';
 
 //
 // plane vertex positions
@@ -33,7 +33,7 @@ export default class PostProcessPass {
     this.uniforms = {
       ...(uniforms || {}),
       uSceneTexture: {
-        type: GPU.UniformTypes.Texture2D,
+        type: Engine.UniformType.Texture2D,
         data: null,
       },
     };
@@ -48,7 +48,7 @@ export default class PostProcessPass {
       gpu,
       attributes: [
         {
-          type: Attribute.Types.Position,
+          type: Engine.AttributeType.Position,
           // prettier-ignore
           data: [
             -1, -1, 0,
@@ -59,7 +59,7 @@ export default class PostProcessPass {
           stride: 3,
         },
         {
-          type: Attribute.Types.Uv,
+          type: Engine.AttributeType.Uv,
           // prettier-ignore
           data: [
             0, 0,

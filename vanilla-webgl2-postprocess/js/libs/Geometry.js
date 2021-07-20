@@ -1,6 +1,5 @@
-import Attribute from './Attribute.js';
-import Vector3 from './Vector3.js';
 import VertexArrayObject from './VertexArrayObject.js';
+import Engine from './Engine.js';
 
 export default class Geometry {
   constructor({ gpu, attributes, indices }) {
@@ -26,7 +25,7 @@ export default class Geometry {
 
   get vertexCount() {
     const position = this.attributes.find(
-      ({ type }) => type === Attribute.Types.Position,
+      ({ type }) => type === Engine.AttributeType.Position,
     );
     return position ? position.data.length / 3 : 0;
   }
