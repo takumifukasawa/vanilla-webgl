@@ -152,13 +152,15 @@ export default class Renderer {
       gl.blendFunc(gl.ONE, gl.ZERO);
     }
 
-    material.updateUniforms({
-      modelMatrix,
-      viewMatrix,
-      projectionMatrix,
-      normalMatrix,
-      cameraPosition,
-    });
+    if (material.useUtilityUniforms) {
+      material.updateUniforms({
+        modelMatrix,
+        viewMatrix,
+        projectionMatrix,
+        normalMatrix,
+        cameraPosition,
+      });
+    }
 
     this.#gpu.setShader(material.shader);
     this.#gpu.setVertex(geometry.vao);

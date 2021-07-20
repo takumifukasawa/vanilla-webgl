@@ -12,6 +12,7 @@ export default class Material {
   #transparent;
   #face;
   #depthTest;
+  #useUtilityUniforms;
 
   get uniforms() {
     return this.#uniforms;
@@ -39,6 +40,10 @@ export default class Material {
 
   get depthTest() {
     return this.#depthTest;
+  }
+
+  get useUtilityUniforms() {
+    return this.#useUtilityUniforms;
   }
 
   constructor({
@@ -69,6 +74,8 @@ export default class Material {
     this.#face = face;
 
     this.#depthTest = depthTest;
+
+    this.#useUtilityUniforms = useUtilityUniforms;
 
     this.#uniforms = {
       ...uniforms,
