@@ -1,5 +1,4 @@
 import GPU from './GPU.js';
-import RenderTarget from './RenderTarget.js';
 import Shader from './Shader.js';
 import Geometry from './Geometry.js';
 import Attribute from './Attribute.js';
@@ -30,15 +29,7 @@ void main() {
 `;
 
 export default class PostProcessPass {
-  #renderTarget;
-
-  get renderTarget() {
-    return this.#renderTarget;
-  }
-
   constructor({ gpu, fragmentShader, uniforms }) {
-    this.#renderTarget = new RenderTarget({ gpu });
-
     this.uniforms = {
       ...(uniforms || {}),
       uSceneTexture: {
@@ -83,10 +74,9 @@ export default class PostProcessPass {
     });
   }
 
-  setSize(width, height) {
-    this.#renderTarget.setSize(width, height);
-  }
+  setSize(width, height) {}
 
+  // 前フレームの描画済renderTargetが渡される
   update({ renderTarget }) {
     this.uniforms.uSceneTexture.data = renderTarget.texture;
   }
