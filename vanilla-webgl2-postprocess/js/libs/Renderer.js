@@ -85,10 +85,15 @@ export default class Renderer {
           this.clear();
         }
 
-        this.renderPostProcess({
-          postProcessPass,
+        const { material, geometry } = postProcessPass;
+
+        this.setupRenderStates({ material });
+
+        postProcessPass.update({
           renderTarget: postProcess.getRenderTarget(i),
         });
+
+        this.renderMesh({ geometry, material });
       });
     }
   }
@@ -164,38 +169,6 @@ export default class Renderer {
       // TODO: attributeのvertexにtypeをもたせる
       this.#gpu.draw(geometry.vertexCount, material.primitiveType);
     }
-    this.#gpu.resetData();
-  }
-
-  // post process 用の render 設定は別にする
-  renderPostProcess({ postProcessPass, renderTarget }) {
-    const gl = this.#gpu.gl;
-
-    const { material, geometry } = postProcessPass;
-
-    gl.disable(gl.DEPTH_TEST);
-
-    gl.depthMask(true);
-    gl.depthFunc(gl.LEQUAL);
-    gl.disable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ZERO);
-
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-
-    postProcessPass.update({
-      renderTarget,
-    });
-
-    this.#gpu.setShader(material.shader);
-    this.#gpu.setVertex(geometry.vao);
-    // gpu.setAttributes(geometry.attributes);
-    // gpu.setTextures(material.textures);
-    this.#gpu.setUniforms(material.uniforms);
-
-    this.#gpu.setIndices(geometry.indices);
-    this.#gpu.draw(geometry.indices.length, Engine.PrimitiveType.Triangles);
-
     this.#gpu.resetData();
   }
 }
