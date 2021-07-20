@@ -2,6 +2,7 @@ import GPU from './GPU.js';
 import Shader from './Shader.js';
 import Geometry from './Geometry.js';
 import Engine from './Engine.js';
+import Material from './Material.js';
 
 //
 // plane vertex positions
@@ -30,20 +31,6 @@ void main() {
 
 export default class PostProcessPass {
   constructor({ gpu, fragmentShader, uniforms }) {
-    this.uniforms = {
-      ...(uniforms || {}),
-      uSceneTexture: {
-        type: Engine.UniformType.Texture2D,
-        data: null,
-      },
-    };
-
-    this.shader = new Shader({
-      gpu,
-      vertexShader,
-      fragmentShader,
-    });
-
     this.geometry = new Geometry({
       gpu,
       attributes: [
@@ -72,12 +59,27 @@ export default class PostProcessPass {
       ],
       indices: [0, 1, 2, 0, 2, 3],
     });
+
+    this.material = new Material({
+      gpu,
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        ...(uniforms || {}),
+        uSceneTexture: {
+          type: Engine.UniformType.Texture2D,
+          data: null,
+        },
+      },
+      depthTest: false,
+      useUtilityUniforms: false,
+    });
   }
 
   setSize(width, height) {}
 
   // 前フレームの描画済renderTargetが渡される
   update({ renderTarget }) {
-    this.uniforms.uSceneTexture.data = renderTarget.texture;
+    this.material.uniforms.uSceneTexture.data = renderTarget.texture;
   }
 }

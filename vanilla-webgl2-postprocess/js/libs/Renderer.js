@@ -51,15 +51,21 @@ export default class Renderer {
     // TODO:
     // - opqque -> transparent -> ui
     meshActors.forEach((meshActor, i) => {
-      this.renderMesh({
-        geometry: meshActor.meshComponent.geometry,
-        material: meshActor.meshComponent.material,
-        modelMatrix: meshActor.worldTransform,
-        viewMatrix: camera.cameraMatrix.clone().inverse(),
-        projectionMatrix: camera.projectionMatrix,
-        normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-        cameraPosition: camera.cameraMatrix.getTranslationVector(),
-      });
+      const { geometry, material } = meshActor.meshComponent;
+
+      this.setupRenderStates({ material });
+
+      if (material.useUtilityUniforms) {
+        material.updateUniforms({
+          modelMatrix: meshActor.worldTransform,
+          viewMatrix: camera.cameraMatrix.clone().inverse(),
+          projectionMatrix: camera.projectionMatrix,
+          normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+          cameraPosition: camera.cameraMatrix.getTranslationVector(),
+        });
+      }
+
+      this.renderMesh({ geometry, material });
     });
 
     if (postProcess) {
@@ -87,15 +93,7 @@ export default class Renderer {
     }
   }
 
-  renderMesh({
-    geometry,
-    material,
-    modelMatrix,
-    viewMatrix,
-    projectionMatrix,
-    normalMatrix,
-    cameraPosition,
-  }) {
+  setupRenderStates({ material }) {
     // stateの切り替えはアプリケーションレベルで行う
     const gl = this.#gpu.gl;
 
@@ -151,17 +149,9 @@ export default class Renderer {
       gl.disable(gl.BLEND);
       gl.blendFunc(gl.ONE, gl.ZERO);
     }
+  }
 
-    if (material.useUtilityUniforms) {
-      material.updateUniforms({
-        modelMatrix,
-        viewMatrix,
-        projectionMatrix,
-        normalMatrix,
-        cameraPosition,
-      });
-    }
-
+  renderMesh({ geometry, material }) {
     this.#gpu.setShader(material.shader);
     this.#gpu.setVertex(geometry.vao);
     // gpu.setAttributes(geometry.attributes);
@@ -181,7 +171,7 @@ export default class Renderer {
   renderPostProcess({ postProcessPass, renderTarget }) {
     const gl = this.#gpu.gl;
 
-    const { shader, geometry, uniforms } = postProcessPass;
+    const { material, geometry } = postProcessPass;
 
     gl.disable(gl.DEPTH_TEST);
 
@@ -197,11 +187,11 @@ export default class Renderer {
       renderTarget,
     });
 
-    this.#gpu.setShader(shader);
+    this.#gpu.setShader(material.shader);
     this.#gpu.setVertex(geometry.vao);
     // gpu.setAttributes(geometry.attributes);
     // gpu.setTextures(material.textures);
-    this.#gpu.setUniforms(uniforms);
+    this.#gpu.setUniforms(material.uniforms);
 
     this.#gpu.setIndices(geometry.indices);
     this.#gpu.draw(geometry.indices.length, Engine.PrimitiveType.Triangles);
