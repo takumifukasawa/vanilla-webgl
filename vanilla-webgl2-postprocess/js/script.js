@@ -20,7 +20,7 @@ import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
 import Component from './libs/Component.js';
-import PostProcessPass from './libs/PostProcessPass.js';
+import PostProcessSinglePass from './libs/PostProcessSinglePass.js';
 import PostProcess from './libs/PostProcess.js';
 import Engine from './libs/Engine.js';
 
@@ -94,11 +94,11 @@ const perspectiveCameraActor = new CameraActor({
   postProcess: new PostProcess({
     gpu,
     passes: [
-      new PostProcessPass({
+      new PostProcessSinglePass({
         gpu,
         fragmentShader: mirrorFragmentShader,
       }),
-      new PostProcessPass({
+      new PostProcessSinglePass({
         gpu,
         fragmentShader: grayScaleFragmentShader,
       }),
