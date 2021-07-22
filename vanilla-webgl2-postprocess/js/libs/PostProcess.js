@@ -32,7 +32,9 @@ export default class PostProcess {
       const renderTarget =
         isLastPass && cameraRenderTarget ? cameraRenderTarget : null;
       const beforePassRenderTarget =
-        i === 0 ? this.#renderTargetForScene : this.passes[i - 1].renderTarget;
+        i === 0
+          ? this.#renderTargetForScene
+          : this.passes[i - 1].getRenderTarget();
 
       pass.render({
         renderer,

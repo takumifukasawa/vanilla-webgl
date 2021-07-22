@@ -27,53 +27,73 @@ void main() {
 }
 `;
 
+// TODO:
+// - postprocess用のgeometry,material作る関数をクラスから剥がして外部化してもいい
 export default class AbstractPostProcessPass {
   geometry;
   material;
   vertexShader = vertexShader;
   renderTarget;
 
-  get renderTarget() {
+  getRenderTarget() {
     return this.renderTarget;
   }
 
-  constructor({ gpu, geometry }) {
-    this.geometry = geometry
-      ? geometry
-      : new Geometry({
-          gpu,
-          attributes: [
-            {
-              type: Engine.AttributeType.Position,
-              // prettier-ignore
-              data: [
+  // 外部化してもよい
+  createPostProcessPlaneGeometry({ gpu }) {
+    return new Geometry({
+      gpu,
+      attributes: [
+        {
+          type: Engine.AttributeType.Position,
+          // prettier-ignore
+          data: [
             -1, -1, 0,
             1, -1, 0,
             1, 1, 0,
             -1, 1, 0,
         ],
-              stride: 3,
-            },
-            {
-              type: Engine.AttributeType.Uv,
-              // prettier-ignore
-              data: [
+          stride: 3,
+        },
+        {
+          type: Engine.AttributeType.Uv,
+          // prettier-ignore
+          data: [
             0, 0,
             1, 0,
             1, 1,
             0, 1,
           ],
-              stride: 2,
-            },
-          ],
-          indices: [0, 1, 2, 0, 2, 3],
-        });
+          stride: 2,
+        },
+      ],
+      indices: [0, 1, 2, 0, 2, 3],
+    });
+  }
 
-    this.renderTarget = new RenderTarget({ gpu });
+  constructor({ gpu, needsCreateRenderTarget = true }) {
+    if (needsCreateRenderTarget) {
+      this.renderTarget = new RenderTarget({ gpu });
+    }
   }
 
   setSize(width, height) {
-    throw "should override 'setSize' method";
+    this.renderTarget.setSize(width, height);
+  }
+
+  setupRenderTarget({ renderer, renderToCamera, renderTarget }) {
+    if (renderToCamera) {
+      if (renderTarget) {
+        throw 'renderToCamera and renderTarget is passed. should pass either one.';
+      }
+      renderer.clearRenderTarget();
+    } else {
+      if (renderTarget) {
+        renderer.setRenderTarget(renderTarget);
+      } else {
+        renderer.setRenderTarget(this.renderTarget);
+      }
+    }
   }
 
   // 前フレームの描画済renderTargetが渡される

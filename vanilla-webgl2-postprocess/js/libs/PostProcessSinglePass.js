@@ -9,6 +9,8 @@ export default class PostProcessPass extends AbstractPostProcessPass {
   constructor({ gpu, fragmentShader, uniforms }) {
     super({ gpu });
 
+    this.geometry = this.createPostProcessPlaneGeometry({ gpu });
+
     this.material = new Material({
       gpu,
       vertexShader: this.vertexShader,
@@ -25,25 +27,10 @@ export default class PostProcessPass extends AbstractPostProcessPass {
     });
   }
 
-  setSize(width, height) {
-    this.renderTarget.setSize(width, height);
-  }
-
   render({ renderer, beforePassRenderTarget, renderToCamera, renderTarget }) {
     this.material.uniforms.uSceneTexture.data = beforePassRenderTarget.texture;
 
-    if (renderToCamera) {
-      if (renderTarget) {
-        throw 'renderToCamera and renderTarget is passed. should pass either one.';
-      }
-      renderer.clearRenderTarget();
-    } else {
-      if (renderTarget) {
-        renderer.setRenderTarget(renderTarget);
-      } else {
-        renderer.setRenderTarget(this.renderTarget);
-      }
-    }
+    this.setupRenderTarget({ renderer, renderToCamera, renderTarget });
 
     renderer.clear();
 
