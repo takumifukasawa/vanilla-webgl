@@ -5,9 +5,9 @@ import Engine from './Engine.js';
 import Material from './Material.js';
 import AbstractPostProcessPass from './AbstractPostProcessPass.js';
 
-export default class PostProcessPass extends AbstractPostProcessPass {
+export default class PostProcessSinglePass extends AbstractPostProcessPass {
   constructor({ gpu, fragmentShader, uniforms }) {
-    super({ gpu });
+    super({ gpu, needsCreateDefaultRenderTarget: true });
 
     this.geometry = this.createPostProcessPlaneGeometry({ gpu });
 
