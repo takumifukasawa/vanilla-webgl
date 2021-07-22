@@ -2,26 +2,23 @@ import RenderTarget from './RenderTarget.js';
 
 export default class PostProcess {
   #passes;
-  #renderTargets;
+  #renderTargetForScene;
 
   get passes() {
     return this.#passes;
   }
 
-  constructor({ gpu, passes }) {
-    this.#passes = passes;
-    // TODO: カメラにrenderTargetがついてる場合は1つ無駄になっているので整理したい
-    this.#renderTargets = passes.map(() => new RenderTarget({ gpu }));
+  get renderTargetForScene() {
+    return this.#renderTargetForScene;
   }
 
-  getRenderTarget(index) {
-    return this.#renderTargets[index];
+  constructor({ gpu, passes }) {
+    this.#passes = passes;
+    this.#renderTargetForScene = new RenderTarget({ gpu });
   }
 
   setSize(width, height) {
-    this.#renderTargets.forEach((renderTarget) => {
-      renderTarget.setSize(width, height);
-    });
+    this.renderTargetForScene.setSize(width, height);
     this.#passes.forEach((pass) => {
       pass.setSize(width, height);
     });
@@ -30,29 +27,19 @@ export default class PostProcess {
   render({ renderer, cameraRenderTarget }) {
     this.#passes.forEach((pass, i) => {
       const isLastPass = i === this.#passes.length - 1;
-      if (isLastPass) {
-        // cameraのrenderTargetがついていたらそこに出力
-        if (cameraRenderTarget) {
-          renderer.setRenderTarget(cameraRenderTarget);
-          renderer.clear();
-        } else {
-          renderer.clearRenderTarget();
-          renderer.clear();
-        }
-      } else {
-        renderer.setRenderTarget(this.getRenderTarget(i + 1));
-        renderer.clear();
-      }
 
-      const { material, geometry } = pass;
+      const renderToCamera = isLastPass && !cameraRenderTarget;
+      const renderTarget =
+        isLastPass && cameraRenderTarget ? cameraRenderTarget : null;
+      const beforePassRenderTarget =
+        i === 0 ? this.#renderTargetForScene : this.passes[i - 1].renderTarget;
 
-      renderer.setupRenderStates({ material });
-
-      pass.update({
-        renderTarget: this.getRenderTarget(i),
+      pass.render({
+        renderer,
+        beforePassRenderTarget,
+        renderToCamera,
+        renderTarget,
       });
-
-      renderer.renderMesh({ geometry, material });
     });
   }
 }

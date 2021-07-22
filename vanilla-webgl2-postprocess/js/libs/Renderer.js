@@ -44,7 +44,7 @@ export default class Renderer {
     const { camera, postProcess } = cameraActor;
 
     if (postProcess) {
-      this.setRenderTarget(postProcess.getRenderTarget(0));
+      this.setRenderTarget(postProcess.renderTargetForScene);
     }
     this.clear();
 
@@ -73,32 +73,6 @@ export default class Renderer {
         renderer: this,
         cameraRenderTarget: cameraActor.camera.renderTarget,
       });
-      // postProcess.passes.forEach((postProcessPass, i) => {
-      //   const isLastPass = i === cameraActor.postProcess.passes.length - 1;
-      //   if (isLastPass) {
-      //     // カメラにrenderTargetがついてないかつ、最後のpostProcessPassなら画面に出力
-      //     if (!cameraActor.renderTarget) {
-      //       this.clearRenderTarget();
-      //       this.clear();
-      //     } else {
-      //       this.setRenderTarget(camera.renderTarget);
-      //       this.clear();
-      //     }
-      //   } else {
-      //     this.setRenderTarget(postProcess.getRenderTarget(i + 1));
-      //     this.clear();
-      //   }
-
-      //   const { material, geometry } = postProcessPass;
-
-      //   this.setupRenderStates({ material });
-
-      //   postProcessPass.update({
-      //     renderTarget: postProcess.getRenderTarget(i),
-      //   });
-
-      //   this.renderMesh({ geometry, material });
-      // });
     }
   }
 

@@ -1,5 +1,6 @@
 import Engine from './Engine.js';
 import Geometry from './Geometry.js';
+import RenderTarget from './RenderTarget.js';
 
 //
 // plane vertex positions
@@ -30,6 +31,11 @@ export default class AbstractPostProcessPass {
   geometry;
   material;
   vertexShader = vertexShader;
+  renderTarget;
+
+  get renderTarget() {
+    return this.renderTarget;
+  }
 
   constructor({ gpu, geometry }) {
     this.geometry = geometry
@@ -62,13 +68,17 @@ export default class AbstractPostProcessPass {
           ],
           indices: [0, 1, 2, 0, 2, 3],
         });
+
+    this.renderTarget = new RenderTarget({ gpu });
   }
 
   setSize(width, height) {
     throw "should override 'setSize' method";
   }
 
-  render({ renderer }) {
+  // 前フレームの描画済renderTargetが渡される
+  // renderToCamera: false かつ renderTarget: true な場合は存在しないはず
+  render({ renderer, beforePassRenderTarget, renderToCamera, renderTarget }) {
     throw "should override 'render' method";
   }
 }
