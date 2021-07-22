@@ -40,7 +40,7 @@ export default class Renderer {
 
   // TODO:
   // - camera に renderTarget が指定されている場合
-  render({ cameraActor, meshActors }) {
+  renderScene({ cameraActor, meshActors }) {
     const { camera, postProcess } = cameraActor;
 
     if (postProcess) {
@@ -53,8 +53,6 @@ export default class Renderer {
     meshActors.forEach((meshActor, i) => {
       const { geometry, material } = meshActor.meshComponent;
 
-      this.setupRenderStates({ material });
-
       if (material.useUtilityUniforms) {
         material.updateUniforms({
           modelMatrix: meshActor.worldTransform,
@@ -65,7 +63,7 @@ export default class Renderer {
         });
       }
 
-      this.renderMesh({ geometry, material });
+      this.render({ geometry, material, camera });
     });
 
     if (postProcess) {
@@ -74,6 +72,12 @@ export default class Renderer {
         cameraRenderTarget: cameraActor.camera.renderTarget,
       });
     }
+  }
+
+  render({ geometry, material, camera }) {
+    this.setupRenderStates({ material });
+
+    this.renderMesh({ geometry, material });
   }
 
   setupRenderStates({ material }) {

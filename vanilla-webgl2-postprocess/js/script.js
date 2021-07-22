@@ -537,7 +537,7 @@ const tick = (t) => {
     // renderer.setRenderTarget(renderTarget);
     // renderer.clear();
 
-    renderer.render({ meshActors, cameraActor: perspectiveCameraActor });
+    renderer.renderScene({ meshActors, cameraActor: perspectiveCameraActor });
 
     // meshActors.forEach((meshActor, i) => {
     //   // console.log(camera.cameraMatrix.clone());

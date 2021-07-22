@@ -103,9 +103,7 @@ export default class PostProcessRgbShiftMirrorYPass extends AbstractPostProcessP
 
     renderer.clear();
 
-    renderer.setupRenderStates({ material: this.rgbShiftMaterial });
-
-    renderer.renderMesh({
+    renderer.render({
       geometry: this.rgbShiftGeometry,
       material: this.rgbShiftMaterial,
     });
@@ -123,9 +121,7 @@ export default class PostProcessRgbShiftMirrorYPass extends AbstractPostProcessP
 
     renderer.clear();
 
-    renderer.setupRenderStates({ material: this.mirrorYMaterial });
-
-    renderer.renderMesh({
+    renderer.render({
       geometry: this.mirrorYGeometry,
       material: this.mirrorYMaterial,
     });
