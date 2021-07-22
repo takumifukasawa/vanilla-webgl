@@ -20,7 +20,7 @@ export default class RenderTarget {
     return this.#depthRenderbuffer;
   }
 
-  constructor({ gpu, width = 1, height = 1 }) {
+  constructor({ gpu, width = 1, height = 1, useDepth = true }) {
     const gl = gpu.gl;
 
     this.#framebuffer = new Framebuffer({ gpu });
@@ -28,26 +28,24 @@ export default class RenderTarget {
     // // frame buffer を webgl に bind
     // gpu.bindFramebuffer(this.#framebuffer);
 
-    this.#depthRenderbuffer = new Renderbuffer({
-      gpu,
-      width,
-      height,
-      // width: 1,
-      // height: 1,
-      type: Engine.RenderbufferType.Depth,
-    });
+    if (useDepth) {
+      this.#depthRenderbuffer = new Renderbuffer({
+        gpu,
+        width,
+        height,
+        // width: 1,
+        // height: 1,
+        type: Engine.RenderbufferType.Depth,
+      });
+    }
 
     // depth buffer を webgl に bind
     // gpu.bindRenderbuffer(this.#depthRenderbuffer);
 
-    // frame buffer に render buffer を紐付け
-    // TODO: depthかどうかで出し訳
-    gl.framebufferRenderbuffer(
-      gl.FRAMEBUFFER,
-      gl.DEPTH_ATTACHMENT,
-      gl.RENDERBUFFER,
-      this.#depthRenderbuffer.glObject,
-    );
+    if (this.#depthRenderbuffer) {
+      // frame buffer に render buffer を紐付け
+      this.#depthRenderbuffer.bind();
+    }
 
     this.#texture = new Texture({
       gpu,
@@ -71,12 +69,16 @@ export default class RenderTarget {
     // gpu.unbindFramebuffer();
 
     gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    if (this.#depthRenderbuffer) {
+      this.#depthRenderbuffer.unbind();
+    }
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
   setSize(width, height) {
     this.#texture.setSize(width, height);
-    this.#depthRenderbuffer.setSize(width, height);
+    if (this.#depthRenderbuffer) {
+      this.#depthRenderbuffer.setSize(width, height);
+    }
   }
 }

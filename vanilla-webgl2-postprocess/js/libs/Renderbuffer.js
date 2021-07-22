@@ -56,7 +56,20 @@ export default class Renderbuffer extends GLObject {
         height,
       );
     }
+  }
 
+  bind() {
+    const gl = this.#gpu.gl;
+    gl.framebufferRenderbuffer(
+      gl.FRAMEBUFFER,
+      gl.DEPTH_ATTACHMENT,
+      gl.RENDERBUFFER,
+      this.glObject,
+    );
+  }
+
+  unbind() {
+    const gl = this.#gpu.gl;
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
   }
 }
