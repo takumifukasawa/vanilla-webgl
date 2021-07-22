@@ -33,10 +33,10 @@ export default class AbstractPostProcessPass {
   geometry;
   material;
   vertexShader = vertexShader;
-  renderTarget;
+  defaultRenderTarget;
 
   getRenderTarget() {
-    return this.renderTarget;
+    return this.defaultRenderTarget;
   }
 
   // 外部化してもよい
@@ -73,12 +73,14 @@ export default class AbstractPostProcessPass {
 
   constructor({ gpu, needsCreateRenderTarget = true }) {
     if (needsCreateRenderTarget) {
-      this.renderTarget = new RenderTarget({ gpu });
+      this.defaultRenderTarget = new RenderTarget({ gpu });
     }
   }
 
   setSize(width, height) {
-    this.renderTarget.setSize(width, height);
+    if (this.defaultRenderTarget) {
+      this.defaultRenderTarget.setSize(width, height);
+    }
   }
 
   setupRenderTarget({ renderer, renderToCamera, renderTarget }) {
@@ -91,7 +93,7 @@ export default class AbstractPostProcessPass {
       if (renderTarget) {
         renderer.setRenderTarget(renderTarget);
       } else {
-        renderer.setRenderTarget(this.renderTarget);
+        renderer.setRenderTarget(this.getRenderTarget());
       }
     }
   }

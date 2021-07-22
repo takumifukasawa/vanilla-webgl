@@ -63,7 +63,7 @@ export default class Renderer {
         });
       }
 
-      this.render({ geometry, material, camera });
+      this.render({ geometry, material });
     });
 
     if (postProcess) {
@@ -72,12 +72,6 @@ export default class Renderer {
         cameraRenderTarget: cameraActor.camera.renderTarget,
       });
     }
-  }
-
-  render({ geometry, material, camera }) {
-    this.setupRenderStates({ material });
-
-    this.renderMesh({ geometry, material });
   }
 
   setupRenderStates({ material }) {
@@ -138,7 +132,9 @@ export default class Renderer {
     }
   }
 
-  renderMesh({ geometry, material }) {
+  render({ geometry, material }) {
+    this.setupRenderStates({ material });
+
     this.#gpu.setShader(material.shader);
     this.#gpu.setVertex(geometry.vao);
     // gpu.setAttributes(geometry.attributes);

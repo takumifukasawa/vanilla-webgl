@@ -34,8 +34,6 @@ export default class PostProcessPass extends AbstractPostProcessPass {
 
     renderer.clear();
 
-    renderer.setupRenderStates({ material: this.material });
-
-    renderer.renderMesh({ geometry: this.geometry, material: this.material });
+    renderer.render({ geometry: this.geometry, material: this.material });
   }
 }

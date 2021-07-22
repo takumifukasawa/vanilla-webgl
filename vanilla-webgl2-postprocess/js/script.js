@@ -100,10 +100,10 @@ const perspectiveCameraActor = new CameraActor({
       //   gpu,
       //   fragmentShader: mirrorFragmentShader,
       // }),
-      // new PostProcessSinglePass({
-      //   gpu,
-      //   fragmentShader: grayScaleFragmentShader,
-      // }),
+      new PostProcessSinglePass({
+        gpu,
+        fragmentShader: grayScaleFragmentShader,
+      }),
     ],
   }),
 });
