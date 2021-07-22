@@ -95,7 +95,6 @@ const perspectiveCameraActor = new CameraActor({
   postProcess: new PostProcess({
     gpu,
     passes: [
-      new PostProcessRgbShiftMirrorYPass({ gpu }),
       // new PostProcessSinglePass({
       //   gpu,
       //   fragmentShader: mirrorFragmentShader,
@@ -104,6 +103,7 @@ const perspectiveCameraActor = new CameraActor({
         gpu,
         fragmentShader: grayScaleFragmentShader,
       }),
+      new PostProcessRgbShiftMirrorYPass({ gpu }),
     ],
   }),
 });
