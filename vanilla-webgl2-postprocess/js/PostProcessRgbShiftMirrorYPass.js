@@ -45,7 +45,7 @@ void main() {
 
 export default class PostProcessRgbShiftMirrorYPass extends AbstractPostProcessPass {
   constructor({ gpu }) {
-    super({ gpu, needsCreateRenderTarget: false });
+    super({ gpu, needsCreateDefaultRenderTarget: false });
 
     this.rgbShiftGeometry = this.createPostProcessPlaneGeometry({ gpu });
     this.rgbShiftMaterial = new Material({
@@ -61,7 +61,7 @@ export default class PostProcessRgbShiftMirrorYPass extends AbstractPostProcessP
       depthTest: false,
       useUtilityUniforms: false,
     });
-    this.rgbShiftRenderTarget = new RenderTarget({ gpu });
+    this.rgbShiftRenderTarget = new RenderTarget({ gpu, useDepth: false });
 
     this.mirrorYGeometry = this.createPostProcessPlaneGeometry({ gpu });
     this.mirrorYMaterial = new Material({
@@ -77,7 +77,7 @@ export default class PostProcessRgbShiftMirrorYPass extends AbstractPostProcessP
       depthTest: false,
       useUtilityUniforms: false,
     });
-    this.mirrorYRenderTarget = new RenderTarget({ gpu });
+    this.mirrorYRenderTarget = new RenderTarget({ gpu, useDepth: false });
   }
 
   getRenderTarget() {

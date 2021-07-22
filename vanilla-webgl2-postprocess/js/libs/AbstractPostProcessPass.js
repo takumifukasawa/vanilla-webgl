@@ -71,9 +71,9 @@ export default class AbstractPostProcessPass {
     });
   }
 
-  constructor({ gpu, needsCreateRenderTarget = true }) {
-    if (needsCreateRenderTarget) {
-      this.defaultRenderTarget = new RenderTarget({ gpu });
+  constructor({ gpu, needsCreateDefaultRenderTarget = true }) {
+    if (needsCreateDefaultRenderTarget) {
+      this.defaultRenderTarget = new RenderTarget({ gpu, useDepth: false });
     }
   }
 
