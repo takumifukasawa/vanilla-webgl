@@ -17,7 +17,13 @@ in vec2 vUv;
 out vec4 outColor;
 
 void main() {
-  outColor = texture(uSceneTexture, vUv);
+  vec2 offsetR = vec2(.006, -.008);
+  vec2 offsetG = vec2(-.002, .002);
+  vec2 offsetB = vec2(.008, -.004);
+  float r = texture(uSceneTexture, vUv + offsetR).r;
+  float g = texture(uSceneTexture, vUv + offsetG).g;
+  float b = texture(uSceneTexture, vUv + offsetB).b;
+  outColor = vec4(r, g, b, 1.);
 }
 `;
 
@@ -32,7 +38,8 @@ in vec2 vUv;
 out vec4 outColor;
 
 void main() {
-  outColor = texture(uSceneTexture, vUv);
+  vec2 uv = vec2(1. - vUv.x, vUv.y);
+  outColor = texture(uSceneTexture, uv);
 }
 `;
 
