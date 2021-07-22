@@ -21,6 +21,7 @@ import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
 import Component from './libs/Component.js';
 import PostProcessSinglePass from './libs/PostProcessSinglePass.js';
+import PostProcessRgbShiftMirrorYPass from './PostProcessRgbShiftMirrorYPass.js';
 import PostProcess from './libs/PostProcess.js';
 import Engine from './libs/Engine.js';
 
@@ -94,14 +95,15 @@ const perspectiveCameraActor = new CameraActor({
   postProcess: new PostProcess({
     gpu,
     passes: [
-      new PostProcessSinglePass({
-        gpu,
-        fragmentShader: mirrorFragmentShader,
-      }),
-      new PostProcessSinglePass({
-        gpu,
-        fragmentShader: grayScaleFragmentShader,
-      }),
+      new PostProcessRgbShiftMirrorYPass({ gpu }),
+      // new PostProcessSinglePass({
+      //   gpu,
+      //   fragmentShader: mirrorFragmentShader,
+      // }),
+      // new PostProcessSinglePass({
+      //   gpu,
+      //   fragmentShader: grayScaleFragmentShader,
+      // }),
     ],
   }),
 });
