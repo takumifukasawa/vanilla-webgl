@@ -57,7 +57,7 @@ actors.push(perspectiveCameraActor);
 const pointLight = new PointLight({
   color: Vector3.one(),
   position: new Vector3(1, 1, 1),
-  intensity: 1,
+  intensity: 0.2,
 });
 
 const vertexShader = `#version 300 es
@@ -116,7 +116,9 @@ void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
 
-  vec3 PtoL = normalize(uPointLightPosition - worldPosition);
+  vec3 rawPtoL = uPointLightPosition - worldPosition;
+
+  vec3 PtoL = normalize(rawPtoL);
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
   vec3 H = normalize(PtoL + PtoE);
@@ -153,9 +155,13 @@ void main() {
   vec3 specularColor = envMapColor.rgb;
   vec3 environmentColor = vec3(.025);
 
+  float distancePtoL = length(rawPtoL);
+  float attenuation = 1. / (1. + .1 * distancePtoL + .01 * distancePtoL * distancePtoL);
+  // float attenuation = 1. / distancePtoL;
+
   vec3 color = vec3(0.);
-  color += diffuseColor * diffuse;
-  color += specularColor * pow(specular, specularPower);
+  color += diffuseColor * diffuse * attenuation;
+  color += specularColor * pow(specular, specularPower) * attenuation;
   color += environmentColor;
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -169,6 +175,7 @@ void main() {
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
   // color = PtoL;
   // color = normal;
+  color = vec3(attenuation);
 
   outColor = vec4(color, 1.);
 }
