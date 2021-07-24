@@ -57,7 +57,8 @@ actors.push(perspectiveCameraActor);
 const pointLight = new PointLight({
   color: Vector3.one(),
   position: new Vector3(1, 1, 1),
-  intensity: 0.2,
+  intensity: 1,
+  attenuation: 1,
 });
 
 const vertexShader = `#version 300 es
@@ -98,6 +99,7 @@ precision mediump float;
 
 uniform vec3 uPointLightPosition;
 uniform float uPointLightIntensity;
+uniform float uPointLightAttenuation;
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
 uniform sampler2D uNormalMap;
@@ -156,8 +158,8 @@ void main() {
   vec3 environmentColor = vec3(.025);
 
   float distancePtoL = length(rawPtoL);
-  float attenuation = 1. / (1. + .1 * distancePtoL + .01 * distancePtoL * distancePtoL);
-  // float attenuation = 1. / distancePtoL;
+  float attenuation = 1. / (1. +  uPointLightAttenuation * distancePtoL * distancePtoL);
+  // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
   vec3 color = vec3(0.);
   color += diffuseColor * diffuse * attenuation;
@@ -219,6 +221,10 @@ const init = async () => {
     uPointLightIntensity: {
       type: Engine.UniformType.Float,
       data: pointLight.intensity,
+    },
+    uPointLightAttenuation: {
+      type: Engine.UniformType.Float,
+      data: pointLight.attenuation,
     },
     uBaseColorMap: {
       type: Engine.UniformType.Texture2D,
