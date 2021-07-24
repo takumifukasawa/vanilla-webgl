@@ -137,7 +137,13 @@ void main() {
   vec3 cameraPosition = uCameraPosition;
 
   vec3 projectionUv = vProjectionUv.xyz / vProjectionUv.w;
-  vec4 t = texture(uUvMap, projectionUv.xy);
+  vec4 projectionTextureColor = texture(uUvMap, projectionUv.xy);
+
+  float isRange =
+    step(0., projectionUv.x) *
+    (1. - step(1., projectionUv.x)) *
+    step(0., projectionUv.y) *
+    (1. - step(1., projectionUv.y));
 
   vec3 rawPtoL = uPointLight.position - worldPosition;
 
@@ -199,8 +205,10 @@ void main() {
   // color = PtoL;
   // color = normal;
   // color = vec3(attenuation);
-  color = t.xyz;
+  // color = projectionTextureColor.xyz;
   // color = texture(uUvMap, vUv).xyz;
+
+  color = mix(color, projectionTextureColor.xyz, isRange);
 
   outColor = vec4(color, 1.);
 }
@@ -443,7 +451,7 @@ const tick = (t) => {
   // before update
   {
     if (states.isResized) {
-      const ratio = Math.min(window.devicePixelRatio, 1.0);
+      const ratio = Math.min(window.devicePixelRatio, 1);
 
       states.viewportWidth = wrapperElement.offsetWidth;
       states.viewportHeight = wrapperElement.offsetHeight;
@@ -490,16 +498,18 @@ const tick = (t) => {
       (targetY - perspectiveCameraActor.position.y) * dumping;
     perspectiveCameraActor.position.z = 15;
 
-    projectorCameraActor.position.x = 2;
-    projectorCameraActor.position.y = 2;
-    projectorCameraActor.position.z = 2;
+    projectorCameraActor.position.x = 1.2;
+    projectorCameraActor.position.y = 1.2;
+    projectorCameraActor.position.z = 1.2;
+
+    projectorCameraActor.lookAt = new Vector3(0, 0.5, 0);
 
     // prettier-ignore
     const textureMatrix = new Matrix4(
       0.5, 0, 0, 0,
-      0, -0.5, 0, 0,
+      0, 0.5, 0, 0,
       0, 0, 1, 0,
-      0.5, 0, 0, 1
+      0.5, 0.5, 0, 1
     );
     const textureProjectionMatrix = Matrix4.multiplyMatrices(
       textureMatrix,
