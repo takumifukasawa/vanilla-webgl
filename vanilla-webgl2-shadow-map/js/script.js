@@ -9,8 +9,8 @@ import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import loadObj from './libs/loadObj.js';
-// import DirectionalLight from './libs/DirectionalLight.js';
-import PointLight from './libs/PointLight.js';
+import DirectionalLight from './libs/DirectionalLight.js';
+// import PointLight from './libs/PointLight.js';
 import LightActor from './libs/LightActor.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
@@ -19,6 +19,7 @@ import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
 import Engine from './libs/Engine.js';
+import OrthographicCamera from './libs/OrthographicCamera.js';
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -55,21 +56,31 @@ const perspectiveCameraActor = new CameraActor({
 
 actors.push(perspectiveCameraActor);
 
-const pointLightActor = new LightActor({
+const lightActor = new LightActor({
   gpu,
-  light: new PointLight({
+  light: new DirectionalLight({
     color: Vector3.one(),
     position: new Vector3(1, 1, 1),
-    intensity: 2,
-    attenuation: 0.2,
+    intensity: 1,
   }),
   castShadow: true,
 });
 
-actors.push(pointLightActor);
+actors.push(lightActor);
+
+const orthographicSize = 1;
 
 const projectorCameraActor = new CameraActor({
-  camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
+  // camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
+  camera: new OrthographicCamera(
+    -orthographicSize,
+    orthographicSize,
+    -orthographicSize,
+    orthographicSize,
+    0.1,
+    30,
+    1,
+  ),
   lookAt: Vector3.zero(),
 });
 
@@ -115,13 +126,12 @@ const fragmentShader = `#version 300 es
 
 precision mediump float;
 
-struct PointLight {
+struct DirectionalLight {
   vec3 position;
   float intensity;
-  float attenuation;
 };
 
-uniform PointLight uPointLight;
+uniform DirectionalLight uDirectionalLight;
 
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
@@ -152,7 +162,7 @@ void main() {
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
 
-  vec3 rawPtoL = uPointLight.position - worldPosition;
+  vec3 rawPtoL = uDirectionalLight.position - worldPosition;
 
   vec3 PtoL = normalize(rawPtoL);
   vec3 PtoE = normalize(cameraPosition - worldPosition);
@@ -191,13 +201,16 @@ void main() {
   vec3 specularColor = envMapColor.rgb;
   vec3 environmentColor = vec3(.025);
 
-  float distancePtoL = length(rawPtoL);
-  float attenuation = 1. / (1. + uPointLight.attenuation * distancePtoL * distancePtoL);
+  // float distancePtoL = length(rawPtoL);
+  // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
   // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
+  // for debug
+  float attenuation = 1.;
+
   vec3 color = vec3(0.);
-  color += diffuseColor * diffuse * uPointLight.intensity * attenuation;
-  color += specularColor * pow(specular, specularPower) * uPointLight.intensity * attenuation;
+  color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
+  color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
   color += environmentColor;
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -260,18 +273,18 @@ const init = async () => {
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
 
   const uniforms = {
-    ['uPointLight.position']: {
+    ['uDirectionalLight.position']: {
       type: Engine.UniformType.Vector3f,
-      data: pointLightActor.light.position,
+      data: lightActor.light.position,
     },
-    ['uPointLight.intensity']: {
+    ['uDirectionalLight.intensity']: {
       type: Engine.UniformType.Float,
-      data: pointLightActor.light.intensity,
+      data: lightActor.light.intensity,
     },
-    ['uPointLight.attenuation']: {
-      type: Engine.UniformType.Float,
-      data: pointLightActor.light.attenuation,
-    },
+    // ['uDirectionalLight.attenuation']: {
+    //   type: Engine.UniformType.Float,
+    //   data: lightActor.light.attenuation,
+    // },
     uBaseColorMap: {
       type: Engine.UniformType.Texture2D,
       data: baseColorMapTexture,

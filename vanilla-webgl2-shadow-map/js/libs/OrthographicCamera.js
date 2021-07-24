@@ -9,8 +9,9 @@ export default class OrthographicCamera extends Camera {
   top;
   nearClip;
   farClip;
+  fixedAspect;
 
-  constructor(left, right, bottom, top, nearClip, farClip) {
+  constructor(left, right, bottom, top, nearClip, farClip, fixedAspect) {
     super({ type: Engine.CameraType.OrthographicCamera });
     this.left = left;
     this.right = right;
@@ -18,6 +19,7 @@ export default class OrthographicCamera extends Camera {
     this.top = top;
     this.nearClip = nearClip;
     this.farClip = farClip;
+    this.fixedAspect = fixedAspect;
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix();
