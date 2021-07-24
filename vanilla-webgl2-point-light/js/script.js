@@ -58,7 +58,7 @@ const pointLight = new PointLight({
   color: Vector3.one(),
   position: new Vector3(1, 1, 1),
   intensity: 1,
-  attenuation: 1,
+  attenuation: 0.2,
 });
 
 const vertexShader = `#version 300 es
@@ -158,12 +158,12 @@ void main() {
   vec3 environmentColor = vec3(.025);
 
   float distancePtoL = length(rawPtoL);
-  float attenuation = 1. / (1. +  uPointLightAttenuation * distancePtoL * distancePtoL);
+  float attenuation = 1. / (1. + uPointLightAttenuation * distancePtoL * distancePtoL);
   // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
   vec3 color = vec3(0.);
-  color += diffuseColor * diffuse * attenuation;
-  color += specularColor * pow(specular, specularPower) * attenuation;
+  color += diffuseColor * diffuse * uPointLightIntensity * attenuation;
+  color += specularColor * pow(specular, specularPower) * uPointLightIntensity * attenuation;
   color += environmentColor;
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -177,7 +177,7 @@ void main() {
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
   // color = PtoL;
   // color = normal;
-  color = vec3(attenuation);
+  // color = vec3(attenuation);
 
   outColor = vec4(color, 1.);
 }
