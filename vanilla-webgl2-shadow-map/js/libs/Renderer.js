@@ -1,12 +1,47 @@
 import Engine from './Engine.js';
 import GPU from './GPU.js';
+import Material from './Material.js';
+import Matrix4 from './Matrix4.js';
+import Vector3 from './Vector3.js';
+
+const depthVertexShader = `#version 300 es
+
+layout (location = 0) in vec3 aPosition;
+
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+void main() {
+  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+}
+`;
+
+const depthFragmentShader = `#version 300 es
+
+precision mediump float;
+
+out vec4 outColor;
+
+void main() {
+  outColor = vec4(1.);
+}
+`;
 
 export default class Renderer {
-  #renderTarget;
   #gpu;
+  #renderTarget;
+  #depthMaterial;
 
   constructor({ gpu }) {
     this.#gpu = gpu;
+
+    this.#depthMaterial = new Material({
+      gpu,
+      vertexShader: depthVertexShader,
+      fragmentShader: depthFragmentShader,
+      useUtilityUniforms: true,
+    });
   }
 
   setRenderTarget(renderTarget) {
@@ -43,33 +78,37 @@ export default class Renderer {
   renderScene({ cameraActor, meshActors, lightActors }) {
     const { camera, postProcess } = cameraActor;
 
-    // lightActors.forEach((lightActor) => {
-    //   const { light } = lightActor;
-    //   const gl = this.#gpu.gl;
-    //   gl.bindFramebuffer(
-    //     gl.FRAMEBUFFER,
-    //     this.#renderTarget.framebuffer.glObject,
-    //   );
+    lightActors.forEach((lightActor) => {
+      if (lightActor.castShadow) {
+        const { light } = lightActor;
 
-    //   meshActors.forEach((meshActor, i) => {
-    //     const { geometry, material } = meshActor.meshComponent;
+        const gl = this.#gpu.gl;
+        gl.bindFramebuffer(
+          gl.FRAMEBUFFER,
+          lightActor.shadowMap.framebuffer.glObject,
+        );
 
-    //     if (material.useUtilityUniforms) {
-    //       material.updateUniforms({
-    //         modelMatrix: meshActor.worldTransform,
-    //         viewMatrix: lightActor.worldTransform.clone().inverse(),
-    //         projectionMatrix: camera.projectionMatrix,
-    //         // prettier-ignore
-    //         // normalMatrix: lightActor.worldTransform.clone().inverse().transpose(),
-    //         // cameraPosition: camera.cameraMatrix.getTranslationVector(),
-    //       });
-    //     }
+        meshActors.forEach((meshActor, i) => {
+          const { geometry } = meshActor.meshComponent;
+          const material = this.#depthMaterial;
+          if (material.useUtilityUniforms) {
+            material.updateUniforms({
+              modelMatrix: meshActor.worldTransform,
+              viewMatrix: lightActor.worldTransform.clone().inverse(),
+              projectionMatrix: camera.projectionMatrix,
+              // prettier-ignore
+              // normalMatrix: lightActor.worldTransform.clone().inverse().transpose(),
+              // cameraPosition: camera.cameraMatrix.getTranslationVector(),
+              normalMatrix: Matrix4.identity(),
+              cameraPosition: Vector3.zero(),
+            });
+          }
+          this.render({ geometry, material });
+        });
 
-    //     this.render({ geometry, material });
-    //   });
-
-    //   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    // });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      }
+    });
 
     if (postProcess) {
       this.setRenderTarget(postProcess.renderTargetForScene);

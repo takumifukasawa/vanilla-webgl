@@ -10,7 +10,7 @@ export default class ShadowMap {
   #depthTexture;
 
   get framebuffer() {
-    return this.#framebuffer.glObject;
+    return this.#framebuffer;
   }
 
   constructor({ gpu, width = 1024, height = 1024 }) {

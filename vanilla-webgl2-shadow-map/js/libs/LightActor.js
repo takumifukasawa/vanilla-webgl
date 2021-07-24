@@ -8,6 +8,10 @@ export default class LightActor extends Actor {
   #castShadow;
   #shadowMap;
 
+  get castShadow() {
+    return this.#castShadow;
+  }
+
   get shadowMap() {
     return this.#shadowMap;
   }
