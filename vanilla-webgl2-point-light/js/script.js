@@ -97,9 +97,14 @@ const fragmentShader = `#version 300 es
 
 precision mediump float;
 
-uniform vec3 uPointLightPosition;
-uniform float uPointLightIntensity;
-uniform float uPointLightAttenuation;
+struct PointLight {
+  vec3 position;
+  float intensity;
+  float attenuation;
+};
+
+uniform PointLight uPointLight;
+
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
 uniform sampler2D uNormalMap;
@@ -118,7 +123,7 @@ void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
 
-  vec3 rawPtoL = uPointLightPosition - worldPosition;
+  vec3 rawPtoL = uPointLight.position - worldPosition;
 
   vec3 PtoL = normalize(rawPtoL);
   vec3 PtoE = normalize(cameraPosition - worldPosition);
@@ -158,12 +163,12 @@ void main() {
   vec3 environmentColor = vec3(.025);
 
   float distancePtoL = length(rawPtoL);
-  float attenuation = 1. / (1. + uPointLightAttenuation * distancePtoL * distancePtoL);
+  float attenuation = 1. / (1. + uPointLight.attenuation * distancePtoL * distancePtoL);
   // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
   vec3 color = vec3(0.);
-  color += diffuseColor * diffuse * uPointLightIntensity * attenuation;
-  color += specularColor * pow(specular, specularPower) * uPointLightIntensity * attenuation;
+  color += diffuseColor * diffuse * uPointLight.intensity * attenuation;
+  color += specularColor * pow(specular, specularPower) * uPointLight.intensity * attenuation;
   color += environmentColor;
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -214,15 +219,15 @@ const init = async () => {
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
 
   const uniforms = {
-    uPointLightPosition: {
+    ['uPointLight.position']: {
       type: Engine.UniformType.Vector3f,
       data: pointLight.position,
     },
-    uPointLightIntensity: {
+    ['uPointLight.intensity']: {
       type: Engine.UniformType.Float,
       data: pointLight.intensity,
     },
-    uPointLightAttenuation: {
+    ['uPointLight.attenuation']: {
       type: Engine.UniformType.Float,
       data: pointLight.attenuation,
     },
