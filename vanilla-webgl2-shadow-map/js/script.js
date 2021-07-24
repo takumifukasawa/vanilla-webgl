@@ -11,6 +11,7 @@ import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import loadObj from './libs/loadObj.js';
 // import DirectionalLight from './libs/DirectionalLight.js';
 import PointLight from './libs/PointLight.js';
+import LightActor from './libs/LightActor.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
 import CubeMap from './libs/CubeMap.js';
@@ -54,12 +55,18 @@ const perspectiveCameraActor = new CameraActor({
 
 actors.push(perspectiveCameraActor);
 
-const pointLight = new PointLight({
-  color: Vector3.one(),
-  position: new Vector3(1, 1, 1),
-  intensity: 2,
-  attenuation: 0.2,
+const pointLightActor = new LightActor({
+  gpu,
+  light: new PointLight({
+    color: Vector3.one(),
+    position: new Vector3(1, 1, 1),
+    intensity: 2,
+    attenuation: 0.2,
+  }),
+  castShadow: true,
 });
+
+actors.push(pointLightActor);
 
 const projectorCameraActor = new CameraActor({
   camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
@@ -255,15 +262,15 @@ const init = async () => {
   const uniforms = {
     ['uPointLight.position']: {
       type: Engine.UniformType.Vector3f,
-      data: pointLight.position,
+      data: pointLightActor.light.position,
     },
     ['uPointLight.intensity']: {
       type: Engine.UniformType.Float,
-      data: pointLight.intensity,
+      data: pointLightActor.light.intensity,
     },
     ['uPointLight.attenuation']: {
       type: Engine.UniformType.Float,
-      data: pointLight.attenuation,
+      data: pointLightActor.light.attenuation,
     },
     uBaseColorMap: {
       type: Engine.UniformType.Texture2D,
@@ -538,6 +545,10 @@ const tick = (t) => {
       (actor) => actor.type === Engine.ActorType.MeshActor,
     );
 
+    const lightActors = actors.filter(
+      (actor) => actor.type === Engine.ActorType.LightActor,
+    );
+
     // const camera = perspectiveCameraActor.camera;
 
     gpu.flush();
@@ -545,7 +556,11 @@ const tick = (t) => {
     // renderer.setRenderTarget(renderTarget);
     // renderer.clear();
 
-    renderer.renderScene({ meshActors, cameraActor: perspectiveCameraActor });
+    renderer.renderScene({
+      meshActors,
+      lightActors,
+      cameraActor: perspectiveCameraActor,
+    });
 
     // meshActors.forEach((meshActor, i) => {
     //   // console.log(camera.cameraMatrix.clone());

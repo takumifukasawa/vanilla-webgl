@@ -40,8 +40,36 @@ export default class Renderer {
 
   // TODO:
   // - camera に renderTarget が指定されている場合
-  renderScene({ cameraActor, meshActors }) {
+  renderScene({ cameraActor, meshActors, lightActors }) {
     const { camera, postProcess } = cameraActor;
+
+    // lightActors.forEach((lightActor) => {
+    //   const { light } = lightActor;
+    //   const gl = this.#gpu.gl;
+    //   gl.bindFramebuffer(
+    //     gl.FRAMEBUFFER,
+    //     this.#renderTarget.framebuffer.glObject,
+    //   );
+
+    //   meshActors.forEach((meshActor, i) => {
+    //     const { geometry, material } = meshActor.meshComponent;
+
+    //     if (material.useUtilityUniforms) {
+    //       material.updateUniforms({
+    //         modelMatrix: meshActor.worldTransform,
+    //         viewMatrix: lightActor.worldTransform.clone().inverse(),
+    //         projectionMatrix: camera.projectionMatrix,
+    //         // prettier-ignore
+    //         // normalMatrix: lightActor.worldTransform.clone().inverse().transpose(),
+    //         // cameraPosition: camera.cameraMatrix.getTranslationVector(),
+    //       });
+    //     }
+
+    //     this.render({ geometry, material });
+    //   });
+
+    //   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    // });
 
     if (postProcess) {
       this.setRenderTarget(postProcess.renderTargetForScene);

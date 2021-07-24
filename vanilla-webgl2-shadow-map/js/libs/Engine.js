@@ -10,6 +10,7 @@ export default class Engine {
     MeshActor: 'MeshActor',
     CameraActor: 'CameraActor',
     ProjectorActor: 'ProjectorActor',
+    LightActor: 'LightActor',
     None: 'None',
   };
 
