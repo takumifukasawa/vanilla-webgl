@@ -9,6 +9,7 @@ OpenGL1.1 で使われる式。
 // b ... linear attenuation
 // c ... quadratic attenuation
 // d ... distance to light
+
 1.0 / (a + b * d + c * d * d);
 ```
 
@@ -19,5 +20,7 @@ ex1. 1.0 / (1.0 + a * d);
 
 ex2. 1.0 / (1.0 + c * d * d);
 ```
+
+## references
 
 [https://math.hws.edu/graphicsbook/c7/s2.html#webgl3d.2.7](https://math.hws.edu/graphicsbook/c7/s2.html#webgl3d.2.7)
