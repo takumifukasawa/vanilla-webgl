@@ -69,9 +69,9 @@ const lightActor = new LightActor({
 // for debug
 // TODO: light actor の中で update したい
 {
-  lightActor.position.x = 10;
-  lightActor.position.y = 10;
-  lightActor.position.z = 10;
+  lightActor.position.x = 5;
+  lightActor.position.y = 5;
+  lightActor.position.z = 5;
   lightActor.worldTransform = Matrix4.multiplyMatrices(
     Matrix4.createTranslationMatrix(lightActor.position),
   );
@@ -255,14 +255,15 @@ void main() {
   vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uDirectionalLight.position);
   float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
-  float isShadow = (distanceLtoP - .05) >= sceneDepth ? 1. : 0.;
+  float isShadow = (distanceLtoP - .01) >= sceneDepth ? 1. : 0.;
+
   // color = vec3(isShadow);
 
   color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
   color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
   color += environmentColor;
 
-  color = mix(color, vec3(0.), isShadow);
+  // color = mix(color, vec3(0.), isShadow);
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
   float fresnel = ((1. - eta) * (1. - eta)) / ((1. + eta) * (1. + eta)); // フレネル値
@@ -289,12 +290,16 @@ void main() {
   // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
   // color = vec3(sceneDepth);
 
+  color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
+  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
+
   outColor = vec4(color, 1.);
 }
 `;
 
 const init = async () => {
-  const data = await loadObj('./model/sphere-32x32.obj');
+  // const data = await loadObj('./model/sphere-32x32.obj');
+  const data = await loadObj('./model/cube.obj');
 
   const [
     uvMapImg,
@@ -417,12 +422,12 @@ const init = async () => {
   objMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
-          Matrix4.createRotationYMatrix(time * 0.3),
-          Matrix4.createRotationXMatrix(time * 0.4),
-          Matrix4.createRotationZMatrix(time * 0.5),
-        );
-        actor.worldTransform = t;
+        // const t = Matrix4.multiplyMatrices(
+        //   Matrix4.createRotationYMatrix(time * 0.3),
+        //   Matrix4.createRotationXMatrix(time * 0.4),
+        //   Matrix4.createRotationZMatrix(time * 0.5),
+        // );
+        // actor.worldTransform = t;
       },
     }),
   );
