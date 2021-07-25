@@ -156,7 +156,7 @@ uniform sampler2D uNormalMap;
 uniform sampler2D uHeightMap;
 uniform samplerCube uCubeMap;
 uniform sampler2D uUvMap;
-uniform sampler2D uDepthTexture;
+uniform sampler2D uDepthMap;
 
 in vec2 vUv;
 in vec4 vWorldPosition;
@@ -172,7 +172,8 @@ void main() {
   vec3 cameraPosition = uCameraPosition;
 
   vec3 projectionUv = vProjectionUv.xyz / vProjectionUv.w;
-  vec4 projectionTextureColor = texture(uUvMap, projectionUv.xy);
+  // vec4 projectionTextureColor = texture(uUvMap, projectionUv.xy);
+  vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
 
   float isRange =
     step(0., projectionUv.x) *
@@ -331,9 +332,9 @@ const init = async () => {
       type: Engine.UniformType.Matrix4fv,
       data: Matrix4.identity(),
     },
-    uDepthTexture: {
+    uDepthMap: {
       type: Engine.UniformType.Texture2D,
-      data: null,
+      data: lightActor.shadowMap.depthTexture,
     },
   };
 
@@ -506,7 +507,7 @@ const tick = (t) => {
       canvasElement.width = targetWidth;
       canvasElement.height = targetHeight;
 
-      gpu.setSize(targetWidth, targetHeight);
+      renderer.setSize(targetWidth, targetHeight);
 
       actors.forEach((actor) =>
         actor.setSize({ width: targetWidth, height: targetHeight }),

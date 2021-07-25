@@ -34,6 +34,7 @@ export default class LightActor extends Actor {
 
     this.#castShadow = castShadow;
 
+    // TODO: ortho, perspective の出し分け
     if (this.#castShadow) {
       this.#shadowMap = new ShadowMap({ gpu });
       this.#shadowCamera =
@@ -69,14 +70,19 @@ export default class LightActor extends Actor {
         orthographicSize,
       );
     }
+    // if(this.#shadowMap) {
+    //   this.#shadowMap
+    // }
   }
 
   update() {
-    const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-      this.position,
-      new Vector3(0, 0, 0), // look at
-      new Vector3(0, 1, 0),
-    );
-    this.#shadowCamera.cameraMatrix = lookAtCameraMatrix;
+    if (this.#shadowCamera) {
+      const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
+        this.position,
+        new Vector3(0, 0, 0), // look at
+        new Vector3(0, 1, 0),
+      );
+      this.#shadowCamera.cameraMatrix = lookAtCameraMatrix;
+    }
   }
 }

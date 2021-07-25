@@ -32,6 +32,8 @@ export default class Renderer {
   #gpu;
   #renderTarget;
   #depthMaterial;
+  #width;
+  #height;
 
   constructor({ gpu }) {
     this.#gpu = gpu;
@@ -73,6 +75,11 @@ export default class Renderer {
     }
   }
 
+  setSize(width, height) {
+    this.#width = width;
+    this.#height = height;
+  }
+
   // TODO:
   // - camera に renderTarget が指定されている場合
   renderScene({ cameraActor, meshActors, lightActors }) {
@@ -87,6 +94,11 @@ export default class Renderer {
           gl.FRAMEBUFFER,
           lightActor.shadowMap.framebuffer.glObject,
         );
+        this.#gpu.setSize(
+          lightActor.shadowMap.width,
+          lightActor.shadowMap.height,
+        );
+        this.clear();
 
         meshActors.forEach((meshActor, i) => {
           const { geometry } = meshActor.meshComponent;
@@ -109,6 +121,9 @@ export default class Renderer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       }
     });
+
+    // 画面幅に戻す
+    this.#gpu.setSize(this.#width, this.#height);
 
     if (postProcess) {
       this.setRenderTarget(postProcess.renderTargetForScene);
@@ -136,8 +151,7 @@ export default class Renderer {
           const { light } = lightActor;
 
           // for debug
-          material.uniforms.uDepthTexture.data =
-            lightActor.shadowMap.depthTexture;
+          material.uniforms.uDepthMap.data = lightActor.shadowMap.depthTexture;
 
           // prettier-ignore
           const textureMatrix = new Matrix4(

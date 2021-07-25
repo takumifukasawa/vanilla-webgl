@@ -1,6 +1,16 @@
 import Engine from './Engine.js';
 import GLObject from './GLObject.js';
 
+const createWhite1x1 = () => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1;
+  canvas.height = 1;
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, 1, 1);
+  return canvas;
+};
+
 export default class Texture extends GLObject {
   #texture;
   #img;
@@ -68,8 +78,17 @@ export default class Texture extends GLObject {
       gl.generateMipmap(gl.TEXTURE_2D);
     }
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    switch (type) {
+      case Engine.TextureType.Rgba:
+        // TODO: min filter, mag filter をパラメーターで渡す
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        break;
+      case Engine.TextureType.Depth:
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        break;
+    }
 
     switch (wrapS) {
       case Engine.TextureWrapType.Repeat:
