@@ -171,6 +171,32 @@ in vec4 vProjectionUv;
 
 out vec4 outColor;
 
+vec3 calcDirectionalLight(
+  DirectionalLight light,
+  vec3 position,
+  vec3 normal,
+  vec3 cameraPosition,
+  vec3 diffuseColor,
+  vec3 specularColor,
+  float specularPower
+) {
+  vec3 PtoL = normalize(light.position);
+
+  vec3 PtoE = normalize(cameraPosition - position);
+  vec3 EtoP = -PtoE;
+  vec3 H = normalize(PtoL + PtoE);
+
+  float diffuse = max(0., dot(PtoL, normal));
+  float specular = max(0., dot(normal, H));
+
+  vec3 color = vec3(0.);
+
+  color += diffuseColor * diffuse * light.intensity;
+  color += specularColor * pow(specular, specularPower) * light.intensity;
+
+  return color;
+}
+
 void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
@@ -180,19 +206,17 @@ void main() {
   vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
   float sceneDepth = projectionTextureColor.r;
 
-  // float depthBias = -0.006;
-  // float depthBias = 0.;
-  // float currentDepth = projectionUv.z + depthBias;
-
   float isRange =
     step(0., projectionUv.x) *
     (1. - step(1., projectionUv.x)) *
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
 
+  // for point light
   // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
   // vec3 PtoL = normalize(rawPtoL);
 
+  // for directional light
   vec3 PtoL = normalize(uDirectionalLight.position); // for directional light
 
   vec3 PtoE = normalize(cameraPosition - worldPosition);
@@ -231,51 +255,26 @@ void main() {
   vec3 specularColor = envMapColor.rgb;
   vec3 environmentColor = vec3(.05);
 
+  // for point light
   // float distancePtoL = length(rawPtoL);
   // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
   // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
-  // for debug
+  // for directional light
   float attenuation = 1.;
 
   vec3 color = vec3(0.);
 
-  // color = mix(color, projectionTextureColor.xyz, isRange);
-  // vec3 d = vPosition.zzz / vPosition.w;
-
-  // float currentDepth = 1. / (30. - 0.1) * (vPosition.z);
-  // float currentDepth = (vPosition.z / vPosition.w) / (30. - 0.1);
-  // float currentDepth = vPosition.z / vPosition.w;
-
-  // color += currentDepth * 0.;
-  // color = vec3(currentDepth);
-
   vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uDirectionalLight.position);
   float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
-  // float isShadow = (distanceLtoP - .001) >= sceneDepth ? 1. : 0.;
-
   float currentDepth = projectionUv.z;
   float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
-  // float isShadow = currentDepth >= sceneDepth ? 1. : 0.;
 
-  // if(vProjectionUv.w > 0.) {
-  // }
-  // float isShadow = (distanceLtoP + .01) >= sceneDepth ? 1. : 0.;
-
-  // color = vec3(isShadow);
-
-  color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
-  color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
-  // color = mix(
-  //   color,
-  //   color * .1 + shadowColor * .9,
-  //   isShadow
-  // );
-  // color += environmentColor;
+  color += calcDirectionalLight(uDirectionalLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+  // color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
+  // color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
   color = mix(color + environmentColor, environmentColor, isShadow);
-
-  // color = mix(color, vec3(0.), isShadow);
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
   float fresnel = ((1. - eta) * (1. - eta)) / ((1. + eta) * (1. + eta)); // フレネル値
@@ -286,30 +285,11 @@ void main() {
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
-  // color = PtoL;
-  // color = normal;
-  // color = vec3(attenuation);
-  // color = texture(uUvMap, projectionUv.xy).xyz;
-  // color = texture(uUvMap, vUv).xyz;
-  // color = vec3(diffuse);
-  // color = vec3(isShadow);
-  // color = vec3(currentDepth);
-  // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
-  // color = vec3(sceneDepth);
-  // color = vec3(pow(distanceLtoP, 1.2));
-  // color = projectionTextureColor.rgb;
-
-  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
-  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
-  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isRange);
   // color = mix(
   //   vec3(1., 0., 0.),
   //   vec3(0., 0., 1.),
   //   isShadow
   // );
-  // color = vec3(projectionUv.z + 1.);
-  // color = vec3(distanceLtoP);
-  // color = vec3((distanceLtoP - .01)>= sceneDepth ? 1 : 0, 1., 1.);
 
   outColor = vec4(color, 1.);
 }
