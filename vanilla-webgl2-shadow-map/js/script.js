@@ -10,6 +10,7 @@ import ScriptComponent from './libs/ScriptComponent.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
+import PointLight from './libs/PointLight.js';
 // import PointLight from './libs/PointLight.js';
 import LightActor from './libs/LightActor.js';
 import loadImg from './utils/loadImg.js';
@@ -62,15 +63,20 @@ const lightActor = new LightActor({
     color: new Vector3(1, 1, 1),
     intensity: 1,
   }),
+  // light: new PointLight({
+  //   color: new Vector3(1, 1, 1),
+  //   intensity: 1,
+  //   attenuation: 0.2,
+  // }),
   castShadow: true,
 });
 
 // for debug
 // TODO: light actor の中で update したい
 {
-  lightActor.position.x = 4;
-  lightActor.position.y = 4;
-  lightActor.position.z = 4;
+  lightActor.position.x = 2;
+  lightActor.position.y = 2;
+  lightActor.position.z = 2;
   lightActor.worldTransform = Matrix4.multiplyMatrices(
     Matrix4.createTranslationMatrix(lightActor.position),
   );
@@ -156,6 +162,7 @@ struct PointLight {
 };
 
 uniform DirectionalLight uLight;
+// uniform PointLight uLight;
 
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
@@ -240,13 +247,13 @@ vec3 calcPointLight(
 
   // for point light
   float distancePtoL = length(rawPtoL);
-  // float attenuation = 1. / (1. + uLight.attenuation * distancePtoL * distancePtoL);
+  // float attenuation = 1. / (1. + light.attenuation * distancePtoL * distancePtoL);
   float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
   vec3 color = vec3(0.);
 
-  color += diffuseColor * diffuse * light.intensity * attenuation;
-  color += specularColor * pow(specular, specularPower) * light.intensity * attenuation;
+  color += diffuseColor * diffuse * light.color * light.intensity * attenuation;
+  color += specularColor * pow(specular, specularPower) * light.color * light.intensity * attenuation;
 
   return color;
 }
@@ -302,6 +309,7 @@ void main() {
   float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
 
   color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+  // color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
   color = mix(color + environmentColor, environmentColor, isShadow);
 
   // tmp
