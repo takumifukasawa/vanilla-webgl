@@ -10,8 +10,17 @@ export default class OrthographicCamera extends Camera {
   nearClip;
   farClip;
   fixedAspect;
+  orthographicSize;
 
-  constructor(left, right, bottom, top, nearClip, farClip, fixedAspect) {
+  constructor(
+    left = -1,
+    right = 1,
+    bottom = -1,
+    top = 1,
+    nearClip = 0.1,
+    farClip = 50,
+    fixedAspect = null,
+  ) {
     super({ type: Engine.CameraType.OrthographicCamera });
     this.left = left;
     this.right = right;
@@ -27,6 +36,17 @@ export default class OrthographicCamera extends Camera {
 
   // aspect: w / h
   updateProjectionMatrix(left, right, bottom, top) {
+    if (this.orthographicSize) {
+      this.projectionMatrix = Matrix4.getOrthographicMatrix(
+        -this.orthographicSize,
+        this.orthographicSize,
+        -this.orthographicSize,
+        this.orthographicSize,
+        this.nearClip,
+        this.farClip,
+      );
+      return;
+    }
     this.projectionMatrix = Matrix4.getOrthographicMatrix(
       left,
       right,

@@ -70,6 +70,11 @@ const lightActor = new LightActor({
   // }),
   castShadow: true,
 });
+lightActor.shadowCamera.orthographicSize = 10;
+lightActor.shadowCamera.nearClip = 0.1;
+lightActor.shadowCamera.farClip = 30;
+// lightActor.shadowMap.width = 1024;
+// lightActor.shadowMap.height = 1024;
 
 // for debug
 // TODO: light actor の中で update したい

@@ -5,8 +5,6 @@ import OrthographicCamera from './OrthographicCamera.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 
-const orthographicSize = 8;
-
 export default class LightActor extends Actor {
   light;
 
@@ -40,36 +38,18 @@ export default class LightActor extends Actor {
       this.#shadowMap = new ShadowMap({ gpu });
       this.#shadowCamera =
         light.type === Engine.LightType.DirectionalLight
-          ? new OrthographicCamera(
-              -orthographicSize,
-              orthographicSize,
-              -orthographicSize,
-              orthographicSize,
-              0.1,
-              30,
-              1,
-            )
-          : new OrthographicCamera(
-              -orthographicSize,
-              orthographicSize,
-              -orthographicSize,
-              orthographicSize,
-              0.1,
-              30,
-              1,
-            );
+          ? new OrthographicCamera()
+          : new OrthographicCamera();
     }
   }
 
   setSize({ width, height }) {
     super.setSize({ width, height });
     if (this.#shadowCamera) {
-      this.#shadowCamera.updateProjectionMatrix(
-        -orthographicSize,
-        orthographicSize,
-        -orthographicSize,
-        orthographicSize,
-      );
+      this.#shadowCamera.updateProjectionMatrix();
+    }
+    if (this.#shadowMap) {
+      // this.#shadowMap.setSize({ width, height });
     }
     // if(this.#shadowMap) {
     //   this.#shadowMap
