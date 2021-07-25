@@ -69,9 +69,9 @@ const lightActor = new LightActor({
 // for debug
 // TODO: light actor の中で update したい
 {
-  lightActor.position.x = 5;
-  lightActor.position.y = 5;
-  lightActor.position.z = 5;
+  lightActor.position.x = 4;
+  lightActor.position.y = 4;
+  lightActor.position.z = 4;
   lightActor.worldTransform = Matrix4.multiplyMatrices(
     Matrix4.createTranslationMatrix(lightActor.position),
   );
@@ -253,7 +253,15 @@ void main() {
   vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uDirectionalLight.position);
   float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
-  float isShadow = (distanceLtoP - .01) >= sceneDepth ? 1. : 0.;
+  // float isShadow = (distanceLtoP - .001) >= sceneDepth ? 1. : 0.;
+
+  float currentDepth = projectionUv.z;
+  float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
+  // float isShadow = currentDepth >= sceneDepth ? 1. : 0.;
+
+  // if(vProjectionUv.w > 0.) {
+  // }
+  // float isShadow = (distanceLtoP + .01) >= sceneDepth ? 1. : 0.;
 
   // color = vec3(isShadow);
 
@@ -270,11 +278,6 @@ void main() {
   vec3 raDir = refract(normalize(EtoP), normalize(N), .67);
   vec3 raColor = texture(uCubeMap, raDir).rgb;
 
-
-  // float isShadow = currentDepth > sceneDepth ? 1. : 0.;
-  // float isShadow = currentDepth > sceneDepth ? 0. : 1.;
-  // color = vec3(isShadow);
-
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
   // color = PtoL;
@@ -287,10 +290,20 @@ void main() {
   // color = vec3(currentDepth);
   // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
   // color = vec3(sceneDepth);
-  // color = vec3(distanceLtoP);
+  // color = vec3(pow(distanceLtoP, 1.2));
+  color = projectionTextureColor.rgb;
 
   // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
-  color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
+  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
+  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isRange);
+  color = mix(
+    vec3(1., 0., 0.),
+    vec3(0., 0., 1.),
+    isShadow
+  );
+  // color = vec3(projectionUv.z + 1.);
+  // color = vec3(distanceLtoP);
+  // color = vec3((distanceLtoP - .01)>= sceneDepth ? 1 : 0, 1., 1.);
 
   outColor = vec4(color, 1.);
 }
