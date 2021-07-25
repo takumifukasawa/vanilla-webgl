@@ -229,7 +229,7 @@ void main() {
 
   vec3 diffuseColor = texture(uBaseColorMap, uv).rgb;
   vec3 specularColor = envMapColor.rgb;
-  vec3 environmentColor = vec3(.025);
+  vec3 environmentColor = vec3(.05);
 
   // float distancePtoL = length(rawPtoL);
   // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
@@ -267,7 +267,13 @@ void main() {
 
   color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
   color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
-  color += environmentColor;
+  // color = mix(
+  //   color,
+  //   color * .1 + shadowColor * .9,
+  //   isShadow
+  // );
+  // color += environmentColor;
+  color = mix(color + environmentColor, environmentColor, isShadow);
 
   // color = mix(color, vec3(0.), isShadow);
 
@@ -291,16 +297,16 @@ void main() {
   // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
   // color = vec3(sceneDepth);
   // color = vec3(pow(distanceLtoP, 1.2));
-  color = projectionTextureColor.rgb;
+  // color = projectionTextureColor.rgb;
 
   // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
   // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
   // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isRange);
-  color = mix(
-    vec3(1., 0., 0.),
-    vec3(0., 0., 1.),
-    isShadow
-  );
+  // color = mix(
+  //   vec3(1., 0., 0.),
+  //   vec3(0., 0., 1.),
+  //   isShadow
+  // );
   // color = vec3(projectionUv.z + 1.);
   // color = vec3(distanceLtoP);
   // color = vec3((distanceLtoP - .01)>= sceneDepth ? 1 : 0, 1., 1.);
