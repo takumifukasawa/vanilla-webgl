@@ -85,6 +85,8 @@ export default class Renderer {
   renderScene({ cameraActor, meshActors, lightActors }) {
     const { camera, postProcess } = cameraActor;
 
+    // render shadow
+
     lightActors.forEach((lightActor) => {
       if (lightActor.castShadow) {
         const { light } = lightActor;
@@ -106,11 +108,11 @@ export default class Renderer {
           if (material.useUtilityUniforms) {
             material.updateUniforms({
               modelMatrix: meshActor.worldTransform,
-              viewMatrix: lightActor.worldTransform.clone().inverse(),
-              projectionMatrix: camera.projectionMatrix,
+              viewMatrix: lightActor.shadowCamera.cameraMatrix
+                .clone()
+                .inverse(),
               // prettier-ignore
-              // normalMatrix: lightActor.worldTransform.clone().inverse().transpose(),
-              // cameraPosition: camera.cameraMatrix.getTranslationVector(),
+              projectionMatrix: lightActor.shadowCamera.projectionMatrix.clone(),
               normalMatrix: Matrix4.identity(),
               cameraPosition: Vector3.zero(),
             });
@@ -123,8 +125,10 @@ export default class Renderer {
     });
 
     // 画面幅に戻す
+    // TODO: post process 内でviewportのサイズを変えたい場面があるはず
     this.#gpu.setSize(this.#width, this.#height);
 
+    // post process があったらオフスクリーン用のrenderTargetを指定しておく
     if (postProcess) {
       this.setRenderTarget(postProcess.renderTargetForScene);
     }
