@@ -178,14 +178,10 @@ vec3 calcNormal(
   sampler2D normalMap,
   sampler2D heightMap,
   vec2 uv,
-  vec3 worldPosition,
-  vec3 cameraPosition,
+  vec3 EtoP,
   float heightRate,
   float normalBlend
 ) {
-  vec3 PtoE = normalize(cameraPosition - worldPosition);
-  vec3 EtoP = -PtoE;
-
   float height = texture(heightMap, uv).r;
 
   // float heightRate = .01;
@@ -283,8 +279,7 @@ void main() {
     uNormalMap,
     uHeightMap,
     vUv,
-    worldPosition,
-    cameraPosition,
+    EtoP,
     .01,
     .05
   // vec3 normal,
