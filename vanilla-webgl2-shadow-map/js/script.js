@@ -59,20 +59,28 @@ actors.push(perspectiveCameraActor);
 
 const lightActor = new LightActor({
   gpu,
-  light: new DirectionalLight({
-    color: new Vector3(1, 1, 1),
-    intensity: 1,
-  }),
-  // light: new PointLight({
+  // light: new DirectionalLight({
   //   color: new Vector3(1, 1, 1),
   //   intensity: 1,
-  //   attenuation: 0.2,
   // }),
+  light: new PointLight({
+    color: new Vector3(1, 1, 1),
+    intensity: 1,
+    attenuation: 0.2,
+  }),
   castShadow: true,
   shadowMapWidth: 1024,
   shadowMapHeight: 1024,
 });
-lightActor.shadowCamera.orthographicSize = 4;
+
+// for directional light
+// lightActor.shadowCamera.orthographicSize = 4;
+
+// for point light
+lightActor.shadowCamera.fov = 90;
+lightActor.shadowCamera.nearClip = 0.1;
+lightActor.shadowCamera.farClip = 30;
+// lightActor.shadowCamera.fixedAspect = 1;
 
 // lightActor.shadowMap.width = 1024;
 // lightActor.shadowMap.height = 1024;
@@ -167,8 +175,8 @@ struct PointLight {
   float attenuation;
 };
 
-uniform DirectionalLight uLight;
-// uniform PointLight uLight;
+// uniform DirectionalLight uLight;
+uniform PointLight uLight;
 
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
@@ -314,8 +322,9 @@ void main() {
   float currentDepth = projectionUv.z;
   float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
 
-  color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
-  // color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+  // color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+  color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+
   color = mix(color + environmentColor, environmentColor, isShadow);
 
   // tmp
@@ -327,11 +336,11 @@ void main() {
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
-  // color = mix(
-  //   vec3(1., 0., 0.),
-  //   vec3(0., 0., 1.),
-  //   isShadow
-  // );
+  color = mix(
+    vec3(1., 0., 0.),
+    vec3(0., 0., 1.),
+    isShadow
+  );
 
   outColor = vec4(color, 1.);
 }

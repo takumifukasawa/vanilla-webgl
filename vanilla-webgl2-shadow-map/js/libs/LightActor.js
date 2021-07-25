@@ -2,6 +2,7 @@ import Actor from './Actor.js';
 import ShadowMap from './ShadowMap.js';
 import Engine from './Engine.js';
 import OrthographicCamera from './OrthographicCamera.js';
+import PerspectiveCamera from './PerspectiveCamera.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 
@@ -43,14 +44,14 @@ export default class LightActor extends Actor {
       this.#shadowCamera =
         light.type === Engine.LightType.DirectionalLight
           ? new OrthographicCamera()
-          : new OrthographicCamera();
+          : new PerspectiveCamera();
     }
   }
 
   setSize({ width, height }) {
     super.setSize({ width, height });
     if (this.#shadowCamera) {
-      this.#shadowCamera.updateProjectionMatrix();
+      this.#shadowCamera.updateProjectionMatrix(1);
     }
   }
 
@@ -58,10 +59,13 @@ export default class LightActor extends Actor {
     if (this.#shadowCamera) {
       const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
         this.position,
-        new Vector3(0, 0, 0), // look at
+        new Vector3(0, 0, 0), // TODO: look at
         new Vector3(0, 1, 0),
       );
       this.#shadowCamera.cameraMatrix = lookAtCameraMatrix;
+      // console.log(this.#shadowCamera.projectionMatrix.clone());
+      // console.log(this.#shadowCamera.fov);
+      // console.log(this.#shadowCamera.cameraMatrix.clone());
     }
   }
 }
