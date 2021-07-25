@@ -6,6 +6,7 @@ export default class ShadowMap {
   width;
   height;
 
+  #gpu;
   #framebuffer;
   #depthTexture;
 
@@ -17,7 +18,9 @@ export default class ShadowMap {
     return this.#depthTexture;
   }
 
-  constructor({ gpu, width = 1024, height = 1024 }) {
+  constructor({ gpu, width = 512, height = 512 }) {
+    this.#gpu = gpu;
+
     const gl = gpu.gl;
 
     this.width = width;
@@ -45,9 +48,5 @@ export default class ShadowMap {
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  }
-
-  setSize({ width, height }) {
-    this.#depthTexture.setSize(width, height);
   }
 }

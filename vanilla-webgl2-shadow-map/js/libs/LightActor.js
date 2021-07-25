@@ -27,7 +27,7 @@ export default class LightActor extends Actor {
   constructor(args = {}) {
     super({ ...args, type: Engine.ActorType.LightActor });
 
-    const { gpu, light, castShadow } = args;
+    const { gpu, light, castShadow, shadowMapWidth, shadowMapHeight } = args;
 
     this.light = light;
 
@@ -35,7 +35,11 @@ export default class LightActor extends Actor {
 
     // TODO: ortho, perspective の出し分け
     if (this.#castShadow) {
-      this.#shadowMap = new ShadowMap({ gpu });
+      this.#shadowMap = new ShadowMap({
+        gpu,
+        width: shadowMapWidth,
+        height: shadowMapHeight,
+      });
       this.#shadowCamera =
         light.type === Engine.LightType.DirectionalLight
           ? new OrthographicCamera()
@@ -48,12 +52,6 @@ export default class LightActor extends Actor {
     if (this.#shadowCamera) {
       this.#shadowCamera.updateProjectionMatrix();
     }
-    if (this.#shadowMap) {
-      // this.#shadowMap.setSize({ width, height });
-    }
-    // if(this.#shadowMap) {
-    //   this.#shadowMap
-    // }
   }
 
   update() {

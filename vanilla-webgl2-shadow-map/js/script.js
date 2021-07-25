@@ -69,10 +69,11 @@ const lightActor = new LightActor({
   //   attenuation: 0.2,
   // }),
   castShadow: true,
+  shadowMapWidth: 1024,
+  shadowMapHeight: 1024,
 });
-lightActor.shadowCamera.orthographicSize = 10;
-lightActor.shadowCamera.nearClip = 0.1;
-lightActor.shadowCamera.farClip = 30;
+lightActor.shadowCamera.orthographicSize = 4;
+
 // lightActor.shadowMap.width = 1024;
 // lightActor.shadowMap.height = 1024;
 
