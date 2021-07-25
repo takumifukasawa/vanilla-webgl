@@ -51,6 +51,7 @@ export default class LightActor extends Actor {
   setSize({ width, height }) {
     super.setSize({ width, height });
     if (this.#shadowCamera) {
+      // TODO: aspect をパラメーター化
       this.#shadowCamera.updateProjectionMatrix(1);
     }
   }
