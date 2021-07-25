@@ -66,4 +66,9 @@ export default class Engine {
     Repeat: 'Repeat',
     ClampToEdge: 'ClampToEdge',
   };
+
+  static LightType = {
+    DirectionalLight: 'DirectionalLight',
+    PointLight: 'PointLight',
+  };
 }

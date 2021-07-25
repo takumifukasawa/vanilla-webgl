@@ -13,6 +13,10 @@ export default class ShadowMap {
     return this.#framebuffer;
   }
 
+  get depthTexture() {
+    return this.#depthTexture;
+  }
+
   constructor({ gpu, width = 1024, height = 1024 }) {
     const gl = gpu.gl;
 

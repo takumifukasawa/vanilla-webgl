@@ -22,7 +22,7 @@ export default class OrthographicCamera extends Camera {
     this.fixedAspect = fixedAspect;
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
-    this.updateProjectionMatrix();
+    this.updateProjectionMatrix(this.left, this.right, this.bottom, this.top);
   }
 
   // aspect: w / h

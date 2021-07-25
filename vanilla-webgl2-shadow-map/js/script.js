@@ -66,25 +66,42 @@ const lightActor = new LightActor({
   castShadow: true,
 });
 
+// for debug
+// TODO: light actor の中で update したい
+{
+  lightActor.position.x = 10;
+  lightActor.position.y = 10;
+  lightActor.position.z = 10;
+  lightActor.worldTransform = Matrix4.multiplyMatrices(
+    Matrix4.createTranslationMatrix(lightActor.position),
+  );
+  // const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
+  //   lightActor.position,
+  //   new Vector3(0, 0, 0),
+  //   new Vector3(0, 1, 0),
+  // );
+  // lightActor.shadowCamera.cameraMatrix = lookAtCameraMatrix;
+}
+
 actors.push(lightActor);
 
-const orthographicSize = 1;
+// const orthographicSize = 1;
 
-const projectorCameraActor = new CameraActor({
-  // camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
-  camera: new OrthographicCamera(
-    -orthographicSize,
-    orthographicSize,
-    -orthographicSize,
-    orthographicSize,
-    0.1,
-    30,
-    1,
-  ),
-  lookAt: Vector3.zero(),
-});
-
-actors.push(projectorCameraActor);
+// const projectorCameraActor = new CameraActor({
+//   // camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
+//   camera: new OrthographicCamera(
+//     -orthographicSize,
+//     orthographicSize,
+//     -orthographicSize,
+//     orthographicSize,
+//     0.1,
+//     30,
+//     1,
+//   ),
+//   lookAt: Vector3.zero(),
+// });
+//
+// actors.push(projectorCameraActor);
 
 const vertexShader = `#version 300 es
 
@@ -139,6 +156,7 @@ uniform sampler2D uNormalMap;
 uniform sampler2D uHeightMap;
 uniform samplerCube uCubeMap;
 uniform sampler2D uUvMap;
+uniform sampler2D uDepthTexture;
 
 in vec2 vUv;
 in vec4 vWorldPosition;
@@ -162,9 +180,11 @@ void main() {
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
 
-  vec3 rawPtoL = uDirectionalLight.position - worldPosition;
+  // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
+  // vec3 PtoL = normalize(rawPtoL);
 
-  vec3 PtoL = normalize(rawPtoL);
+  vec3 PtoL = normalize(uDirectionalLight.position); // for directional light
+
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
   vec3 H = normalize(PtoL + PtoE);
@@ -225,10 +245,11 @@ void main() {
   // color = PtoL;
   // color = normal;
   // color = vec3(attenuation);
-  // color = projectionTextureColor.xyz;
+  color = projectionTextureColor.xyz;
   // color = texture(uUvMap, vUv).xyz;
+  // color = vec3(diffuse);
 
-  color = mix(color, projectionTextureColor.xyz, isRange);
+  // color = mix(color, projectionTextureColor.xyz, isRange);
 
   outColor = vec4(color, 1.);
 }
@@ -275,7 +296,8 @@ const init = async () => {
   const uniforms = {
     ['uDirectionalLight.position']: {
       type: Engine.UniformType.Vector3f,
-      data: lightActor.light.position,
+      // data: lightActor.light.position,
+      data: lightActor.position,
     },
     ['uDirectionalLight.intensity']: {
       type: Engine.UniformType.Float,
@@ -308,6 +330,10 @@ const init = async () => {
     uTextureProjectionMatrix: {
       type: Engine.UniformType.Matrix4fv,
       data: Matrix4.identity(),
+    },
+    uDepthTexture: {
+      type: Engine.UniformType.Texture2D,
+      data: null,
     },
   };
 
@@ -518,29 +544,29 @@ const tick = (t) => {
       (targetY - perspectiveCameraActor.position.y) * dumping;
     perspectiveCameraActor.position.z = 15;
 
-    projectorCameraActor.position.x = 1.2;
-    projectorCameraActor.position.y = 1.2;
-    projectorCameraActor.position.z = 1.2;
+    // projectorCameraActor.position.x = 1.2;
+    // projectorCameraActor.position.y = 1.2;
+    // projectorCameraActor.position.z = 1.2;
 
-    projectorCameraActor.lookAt = new Vector3(0, 0.5, 0);
+    // projectorCameraActor.lookAt = new Vector3(0, 0.5, 0);
 
-    // prettier-ignore
-    const textureMatrix = new Matrix4(
-      0.5, 0, 0, 0,
-      0, 0.5, 0, 0,
-      0, 0, 1, 0,
-      0.5, 0.5, 0, 1
-    );
-    const textureProjectionMatrix = Matrix4.multiplyMatrices(
-      textureMatrix,
-      projectorCameraActor.camera.projectionMatrix.clone(),
-      projectorCameraActor.camera.cameraMatrix.clone().inverse(),
-    );
+    // // prettier-ignore
+    // const textureMatrix = new Matrix4(
+    //   0.5, 0, 0, 0,
+    //   0, 0.5, 0, 0,
+    //   0, 0, 1, 0,
+    //   0.5, 0.5, 0, 1
+    // );
+    // const textureProjectionMatrix = Matrix4.multiplyMatrices(
+    //   textureMatrix,
+    //   projectorCameraActor.camera.projectionMatrix.clone(),
+    //   projectorCameraActor.camera.cameraMatrix.clone().inverse(),
+    // );
 
-    objMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
-      textureProjectionMatrix;
-    floorMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
-      textureProjectionMatrix;
+    // objMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
+    //   textureProjectionMatrix;
+    // floorMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
+    //   textureProjectionMatrix;
 
     // const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
     //   perspectiveCamera.position,

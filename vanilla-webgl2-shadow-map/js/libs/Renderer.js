@@ -130,6 +130,41 @@ export default class Renderer {
         });
       }
 
+      // shadow map 適用
+      lightActors.forEach((lightActor) => {
+        if (lightActor.castShadow) {
+          const { light } = lightActor;
+
+          // for debug
+          material.uniforms.uDepthTexture.data =
+            lightActor.shadowMap.depthTexture;
+
+          // prettier-ignore
+          const textureMatrix = new Matrix4(
+              0.5, 0, 0, 0,
+              0, 0.5, 0, 0,
+              0, 0, 1, 0,
+              0.5, 0.5, 0, 1
+            );
+          const textureProjectionMatrix = Matrix4.multiplyMatrices(
+            textureMatrix,
+            lightActor.shadowCamera.projectionMatrix.clone(),
+            lightActor.shadowCamera.cameraMatrix.clone().inverse(),
+            // lightActor.camera.projectionMatrix.clone(),
+            // lightActor.worldTransform.clone().inverse(),
+          );
+          // console.log(lightActor.worldTransform.clone());
+
+          material.uniforms.uTextureProjectionMatrix.data =
+            textureProjectionMatrix;
+
+          // objMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
+          //   textureProjectionMatrix;
+          // floorMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
+          //   textureProjectionMatrix;
+        }
+      });
+
       this.render({ geometry, material });
     });
 
