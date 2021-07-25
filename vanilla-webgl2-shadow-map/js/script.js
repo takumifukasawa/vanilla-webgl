@@ -43,7 +43,8 @@ let startTime = null;
 let beforeTime = null;
 let deltaTime = 0;
 
-let objMeshActor;
+let cubeMeshActor;
+let sphereMeshActor;
 let floorMeshActor;
 
 const renderer = new Renderer({ gpu });
@@ -65,7 +66,7 @@ const lightActor = new LightActor({
   // }),
   light: new PointLight({
     color: new Vector3(1, 1, 1),
-    intensity: 1,
+    intensity: 8,
     attenuation: 0.2,
   }),
   castShadow: true,
@@ -78,8 +79,8 @@ const lightActor = new LightActor({
 
 // for point light
 lightActor.shadowCamera.fov = 90;
-lightActor.shadowCamera.nearClip = 0.1;
-lightActor.shadowCamera.farClip = 30;
+lightActor.shadowCamera.nearClip = 0.5;
+lightActor.shadowCamera.farClip = 10;
 // lightActor.shadowCamera.fixedAspect = 1;
 
 // lightActor.shadowMap.width = 1024;
@@ -88,9 +89,9 @@ lightActor.shadowCamera.farClip = 30;
 // for debug
 // TODO: light actor の中で update したい
 {
-  lightActor.position.x = 2;
-  lightActor.position.y = 2;
-  lightActor.position.z = 2;
+  lightActor.position.x = 4;
+  lightActor.position.y = 4;
+  lightActor.position.z = 4;
   lightActor.worldTransform = Matrix4.multiplyMatrices(
     Matrix4.createTranslationMatrix(lightActor.position),
   );
@@ -185,6 +186,7 @@ uniform sampler2D uHeightMap;
 uniform samplerCube uCubeMap;
 uniform sampler2D uUvMap;
 uniform sampler2D uDepthMap;
+uniform float uDepthBias;
 
 in vec2 vUv;
 in vec4 vWorldPosition;
@@ -316,16 +318,17 @@ void main() {
 
   vec3 color = vec3(0.);
 
-  vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uLight.position);
-  float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
+  // tmp
+  // vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uLight.position);
+  // float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
   float currentDepth = projectionUv.z;
-  float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
+  float isShadow = (currentDepth + uDepthBias) >= sceneDepth ? 1. : 0.;
 
   // color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
   color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
 
-  color = mix(color + environmentColor, environmentColor, isShadow);
+  color = mix(color + environmentColor, environmentColor, isShadow * isRange);
 
   // tmp
   // float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -336,19 +339,19 @@ void main() {
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
-  color = mix(
-    vec3(1., 0., 0.),
-    vec3(0., 0., 1.),
-    isShadow
-  );
+  // color = mix(
+  //   vec3(1., 0., 0.),
+  //   vec3(0., 0., 1.),
+  //   isRange * isShadow
+  // );
 
   outColor = vec4(color, 1.);
 }
 `;
 
 const init = async () => {
-  // const data = await loadObj('./model/sphere-32x32.obj');
-  const data = await loadObj('./model/cube.obj');
+  const cubeData = await loadObj('./model/cube.obj');
+  const sphereData = await loadObj('./model/sphere-32x32.obj');
 
   const [
     uvMapImg,
@@ -430,32 +433,38 @@ const init = async () => {
       type: Engine.UniformType.Texture2D,
       data: lightActor.shadowMap.depthTexture,
     },
+    uDepthBias: {
+      type: Engine.UniformType.Float,
+      data: -0.005,
+    },
   };
 
-  const objGeometry = new Geometry({
+  // cube
+
+  const cubeGeometry = new Geometry({
     gpu,
     attributes: [
       {
         type: Engine.AttributeType.Position,
-        data: data.positions,
+        data: cubeData.positions,
         stride: 3,
       },
       {
         type: Engine.AttributeType.Uv,
-        data: data.uvs,
+        data: cubeData.uvs,
         stride: 2,
       },
       {
         type: Engine.AttributeType.Normal,
-        data: data.normals,
+        data: cubeData.normals,
         stride: 3,
       },
-      Attribute.createTangent(data.normals),
-      Attribute.createBinormal(data.normals),
+      Attribute.createTangent(cubeData.normals),
+      Attribute.createBinormal(cubeData.normals),
     ],
   });
 
-  const objMaterial = new Material({
+  const cubeMaterial = new Material({
     gpu,
     vertexShader,
     fragmentShader,
@@ -463,15 +472,15 @@ const init = async () => {
     primitiveType: Engine.PrimitiveType.Triangle,
   });
 
-  objMeshActor = new MeshActor({
-    name: 'obj',
+  cubeMeshActor = new MeshActor({
+    name: 'cubeMesh',
     meshComponent: new MeshComponent({
-      geometry: objGeometry,
-      material: objMaterial,
+      geometry: cubeGeometry,
+      material: cubeMaterial,
     }),
   });
 
-  objMeshActor.addComponent(
+  cubeMeshActor.addComponent(
     new ScriptComponent({
       updateFunc: function ({ actor, time, deltaTime }) {
         // const t = Matrix4.multiplyMatrices(
@@ -480,11 +489,69 @@ const init = async () => {
         //   Matrix4.createRotationZMatrix(time * 0.5),
         // );
         // actor.worldTransform = t;
+        const t = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(new Vector3(-1, 0, 0)),
+        );
+        actor.worldTransform = t;
       },
     }),
   );
 
-  actors.push(objMeshActor);
+  actors.push(cubeMeshActor);
+
+  // sphere
+
+  const sphereGeometry = new Geometry({
+    gpu,
+    attributes: [
+      {
+        type: Engine.AttributeType.Position,
+        data: sphereData.positions,
+        stride: 3,
+      },
+      {
+        type: Engine.AttributeType.Uv,
+        data: sphereData.uvs,
+        stride: 2,
+      },
+      {
+        type: Engine.AttributeType.Normal,
+        data: sphereData.normals,
+        stride: 3,
+      },
+      Attribute.createTangent(sphereData.normals),
+      Attribute.createBinormal(sphereData.normals),
+    ],
+  });
+
+  const sphereMaterial = new Material({
+    gpu,
+    vertexShader,
+    fragmentShader,
+    uniforms,
+    primitiveType: Engine.PrimitiveType.Triangle,
+  });
+
+  sphereMeshActor = new MeshActor({
+    name: 'sphereMesh',
+    meshComponent: new MeshComponent({
+      geometry: sphereGeometry,
+      material: sphereMaterial,
+    }),
+  });
+
+  sphereMeshActor.addComponent(
+    new ScriptComponent({
+      updateFunc: function ({ actor, time, deltaTime }) {
+        const t = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(new Vector3(1.5, 1, 1)),
+        );
+        actor.worldTransform = t;
+      },
+    }),
+  );
+
+  actors.push(sphereMeshActor);
 
   //
   // plane vertex positions
@@ -658,7 +725,7 @@ const tick = (t) => {
     //   projectorCameraActor.camera.cameraMatrix.clone().inverse(),
     // );
 
-    // objMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
+    // cubeMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
     //   textureProjectionMatrix;
     // floorMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
     //   textureProjectionMatrix;
