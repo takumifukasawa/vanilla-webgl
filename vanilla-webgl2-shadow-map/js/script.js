@@ -171,6 +171,39 @@ in vec4 vProjectionUv;
 
 out vec4 outColor;
 
+vec3 calcNormal(
+  vec3 normal,
+  vec3 tangent,
+  vec3 binormal,
+  sampler2D normalMap,
+  sampler2D heightMap,
+  vec2 uv,
+  vec3 worldPosition,
+  vec3 cameraPosition,
+  float heightRate,
+  float normalBlend
+) {
+  vec3 PtoE = normalize(cameraPosition - worldPosition);
+  vec3 EtoP = -PtoE;
+
+  float height = texture(heightMap, uv).r;
+
+  // float heightRate = .01;
+
+  vec2 offsetUv = ((EtoP.xy) / EtoP.z) * height * heightRate;
+
+  // float normalBlend = .05;
+
+  vec4 nt = texture(normalMap, uv - offsetUv) * 2. - 1.;
+  vec3 N = mix(
+    normal,
+    normalize(mat3(tangent, binormal, normal) * nt.xyz),
+    normalBlend
+  );
+
+  return N;
+}
+
 vec3 calcDirectionalLight(
   DirectionalLight light,
   vec3 position,
@@ -243,13 +276,29 @@ void main() {
     normalBlend
   );
 
+  N = calcNormal(
+    normalize(vNormal),
+    normalize(vTangent),
+    normalize(vBinormal),
+    uNormalMap,
+    uHeightMap,
+    vUv,
+    worldPosition,
+    cameraPosition,
+    .01,
+    .05
+  // vec3 normal,
+  // vec3 tangent,
+  // vec3 binormal,
+  // sampler2D normalMap,
+  // sampler2D heightMap,
+  // vec2 uv,
+  // float heightRate,
+  // float normalBlend
+  );
+
   vec3 cubeMapDir = reflect(EtoP, N);
   vec4 envMapColor = texture(uCubeMap, cubeMapDir);
-
-  float diffuse = max(0., dot(PtoL, N));
-  float specular = max(0., dot(N, H));
-
-  float specularPower = 8.;
 
   vec3 diffuseColor = texture(uBaseColorMap, uv).rgb;
   vec3 specularColor = envMapColor.rgb;
