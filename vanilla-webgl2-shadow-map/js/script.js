@@ -231,7 +231,6 @@ void main() {
   vec3 cameraPosition = uCameraPosition;
 
   vec3 projectionUv = vProjectionUv.xyz / vProjectionUv.w;
-  // vec4 projectionTextureColor = texture(uUvMap, projectionUv.xy);
   vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
   float sceneDepth = projectionTextureColor.r;
 
@@ -245,34 +244,10 @@ void main() {
   // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
   // vec3 PtoL = normalize(rawPtoL);
 
-  // for directional light
-  vec3 PtoL = normalize(uDirectionalLight.position); // for directional light
-
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
-  vec3 H = normalize(PtoL + PtoE);
 
-  float height = texture(uHeightMap, vUv).r;
-
-  float heightRate = .01;
-
-  vec2 offsetUv = ((EtoP.xy) / EtoP.z) * height * heightRate;
-  vec2 uv = vUv - offsetUv;
-
-  float normalBlend = .05;
-
-  vec3 normal = normalize(vNormal);
-  vec3 tangent = normalize(vTangent);
-  vec3 binormal = normalize(vBinormal);
-
-  vec4 nt = texture(uNormalMap, uv) * 2. - 1.;
-  vec3 N = mix(
-    normal,
-    normalize(mat3(tangent, binormal, normal) * nt.xyz),
-    normalBlend
-  );
-
-  N = calcNormal(
+  vec3 N = calcNormal(
     normalize(vNormal),
     normalize(vTangent),
     normalize(vBinormal),
@@ -282,20 +257,12 @@ void main() {
     EtoP,
     .01,
     .05
-  // vec3 normal,
-  // vec3 tangent,
-  // vec3 binormal,
-  // sampler2D normalMap,
-  // sampler2D heightMap,
-  // vec2 uv,
-  // float heightRate,
-  // float normalBlend
   );
 
   vec3 cubeMapDir = reflect(EtoP, N);
   vec4 envMapColor = texture(uCubeMap, cubeMapDir);
 
-  vec3 diffuseColor = texture(uBaseColorMap, uv).rgb;
+  vec3 diffuseColor = texture(uBaseColorMap, vUv).rgb;
   vec3 specularColor = envMapColor.rgb;
   vec3 environmentColor = vec3(.05);
 
@@ -316,16 +283,14 @@ void main() {
   float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
 
   color += calcDirectionalLight(uDirectionalLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
-  // color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
-  // color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
   color = mix(color + environmentColor, environmentColor, isShadow);
 
-  float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
-  float fresnel = ((1. - eta) * (1. - eta)) / ((1. + eta) * (1. + eta)); // フレネル値
-  float reflectionRate = fresnel + (1. - fresnel) * pow(1. - dot(PtoE, N), 5.); // 境界面の反射率
-
-  vec3 raDir = refract(normalize(EtoP), normalize(N), .67);
-  vec3 raColor = texture(uCubeMap, raDir).rgb;
+  // tmp
+  // float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
+  // float fresnel = ((1. - eta) * (1. - eta)) / ((1. + eta) * (1. + eta)); // フレネル値
+  // float reflectionRate = fresnel + (1. - fresnel) * pow(1. - dot(PtoE, N), 5.); // 境界面の反射率
+  // vec3 raDir = refract(normalize(EtoP), normalize(N), .67);
+  // vec3 raColor = texture(uCubeMap, raDir).rgb;
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
