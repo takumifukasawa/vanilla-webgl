@@ -59,8 +59,8 @@ actors.push(perspectiveCameraActor);
 const lightActor = new LightActor({
   gpu,
   light: new DirectionalLight({
-    color: Vector3.one(),
-    position: new Vector3(1, 1, 1),
+    color: new Vector3(1, 1, 1),
+    // position: new Vector3(1, 1, 1),
     intensity: 1,
   }),
   castShadow: true,
@@ -145,12 +145,15 @@ precision mediump float;
 
 struct DirectionalLight {
   vec3 position;
+  vec3 color;
   float intensity;
 };
 
 struct PointLight {
   vec3 position;
+  vec3 color;
   float intensity;
+  float attenuation;
 };
 
 uniform DirectionalLight uDirectionalLight;
@@ -211,8 +214,8 @@ vec3 calcDirectionalLight(
 
   vec3 color = vec3(0.);
 
-  color += diffuseColor * diffuse * light.intensity;
-  color += specularColor * pow(specular, specularPower) * light.intensity;
+  color += diffuseColor * diffuse * light.color * light.intensity;
+  color += specularColor * pow(specular, specularPower) * light.color * light.intensity;
 
   return color;
 }
@@ -363,17 +366,20 @@ const init = async () => {
   const uniforms = {
     ['uDirectionalLight.position']: {
       type: Engine.UniformType.Vector3f,
-      // data: lightActor.light.position,
       data: lightActor.position,
+    },
+    ['uDirectionalLight.color']: {
+      type: Engine.UniformType.Vector3f,
+      data: lightActor.light.color,
     },
     ['uDirectionalLight.intensity']: {
       type: Engine.UniformType.Float,
       data: lightActor.light.intensity,
     },
-    // ['uDirectionalLight.attenuation']: {
-    //   type: Engine.UniformType.Float,
-    //   data: lightActor.light.attenuation,
-    // },
+    ['uDirectionalLight.attenuation']: {
+      type: Engine.UniformType.Float,
+      data: lightActor.light.attenuation,
+    },
     uBaseColorMap: {
       type: Engine.UniformType.Texture2D,
       data: baseColorMapTexture,
