@@ -155,7 +155,7 @@ struct PointLight {
   float attenuation;
 };
 
-uniform DirectionalLight uDirectionalLight;
+uniform DirectionalLight uLight;
 
 uniform vec3 uCameraPosition;
 uniform sampler2D uBaseColorMap;
@@ -240,7 +240,7 @@ vec3 calcPointLight(
 
   // for point light
   float distancePtoL = length(rawPtoL);
-  // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
+  // float attenuation = 1. / (1. + uLight.attenuation * distancePtoL * distancePtoL);
   float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
 
   vec3 color = vec3(0.);
@@ -295,13 +295,13 @@ void main() {
 
   vec3 color = vec3(0.);
 
-  vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uDirectionalLight.position);
+  vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uLight.position);
   float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
   float currentDepth = projectionUv.z;
   float isShadow = (currentDepth - .001) >= sceneDepth ? 1. : 0.;
 
-  color += calcDirectionalLight(uDirectionalLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
+  color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
   color = mix(color + environmentColor, environmentColor, isShadow);
 
   // tmp
@@ -363,19 +363,19 @@ const init = async () => {
   const cubeMapTexture = new CubeMap({ gpu, images: cubeMapImages });
 
   const uniforms = {
-    ['uDirectionalLight.position']: {
+    ['uLight.position']: {
       type: Engine.UniformType.Vector3f,
       data: lightActor.position,
     },
-    ['uDirectionalLight.color']: {
+    ['uLight.color']: {
       type: Engine.UniformType.Vector3f,
       data: lightActor.light.color,
     },
-    ['uDirectionalLight.intensity']: {
+    ['uLight.intensity']: {
       type: Engine.UniformType.Float,
       data: lightActor.light.intensity,
     },
-    ['uDirectionalLight.attenuation']: {
+    ['uLight.attenuation']: {
       type: Engine.UniformType.Float,
       data: lightActor.light.attenuation,
     },
