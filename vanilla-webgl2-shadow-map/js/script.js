@@ -60,7 +60,6 @@ const lightActor = new LightActor({
   gpu,
   light: new DirectionalLight({
     color: new Vector3(1, 1, 1),
-    // position: new Vector3(1, 1, 1),
     intensity: 1,
   }),
   castShadow: true,
