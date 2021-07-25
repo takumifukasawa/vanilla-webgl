@@ -50,7 +50,7 @@ const renderer = new Renderer({ gpu });
 const renderTarget = new RenderTarget({ gpu });
 
 const perspectiveCameraActor = new CameraActor({
-  camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
+  camera: new PerspectiveCamera(0.5, 1, 0.1, 30),
   lookAt: Vector3.zero(),
 });
 
@@ -123,6 +123,7 @@ out vec3 vNormal;
 out vec3 vTangent;
 out vec3 vBinormal;
 out vec4 vProjectionUv;
+// out vec4 vPosition;
 
 void main() {
   vUv = aUv;
@@ -136,6 +137,8 @@ void main() {
   vProjectionUv = uTextureProjectionMatrix * vWorldPosition;
 
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
+
+  // gl_Position = vPosition;
 }
 `;
 
@@ -164,6 +167,7 @@ in vec3 vNormal;
 in vec3 vTangent;
 in vec3 vBinormal;
 in vec4 vProjectionUv;
+// in vec4 vPosition;
 
 out vec4 outColor;
 
@@ -174,12 +178,19 @@ void main() {
   vec3 projectionUv = vProjectionUv.xyz / vProjectionUv.w;
   // vec4 projectionTextureColor = texture(uUvMap, projectionUv.xy);
   vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
+  float sceneDepth = projectionTextureColor.r;
+
+  // float depthBias = -0.006;
+  // float depthBias = 0.;
+  // float currentDepth = projectionUv.z + depthBias;
 
   float isRange =
     step(0., projectionUv.x) *
     (1. - step(1., projectionUv.x)) *
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
+
+  // float isShadow = isRange > 0.5 && (sceneDepth <= currentDepth) ? 1. : 0.;
 
   // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
   // vec3 PtoL = normalize(rawPtoL);
@@ -230,9 +241,28 @@ void main() {
   float attenuation = 1.;
 
   vec3 color = vec3(0.);
+
+  // color = mix(color, projectionTextureColor.xyz, isRange);
+  // vec3 d = vPosition.zzz / vPosition.w;
+
+  // float currentDepth = 1. / (30. - 0.1) * (vPosition.z);
+  // float currentDepth = (vPosition.z / vPosition.w) / (30. - 0.1);
+  // float currentDepth = vPosition.z / vPosition.w;
+
+  // color += currentDepth * 0.;
+  // color = vec3(currentDepth);
+
+  vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uDirectionalLight.position);
+  float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
+
+  float isShadow = (distanceLtoP - .05) >= sceneDepth ? 1. : 0.;
+  // color = vec3(isShadow);
+
   color += diffuseColor * diffuse * uDirectionalLight.intensity * attenuation;
   color += specularColor * pow(specular, specularPower) * uDirectionalLight.intensity * attenuation;
   color += environmentColor;
+
+  color = mix(color, vec3(0.), isShadow);
 
   float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
   float fresnel = ((1. - eta) * (1. - eta)) / ((1. + eta) * (1. + eta)); // フレネル値
@@ -241,16 +271,23 @@ void main() {
   vec3 raDir = refract(normalize(EtoP), normalize(N), .67);
   vec3 raColor = texture(uCubeMap, raDir).rgb;
 
+
+  // float isShadow = currentDepth > sceneDepth ? 1. : 0.;
+  // float isShadow = currentDepth > sceneDepth ? 0. : 1.;
+  // color = vec3(isShadow);
+
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
   // color = PtoL;
   // color = normal;
   // color = vec3(attenuation);
-  color = projectionTextureColor.xyz;
+  // color = texture(uUvMap, projectionUv.xy).xyz;
   // color = texture(uUvMap, vUv).xyz;
   // color = vec3(diffuse);
-
-  // color = mix(color, projectionTextureColor.xyz, isRange);
+  // color = vec3(isShadow);
+  // color = vec3(currentDepth);
+  // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
+  // color = vec3(sceneDepth);
 
   outColor = vec4(color, 1.);
 }

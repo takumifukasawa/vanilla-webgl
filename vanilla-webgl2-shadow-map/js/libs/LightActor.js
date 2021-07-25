@@ -5,7 +5,8 @@ import OrthographicCamera from './OrthographicCamera.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
 
-const orthographicSize = 1;
+const orthographicSize = 3;
+
 export default class LightActor extends Actor {
   light;
 

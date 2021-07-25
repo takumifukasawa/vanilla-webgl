@@ -108,9 +108,8 @@ export default class Renderer {
           if (material.useUtilityUniforms) {
             material.updateUniforms({
               modelMatrix: meshActor.worldTransform,
-              viewMatrix: lightActor.shadowCamera.cameraMatrix
-                .clone()
-                .inverse(),
+              // prettier-ignore
+              viewMatrix: lightActor.shadowCamera.cameraMatrix.clone().inverse(),
               // prettier-ignore
               projectionMatrix: lightActor.shadowCamera.projectionMatrix.clone(),
               normalMatrix: Matrix4.identity(),
