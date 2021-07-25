@@ -190,8 +190,6 @@ void main() {
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
 
-  // float isShadow = isRange > 0.5 && (sceneDepth <= currentDepth) ? 1. : 0.;
-
   // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
   // vec3 PtoL = normalize(rawPtoL);
 
@@ -289,9 +287,10 @@ void main() {
   // color = vec3(currentDepth);
   // color = vec3(currentDepth >= sceneDepth ? 1. : 0.);
   // color = vec3(sceneDepth);
+  // color = vec3(distanceLtoP);
 
-  color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
-  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
+  // color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow * isRange);
+  color = mix(vec3(1., 0., 0.), vec3(0., 0., 1.), isShadow);
 
   outColor = vec4(color, 1.);
 }
