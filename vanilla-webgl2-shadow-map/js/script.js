@@ -123,7 +123,6 @@ out vec3 vNormal;
 out vec3 vTangent;
 out vec3 vBinormal;
 out vec4 vProjectionUv;
-// out vec4 vPosition;
 
 void main() {
   vUv = aUv;
@@ -137,8 +136,6 @@ void main() {
   vProjectionUv = uTextureProjectionMatrix * vWorldPosition;
 
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPosition, 1.);
-
-  // gl_Position = vPosition;
 }
 `;
 
@@ -147,6 +144,11 @@ const fragmentShader = `#version 300 es
 precision mediump float;
 
 struct DirectionalLight {
+  vec3 position;
+  float intensity;
+};
+
+struct PointLight {
   vec3 position;
   float intensity;
 };
@@ -167,11 +169,10 @@ in vec3 vNormal;
 in vec3 vTangent;
 in vec3 vBinormal;
 in vec4 vProjectionUv;
-// in vec4 vPosition;
 
 out vec4 outColor;
 
-vec3 calcNormal(
+vec3 calcParallaxMappingNormal(
   vec3 normal,
   vec3 tangent,
   vec3 binormal,
@@ -179,25 +180,15 @@ vec3 calcNormal(
   sampler2D heightMap,
   vec2 uv,
   vec3 EtoP,
-  float heightRate,
-  float normalBlend
+  float heightRate
 ) {
   float height = texture(heightMap, uv).r;
 
-  // float heightRate = .01;
-
   vec2 offsetUv = ((EtoP.xy) / EtoP.z) * height * heightRate;
 
-  // float normalBlend = .05;
-
   vec4 nt = texture(normalMap, uv - offsetUv) * 2. - 1.;
-  vec3 N = mix(
-    normal,
-    normalize(mat3(tangent, binormal, normal) * nt.xyz),
-    normalBlend
-  );
 
-  return N;
+  return normalize(mat3(tangent, binormal, normal) * nt.xyz);
 }
 
 vec3 calcDirectionalLight(
@@ -226,6 +217,38 @@ vec3 calcDirectionalLight(
   return color;
 }
 
+vec3 calcPointLight(
+  PointLight light,
+  vec3 position,
+  vec3 normal,
+  vec3 cameraPosition,
+  vec3 diffuseColor,
+  vec3 specularColor,
+  float specularPower
+) {
+  vec3 rawPtoL = light.position - position;
+  vec3 PtoL = normalize(rawPtoL);
+
+  vec3 PtoE = normalize(cameraPosition - position);
+  vec3 EtoP = -PtoE;
+  vec3 H = normalize(PtoL + PtoE);
+
+  float diffuse = max(0., dot(PtoL, normal));
+  float specular = max(0., dot(normal, H));
+
+  // for point light
+  float distancePtoL = length(rawPtoL);
+  // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
+  float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
+
+  vec3 color = vec3(0.);
+
+  color += diffuseColor * diffuse * light.intensity * attenuation;
+  color += specularColor * pow(specular, specularPower) * light.intensity * attenuation;
+
+  return color;
+}
+
 void main() {
   vec3 worldPosition = vWorldPosition.xyz;
   vec3 cameraPosition = uCameraPosition;
@@ -240,24 +263,26 @@ void main() {
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
 
-  // for point light
-  // vec3 rawPtoL = uDirectionalLight.position - worldPosition;
-  // vec3 PtoL = normalize(rawPtoL);
-
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
 
-  vec3 N = calcNormal(
-    normalize(vNormal),
-    normalize(vTangent),
-    normalize(vBinormal),
+  vec3 normal = normalize(vNormal);
+  vec3 tangent = normalize(vTangent);
+  vec3 binormal = normalize(vBinormal);
+
+  vec3 parallaxMappingNormal = calcParallaxMappingNormal(
+    normal,
+    tangent,
+    binormal,
     uNormalMap,
     uHeightMap,
     vUv,
     EtoP,
-    .01,
-    .05
+    .01
   );
+
+  // blend normal
+  vec3 N = normalize(mix(normal, parallaxMappingNormal, .2));
 
   vec3 cubeMapDir = reflect(EtoP, N);
   vec4 envMapColor = texture(uCubeMap, cubeMapDir);
@@ -265,14 +290,6 @@ void main() {
   vec3 diffuseColor = texture(uBaseColorMap, vUv).rgb;
   vec3 specularColor = envMapColor.rgb;
   vec3 environmentColor = vec3(.05);
-
-  // for point light
-  // float distancePtoL = length(rawPtoL);
-  // float attenuation = 1. / (1. + uDirectionalLight.attenuation * distancePtoL * distancePtoL);
-  // float attenuation = 1. / (1. +  .2 * distancePtoL * distancePtoL);
-
-  // for directional light
-  float attenuation = 1.;
 
   vec3 color = vec3(0.);
 
