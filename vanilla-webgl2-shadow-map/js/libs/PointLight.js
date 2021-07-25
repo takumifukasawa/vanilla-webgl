@@ -1,7 +1,8 @@
 import Vector3 from './Vector3.js';
 import Light from './Light.js';
+import Engine from './Engine.js';
 
-export default class PointLight {
+export default class PointLight extends Light {
   attenuation;
 
   constructor({ color, intensity, attenuation }) {
