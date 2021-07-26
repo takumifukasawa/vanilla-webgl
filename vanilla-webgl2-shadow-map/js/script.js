@@ -18,7 +18,6 @@ import Texture from './libs/Texture.js';
 import CubeMap from './libs/CubeMap.js';
 import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
-import RenderTarget from './libs/RenderTarget.js';
 import Engine from './libs/Engine.js';
 import OrthographicCamera from './libs/OrthographicCamera.js';
 import GUIDebugger from './utils/GUIDebugger.js';
@@ -67,11 +66,24 @@ let floorMeshActor;
 
 const renderer = new Renderer({ gpu });
 
-const renderTarget = new RenderTarget({ gpu });
-
 const perspectiveCameraActor = new CameraActor({
   camera: new PerspectiveCamera(0.5, 1, 0.1, 30),
   lookAt: Vector3.zero(),
+  components: [
+    new ScriptComponent({
+      updateFunc: ({ actor }) => {
+        const w = 10;
+        const h = 10;
+        const dumping = 0.05;
+        const targetX = w * states.mouseX;
+        const targetY = h * states.mouseY;
+
+        actor.position.x += (targetX - actor.position.x) * dumping;
+        actor.position.y += (targetY - actor.position.y) * dumping;
+        actor.position.z = 15;
+      },
+    }),
+  ],
 });
 
 actors.push(perspectiveCameraActor);
@@ -669,8 +681,6 @@ const tick = (t) => {
         actor.setSize({ width: targetWidth, height: targetHeight }),
       );
 
-      renderTarget.setSize(targetWidth, targetHeight);
-
       states.isResized = false;
     }
   }
@@ -682,18 +692,6 @@ const tick = (t) => {
 
   // update
   {
-    const w = 10;
-    const h = 10;
-    const dumping = 0.05;
-    const targetX = w * states.mouseX;
-    const targetY = h * states.mouseY;
-
-    perspectiveCameraActor.position.x +=
-      (targetX - perspectiveCameraActor.position.x) * dumping;
-    perspectiveCameraActor.position.y +=
-      (targetY - perspectiveCameraActor.position.y) * dumping;
-    perspectiveCameraActor.position.z = 15;
-
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
 
