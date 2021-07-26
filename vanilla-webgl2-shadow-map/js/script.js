@@ -433,10 +433,10 @@ const init = async () => {
 
   const syncDebugValueComponent = new ScriptComponent({
     updateFunc: ({ actor }) => {
-      const meshComponent = actor.findComponent(
-        Engine.ComponentType.MeshComponent,
-      );
-      meshComponent.material.uniforms.uDepthBias.data = debugValues.depthBias;
+      if (!actor.isType(Engine.ActorType.MeshActor)) {
+        return;
+      }
+      actor.material.uniforms.uDepthBias.data = debugValues.depthBias;
     },
   });
 
@@ -475,30 +475,26 @@ const init = async () => {
 
   cubeMeshActor = new MeshActor({
     name: 'cubeMesh',
-    meshComponent: new MeshComponent({
-      geometry: cubeGeometry,
-      material: cubeMaterial,
-    }),
-    onEndUpdate: () => {},
+    geometry: cubeGeometry,
+    material: cubeMaterial,
+    components: [
+      new ScriptComponent({
+        updateFunc: function ({ actor, time, deltaTime }) {
+          // const t = Matrix4.multiplyMatrices(
+          //   Matrix4.createRotationYMatrix(time * 0.3),
+          //   Matrix4.createRotationXMatrix(time * 0.4),
+          //   Matrix4.createRotationZMatrix(time * 0.5),
+          // );
+          // actor.worldTransform = t;
+          const t = Matrix4.multiplyMatrices(
+            Matrix4.createTranslationMatrix(new Vector3(-1, 0, 0)),
+          );
+          actor.worldTransform = t;
+        },
+      }),
+      syncDebugValueComponent.clone(),
+    ],
   });
-
-  cubeMeshActor.addComponent(
-    new ScriptComponent({
-      updateFunc: function ({ actor, time, deltaTime }) {
-        // const t = Matrix4.multiplyMatrices(
-        //   Matrix4.createRotationYMatrix(time * 0.3),
-        //   Matrix4.createRotationXMatrix(time * 0.4),
-        //   Matrix4.createRotationZMatrix(time * 0.5),
-        // );
-        // actor.worldTransform = t;
-        const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(-1, 0, 0)),
-        );
-        actor.worldTransform = t;
-      },
-    }),
-  );
-  cubeMeshActor.addComponent(syncDebugValueComponent);
 
   actors.push(cubeMeshActor);
 
@@ -537,22 +533,20 @@ const init = async () => {
 
   sphereMeshActor = new MeshActor({
     name: 'sphereMesh',
-    meshComponent: new MeshComponent({
-      geometry: sphereGeometry,
-      material: sphereMaterial,
-    }),
+    geometry: sphereGeometry,
+    material: sphereMaterial,
+    components: [
+      new ScriptComponent({
+        updateFunc: function ({ actor, time, deltaTime }) {
+          const t = Matrix4.multiplyMatrices(
+            Matrix4.createTranslationMatrix(new Vector3(1.5, 1, 1)),
+          );
+          actor.worldTransform = t;
+        },
+      }),
+      syncDebugValueComponent.clone(),
+    ],
   });
-
-  sphereMeshActor.addComponent(
-    new ScriptComponent({
-      updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(1.5, 1, 1)),
-        );
-        actor.worldTransform = t;
-      },
-    }),
-  );
 
   actors.push(sphereMeshActor);
 
@@ -621,24 +615,22 @@ const init = async () => {
 
   floorMeshActor = new MeshActor({
     name: 'floor',
-    meshComponent: new MeshComponent({
-      geometry: floorGeometry,
-      material: floorMaterial,
-    }),
+    geometry: floorGeometry,
+    material: floorMaterial,
+    components: [
+      new ScriptComponent({
+        updateFunc: function ({ actor, time, deltaTime }) {
+          const t = Matrix4.multiplyMatrices(
+            Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
+            Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
+            Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
+          );
+          actor.worldTransform = t;
+        },
+      }),
+      syncDebugValueComponent.clone(),
+    ],
   });
-
-  floorMeshActor.addComponent(
-    new ScriptComponent({
-      updateFunc: function ({ actor, time, deltaTime }) {
-        const t = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
-          Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
-          Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
-        );
-        actor.worldTransform = t;
-      },
-    }),
-  );
 
   actors.push(floorMeshActor);
 };

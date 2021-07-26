@@ -103,7 +103,7 @@ export default class Renderer {
         this.clear();
 
         meshActors.forEach((meshActor, i) => {
-          const { geometry } = meshActor.meshComponent;
+          const { geometry } = meshActor;
           const material = this.#depthMaterial;
           if (material.useUtilityUniforms) {
             material.updateUniforms({
@@ -136,7 +136,7 @@ export default class Renderer {
     // TODO:
     // - opqque -> transparent -> ui
     meshActors.forEach((meshActor, i) => {
-      const { geometry, material } = meshActor.meshComponent;
+      const { geometry, material } = meshActor;
 
       if (material.useUtilityUniforms) {
         material.updateUniforms({

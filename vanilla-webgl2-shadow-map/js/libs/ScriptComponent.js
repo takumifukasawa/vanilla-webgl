@@ -23,4 +23,7 @@ export default class ScriptComponent extends Component {
       this.renderFunc({ actor, time, deltaTime });
     }
   }
+  clone() {
+    return new ScriptComponent({ ...this });
+  }
 }

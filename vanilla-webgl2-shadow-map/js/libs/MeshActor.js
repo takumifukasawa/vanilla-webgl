@@ -1,17 +1,15 @@
 import Actor from './Actor.js';
 import Engine from './Engine.js';
+import MeshComponent from './MeshComponent.js';
 
 export default class MeshActor extends Actor {
   constructor(args = {}) {
-    const { meshComponent, components = [] } = args;
+    const { geometry, material } = args;
     super({
       ...args,
       type: Engine.ActorType.MeshActor,
-      components: [...components, meshComponent], // override
     });
-    this.meshComponent = meshComponent;
-  }
-  getMaterial() {
-    return this.meshComponent.material;
+    this.geometry = geometry;
+    this.material = material;
   }
 }

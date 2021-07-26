@@ -7,4 +7,7 @@ export default class Component {
   start({ actor, time, deltaTime }) {}
   update({ actor, time, deltaTime }) {}
   render({ actor, time, deltaTime }) {}
+  clone() {
+    throw 'should implemented clone method.';
+  }
 }

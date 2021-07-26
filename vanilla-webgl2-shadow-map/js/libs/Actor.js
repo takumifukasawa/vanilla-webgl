@@ -11,6 +11,9 @@ export default class Actor {
     this.worldTransform = Matrix4.identity();
     this.position = Vector3.zero();
   }
+  isType(type) {
+    return this.type === type;
+  }
   findComponent(type) {
     const component = this.components.find((component) => {
       return component.type === type;
