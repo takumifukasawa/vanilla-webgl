@@ -26,12 +26,12 @@ import GUIDebugger from './utils/GUIDebugger.js';
 new GUIDebugger();
 
 const debugValues = {
-  depthBias: 0.01,
+  depthBias: -0.00009,
 };
 
 GUIDebugger.addRange({
   name: 'depthBias',
-  min: -0.001,
+  min: -0.005,
   max: -0.00001,
   step: 0.00001,
   initialValue: debugValues.depthBias,
@@ -90,56 +90,30 @@ const lightActor = new LightActor({
   castShadow: true,
   shadowMapWidth: 1024,
   shadowMapHeight: 1024,
+  components: [
+    new ScriptComponent({
+      startFunc: () => {
+        // for directional light
+        // lightActor.shadowCamera.orthographicSize = 4;
+
+        // for point light
+        lightActor.shadowCamera.fov = 90;
+        lightActor.shadowCamera.nearClip = 0.5;
+        lightActor.shadowCamera.farClip = 10;
+        // lightActor.shadowCamera.fixedAspect = 1;
+
+        lightActor.position.x = 4;
+        lightActor.position.y = 4;
+        lightActor.position.z = 4;
+        lightActor.worldTransform = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(lightActor.position),
+        );
+      },
+    }),
+  ],
 });
 
-// for directional light
-// lightActor.shadowCamera.orthographicSize = 4;
-
-// for point light
-lightActor.shadowCamera.fov = 90;
-lightActor.shadowCamera.nearClip = 0.5;
-lightActor.shadowCamera.farClip = 10;
-// lightActor.shadowCamera.fixedAspect = 1;
-
-// lightActor.shadowMap.width = 1024;
-// lightActor.shadowMap.height = 1024;
-
-// for debug
-// TODO: light actor の中で update したい
-{
-  lightActor.position.x = 4;
-  lightActor.position.y = 4;
-  lightActor.position.z = 4;
-  lightActor.worldTransform = Matrix4.multiplyMatrices(
-    Matrix4.createTranslationMatrix(lightActor.position),
-  );
-  // const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-  //   lightActor.position,
-  //   new Vector3(0, 0, 0),
-  //   new Vector3(0, 1, 0),
-  // );
-  // lightActor.shadowCamera.cameraMatrix = lookAtCameraMatrix;
-}
-
 actors.push(lightActor);
-
-// const orthographicSize = 1;
-
-// const projectorCameraActor = new CameraActor({
-//   // camera: new PerspectiveCamera(0.5, 1, 0.1, 50),
-//   camera: new OrthographicCamera(
-//     -orthographicSize,
-//     orthographicSize,
-//     -orthographicSize,
-//     orthographicSize,
-//     0.1,
-//     30,
-//     1,
-//   ),
-//   lookAt: Vector3.zero(),
-// });
-//
-// actors.push(projectorCameraActor);
 
 const vertexShader = `#version 300 es
 
@@ -453,7 +427,7 @@ const init = async () => {
     },
     uDepthBias: {
       type: Engine.UniformType.Float,
-      data: -0.005,
+      data: debugValues.depthBias,
     },
   };
 
@@ -703,8 +677,6 @@ const tick = (t) => {
         actor.setSize({ width: targetWidth, height: targetHeight }),
       );
 
-      // perspectiveCamera.updateProjectionMatrix(targetWidth / targetHeight);
-
       renderTarget.setSize(targetWidth, targetHeight);
 
       states.isResized = false;
@@ -723,48 +695,12 @@ const tick = (t) => {
     const dumping = 0.05;
     const targetX = w * states.mouseX;
     const targetY = h * states.mouseY;
-    // perspectiveCamera.position.x +=
-    //   (targetX - perspectiveCamera.position.x) * dumping;
-    // perspectiveCamera.position.y +=
-    //   (targetY - perspectiveCamera.position.y) * dumping;
-    // perspectiveCamera.position.z = 15;
 
     perspectiveCameraActor.position.x +=
       (targetX - perspectiveCameraActor.position.x) * dumping;
     perspectiveCameraActor.position.y +=
       (targetY - perspectiveCameraActor.position.y) * dumping;
     perspectiveCameraActor.position.z = 15;
-
-    // projectorCameraActor.position.x = 1.2;
-    // projectorCameraActor.position.y = 1.2;
-    // projectorCameraActor.position.z = 1.2;
-
-    // projectorCameraActor.lookAt = new Vector3(0, 0.5, 0);
-
-    // // prettier-ignore
-    // const textureMatrix = new Matrix4(
-    //   0.5, 0, 0, 0,
-    //   0, 0.5, 0, 0,
-    //   0, 0, 1, 0,
-    //   0.5, 0.5, 0, 1
-    // );
-    // const textureProjectionMatrix = Matrix4.multiplyMatrices(
-    //   textureMatrix,
-    //   projectorCameraActor.camera.projectionMatrix.clone(),
-    //   projectorCameraActor.camera.cameraMatrix.clone().inverse(),
-    // );
-
-    // cubeMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
-    //   textureProjectionMatrix;
-    // floorMeshActor.getMaterial().uniforms.uTextureProjectionMatrix.data =
-    //   textureProjectionMatrix;
-
-    // const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
-    //   perspectiveCamera.position,
-    //   new Vector3(0, 0, 0),
-    //   new Vector3(0, 1, 0),
-    // );
-    // perspectiveCamera.cameraMatrix = lookAtCameraMatrix;
 
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
@@ -779,42 +715,13 @@ const tick = (t) => {
       (actor) => actor.type === Engine.ActorType.LightActor,
     );
 
-    // const camera = perspectiveCameraActor.camera;
-
     gpu.flush();
-
-    // renderer.setRenderTarget(renderTarget);
-    // renderer.clear();
 
     renderer.renderScene({
       meshActors,
       lightActors,
       cameraActor: perspectiveCameraActor,
     });
-
-    // meshActors.forEach((meshActor, i) => {
-    //   // console.log(camera.cameraMatrix.clone());
-    //   // console.log(camera.cameraMatrix.clone());
-
-    //   renderer.render({
-    //     time,
-    //     deltaTime,
-    //     // geometry: meshActor.meshComponent.geometry,
-    //     // material: meshActor.meshComponent.material,
-    //     // modelMatrix: meshActor.worldTransform,
-    //     // viewMatrix: perspectiveCamera.cameraMatrix.clone().inverse(),
-    //     // projectionMatrix: perspectiveCamera.projectionMatrix,
-    //     // normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-    //     // cameraPosition: perspectiveCamera.cameraMatrix.getTranslationVector(),
-    //     geometry: meshActor.meshComponent.geometry,
-    //     material: meshActor.meshComponent.material,
-    //     modelMatrix: meshActor.worldTransform,
-    //     viewMatrix: camera.cameraMatrix.clone().inverse(),
-    //     projectionMatrix: camera.projectionMatrix,
-    //     normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
-    //     cameraPosition: camera.cameraMatrix.getTranslationVector(),
-    //   });
-    // });
   }
 
   beforeTime = time;

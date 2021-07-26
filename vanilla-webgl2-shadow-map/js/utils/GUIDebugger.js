@@ -31,6 +31,7 @@ export default class GUIDebugger {
       elem.style.right = '0';
       elem.style.color = 'white';
       elem.style.textAlign = 'right';
+      elem.style.fontSize = '9px';
       this.#rootElement = elem;
     }
   }
@@ -50,6 +51,8 @@ export default class GUIDebugger {
     const elem = document.createElement('div');
     const label = document.createElement('p');
     const input = document.createElement('input');
+
+    label.style.margin = '0.5em 0';
 
     input.type = 'range';
     input.min = min;
