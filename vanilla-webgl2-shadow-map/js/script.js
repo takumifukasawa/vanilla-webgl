@@ -81,6 +81,9 @@ const perspectiveCameraActor = new CameraActor({
         actor.position.x += (targetX - actor.position.x) * dumping;
         actor.position.y += (targetY - actor.position.y) * dumping;
         actor.position.z = 15;
+        actor.worldTransform = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(actor.position),
+        );
       },
     }),
   ],
