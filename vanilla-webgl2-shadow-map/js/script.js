@@ -21,6 +21,24 @@ import Renderer from './libs/Renderer.js';
 import RenderTarget from './libs/RenderTarget.js';
 import Engine from './libs/Engine.js';
 import OrthographicCamera from './libs/OrthographicCamera.js';
+import GUIDebugger from './utils/GUIDebugger.js';
+
+new GUIDebugger();
+
+const debugValues = {
+  depthBias: 0.01,
+};
+
+GUIDebugger.addRange({
+  name: 'depthBias',
+  min: -0.001,
+  max: -0.00001,
+  step: 0.00001,
+  initialValue: debugValues.depthBias,
+  onInput: (value) => {
+    debugValues.depthBias = value;
+  },
+});
 
 const wrapperElement = document.querySelector('.js-wrapper');
 const canvasElement = document.querySelector('.js-canvas');
@@ -439,6 +457,15 @@ const init = async () => {
     },
   };
 
+  const syncDebugValueComponent = new ScriptComponent({
+    updateFunc: ({ actor }) => {
+      const meshComponent = actor.findComponent(
+        Engine.ComponentType.MeshComponent,
+      );
+      meshComponent.material.uniforms.uDepthBias.data = debugValues.depthBias;
+    },
+  });
+
   // cube
 
   const cubeGeometry = new Geometry({
@@ -478,6 +505,7 @@ const init = async () => {
       geometry: cubeGeometry,
       material: cubeMaterial,
     }),
+    onEndUpdate: () => {},
   });
 
   cubeMeshActor.addComponent(
@@ -496,6 +524,7 @@ const init = async () => {
       },
     }),
   );
+  cubeMeshActor.addComponent(syncDebugValueComponent);
 
   actors.push(cubeMeshActor);
 

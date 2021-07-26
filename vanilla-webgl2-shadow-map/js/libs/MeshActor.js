@@ -2,8 +2,13 @@ import Actor from './Actor.js';
 import Engine from './Engine.js';
 
 export default class MeshActor extends Actor {
-  constructor({ name, meshComponent }) {
-    super({ name, type: Engine.ActorType.MeshActor });
+  constructor(args = {}) {
+    const { meshComponent, components = [] } = args;
+    super({
+      ...args,
+      type: Engine.ActorType.MeshActor,
+      components: [...components, meshComponent], // override
+    });
     this.meshComponent = meshComponent;
   }
   getMaterial() {

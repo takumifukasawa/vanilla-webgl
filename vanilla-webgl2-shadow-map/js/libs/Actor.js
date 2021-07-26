@@ -4,12 +4,28 @@ import Vector3 from './Vector3.js';
 
 export default class Actor {
   constructor(args = {}) {
-    const { name, type, components = [] } = args;
+    const {
+      name,
+      type,
+      components = [],
+      onBeginStart = () => {},
+      onEndStart = () => {},
+      onBeginUpdate = () => {},
+      onEndUpdate = () => {},
+      onBeginSetSize = () => {},
+      onEndSetSize = () => {},
+    } = args;
     this.name = name || '';
     this.type = type || Engine.ActorType.None;
     this.components = components || [];
     this.worldTransform = Matrix4.identity();
     this.position = Vector3.zero();
+    this.onBeginStart = onBeginStart;
+    this.onBeginUpdate = onBeginUpdate;
+    this.onBeginSetSize = onBeginSetSize;
+    this.onEndStart = onEndStart;
+    this.onEndUpdate = onEndUpdate;
+    this.onEndSetSize = onEndSetSize;
   }
   findComponent(type) {
     const component = this.components.find((component) => {
@@ -30,6 +46,7 @@ export default class Actor {
   //   }
   // }
   start({ time, deltaTime }) {
+    this.onBeginStart();
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
       if (!component.isStarted) {
@@ -37,17 +54,22 @@ export default class Actor {
         component.isStarted = true;
       }
     }
+    this.onEndStart();
   }
   update({ time, deltaTime }) {
+    this.onBeginUpdate();
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
       component.update({ actor: this, time, deltaTime });
     }
+    this.onEndUpdate();
   }
   setSize({ width, height }) {
+    this.onBeginSetSize();
     for (let i = 0; i < this.components.length; i++) {
       const component = this.components[i];
       component.setSize({ actor: this, width, height });
     }
+    this.onEndSetSize();
   }
 }
