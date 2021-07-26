@@ -708,13 +708,20 @@ const tick = (t) => {
       (actor) => actor.type === Engine.ActorType.LightActor,
     );
 
+    const cameraActors = actors.filter(
+      (actor) => actor.type === Engine.ActorType.CameraActor,
+    );
+
     gpu.flush();
 
-    renderer.renderScene({
-      meshActors,
-      lightActors,
-      cameraActor: perspectiveCameraActor,
-    });
+    for (let i = 0; i < cameraActors.length; i++) {
+      const cameraActor = cameraActors[i];
+      renderer.renderScene({
+        meshActors,
+        lightActors,
+        cameraActor,
+      });
+    }
   }
 
   beforeTime = time;
