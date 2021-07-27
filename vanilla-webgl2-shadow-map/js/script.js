@@ -26,6 +26,7 @@ new GUIDebugger();
 
 const debugValues = {
   depthBias: -0.00195,
+  shadowPerspectiveFov: 90,
   shadowPerspectiveAspect: 1,
 };
 
@@ -37,6 +38,17 @@ GUIDebugger.addRange({
   initialValue: debugValues.depthBias,
   onInput: (value) => {
     debugValues.depthBias = value;
+  },
+});
+
+GUIDebugger.addRange({
+  name: 'shadowPerspectiveFov',
+  min: 0.1,
+  max: 180,
+  step: 0.1,
+  initialValue: debugValues.shadowPerspectiveFov,
+  onInput: (value) => {
+    debugValues.shadowPerspectiveFov = value;
   },
 });
 
@@ -124,9 +136,11 @@ const lightActor = new LightActor({
         // lightActor.shadowCamera.orthographicSize = 4;
 
         // for point light
-        actor.shadowCamera.fov = 90;
+        actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
         actor.shadowCamera.nearClip = 0.5;
         actor.shadowCamera.farClip = 10;
+        actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
+        actor.shadowCamera.updateProjectionMatrix();
 
         actor.position.x = 4;
         actor.position.y = 4;
@@ -136,6 +150,7 @@ const lightActor = new LightActor({
         );
       },
       updateFunc: ({ actor }) => {
+        actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
         actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
         actor.shadowCamera.updateProjectionMatrix();
       },
@@ -304,6 +319,9 @@ void main() {
   vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
   float sceneDepth = projectionTextureColor.r;
 
+  float currentDepth = projectionUv.z;
+  float isShadow = (currentDepth + uDepthBias) >= sceneDepth ? 1. : 0.;
+
   float isRange =
     step(0., projectionUv.x) *
     (1. - step(1., projectionUv.x)) *
@@ -344,9 +362,6 @@ void main() {
   // vec3 lightToSurfaceWorldPosition = (worldPosition.xyz - uLight.position);
   // float distanceLtoP = length(lightToSurfaceWorldPosition) * (1. / (30. - 0.1));
 
-  float currentDepth = projectionUv.z;
-  float isShadow = (currentDepth + uDepthBias) >= sceneDepth ? 1. : 0.;
-
   // color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
   color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
 
@@ -361,11 +376,11 @@ void main() {
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
-  // color = mix(
-  //   vec3(1., 0., 0.),
-  //   vec3(0., 0., 1.),
-  //   isRange * isShadow
-  // );
+  color = mix(
+    vec3(1., 0., 0.),
+    vec3(0., 0., 1.),
+    isRange * isShadow
+  );
 
   outColor = vec4(color, 1.);
 }
