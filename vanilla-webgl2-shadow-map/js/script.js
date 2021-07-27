@@ -234,7 +234,18 @@ in vec4 vProjectionUv;
 
 out vec4 outColor;
 
-vec3 calcParallaxMappingNormal(
+vec3 calcNormalMapDir(
+  vec3 normal,
+  vec3 tangent,
+  vec3 binormal,
+  sampler2D normalMap,
+  vec2 uv
+) {
+  vec4 nt = texture(normalMap, uv) * 2. - 1.;
+  return normalize(mat3(tangent, binormal, normal) * nt.xyz);
+}
+
+vec3 calcParallaxMappingNormalDir(
   vec3 normal,
   vec3 tangent,
   vec3 binormal,
@@ -340,7 +351,15 @@ void main() {
   vec3 tangent = normalize(vTangent);
   vec3 binormal = normalize(vBinormal);
 
-  vec3 parallaxMappingNormal = calcParallaxMappingNormal(
+  vec3 normalMapDir = calcNormalMapDir(
+    normal,
+    tangent,
+    binormal,
+    uNormalMap,
+    vUv
+  );
+
+  vec3 parallaxMappingNormalDir = calcParallaxMappingNormalDir(
     normal,
     tangent,
     binormal,
@@ -352,7 +371,7 @@ void main() {
   );
 
   // blend normal
-  vec3 N = normalize(mix(normal, parallaxMappingNormal, .2));
+  vec3 N = normalize(mix(normalMapDir, parallaxMappingNormalDir, .2));
 
   float isShadow = calcShadow(uDepthMap, vProjectionUv);
 
@@ -383,11 +402,11 @@ void main() {
 
   // for debug
   // color = mix(envMapColor.rgb, raColor, reflectionRate);
-  color = mix(
-    vec3(1., 0., 0.),
-    vec3(0., 0., 1.),
-    isShadow
-  );
+  // color = mix(
+  //   vec3(1., 0., 0.),
+  //   vec3(0., 0., 1.),
+  //   isShadow
+  // );
 
   outColor = vec4(color, 1.);
 }
