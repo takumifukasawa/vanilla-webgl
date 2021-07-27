@@ -311,22 +311,27 @@ vec3 calcPointLight(
   return color;
 }
 
-void main() {
-  vec3 worldPosition = vWorldPosition.xyz;
-  vec3 cameraPosition = uCameraPosition;
-
-  vec3 projectionUv = vProjectionUv.xyz / vProjectionUv.w;
-  vec4 projectionTextureColor = texture(uDepthMap, projectionUv.xy);
+float calcShadow(sampler2D depthMap, vec4 shadowMapUv) {
+  vec3 projectionUv = shadowMapUv.xyz / shadowMapUv.w;
+  vec4 projectionTextureColor = texture(depthMap, projectionUv.xy);
   float sceneDepth = projectionTextureColor.r;
 
   float currentDepth = projectionUv.z;
-  float isShadow = (currentDepth + uDepthBias) >= sceneDepth ? 1. : 0.;
+  // float isShadow = (currentDepth + uDepthBias) >= sceneDepth ? 1. : 0.;
+  float isShadow = smoothstep(sceneDepth, currentDepth + uDepthBias, 1.);
 
   float isRange =
     step(0., projectionUv.x) *
     (1. - step(1., projectionUv.x)) *
     step(0., projectionUv.y) *
     (1. - step(1., projectionUv.y));
+
+  return isShadow * isRange;
+}
+
+void main() {
+  vec3 worldPosition = vWorldPosition.xyz;
+  vec3 cameraPosition = uCameraPosition;
 
   vec3 PtoE = normalize(cameraPosition - worldPosition);
   vec3 EtoP = -PtoE;
@@ -349,6 +354,8 @@ void main() {
   // blend normal
   vec3 N = normalize(mix(normal, parallaxMappingNormal, .2));
 
+  float isShadow = calcShadow(uDepthMap, vProjectionUv);
+
   vec3 cubeMapDir = reflect(EtoP, N);
   vec4 envMapColor = texture(uCubeMap, cubeMapDir);
 
@@ -365,7 +372,7 @@ void main() {
   // color += calcDirectionalLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
   color += calcPointLight(uLight, worldPosition, N, cameraPosition, diffuseColor, specularColor, 8.);
 
-  color = mix(color + environmentColor, environmentColor, isShadow * isRange);
+  color = mix(color + environmentColor, environmentColor, isShadow);
 
   // tmp
   // float eta = .67; // 物体の屈折率。ガラス(1 / 1.6)
@@ -379,7 +386,7 @@ void main() {
   color = mix(
     vec3(1., 0., 0.),
     vec3(0., 0., 1.),
-    isRange * isShadow
+    isShadow
   );
 
   outColor = vec4(color, 1.);
