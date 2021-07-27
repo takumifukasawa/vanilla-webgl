@@ -12,6 +12,7 @@ export default class LightActor extends Actor {
   #castShadow;
   #shadowMap;
   #shadowCamera;
+  #shadowCameraAspect;
 
   get castShadow() {
     return this.#castShadow;
@@ -52,11 +53,12 @@ export default class LightActor extends Actor {
     super.setSize({ width, height });
     if (this.#shadowCamera) {
       // TODO: aspect をパラメーター化
-      this.#shadowCamera.updateProjectionMatrix(1);
+      this.#shadowCamera.updateProjectionMatrix();
     }
   }
 
-  update() {
+  update({ time, deltaTime }) {
+    super.update({ time, deltaTime });
     if (this.#shadowCamera) {
       const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
         this.position,

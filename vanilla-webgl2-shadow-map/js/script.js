@@ -25,7 +25,8 @@ import GUIDebugger from './utils/GUIDebugger.js';
 new GUIDebugger();
 
 const debugValues = {
-  depthBias: -0.00009,
+  depthBias: -0.00195,
+  shadowPerspectiveAspect: 1,
 };
 
 GUIDebugger.addRange({
@@ -36,6 +37,17 @@ GUIDebugger.addRange({
   initialValue: debugValues.depthBias,
   onInput: (value) => {
     debugValues.depthBias = value;
+  },
+});
+
+GUIDebugger.addRange({
+  name: 'shadowPerspectiveAspect',
+  min: 0.1,
+  max: 10,
+  step: 0.01,
+  initialValue: debugValues.shadowPerspectiveAspect,
+  onInput: (value) => {
+    debugValues.shadowPerspectiveAspect = value;
   },
 });
 
@@ -107,22 +119,25 @@ const lightActor = new LightActor({
   shadowMapHeight: 1024,
   components: [
     new ScriptComponent({
-      startFunc: () => {
+      startFunc: ({ actor }) => {
         // for directional light
         // lightActor.shadowCamera.orthographicSize = 4;
 
         // for point light
-        lightActor.shadowCamera.fov = 90;
-        lightActor.shadowCamera.nearClip = 0.5;
-        lightActor.shadowCamera.farClip = 10;
-        // lightActor.shadowCamera.fixedAspect = 1;
+        actor.shadowCamera.fov = 90;
+        actor.shadowCamera.nearClip = 0.5;
+        actor.shadowCamera.farClip = 10;
 
-        lightActor.position.x = 4;
-        lightActor.position.y = 4;
-        lightActor.position.z = 4;
-        lightActor.worldTransform = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(lightActor.position),
+        actor.position.x = 4;
+        actor.position.y = 4;
+        actor.position.z = 4;
+        actor.worldTransform = Matrix4.multiplyMatrices(
+          Matrix4.createTranslationMatrix(actor.position),
         );
+      },
+      updateFunc: ({ actor }) => {
+        actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
+        actor.shadowCamera.updateProjectionMatrix();
       },
     }),
   ],
@@ -695,6 +710,11 @@ const tick = (t) => {
 
   // update
   {
+    actors.forEach((actor) => {
+      if (actor.type === Engine.ActorType.LightActor) {
+        // console.log('hoge');
+      }
+    });
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
 
