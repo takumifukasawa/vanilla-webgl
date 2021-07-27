@@ -151,7 +151,10 @@ const lightActor = new LightActor({
       },
       updateFunc: ({ actor }) => {
         actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
+
+        // for point light
         actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
+
         actor.shadowCamera.updateProjectionMatrix();
       },
     }),
@@ -213,7 +216,10 @@ struct PointLight {
   float attenuation;
 };
 
+// for directional light
 // uniform DirectionalLight uLight;
+
+// for point light
 uniform PointLight uLight;
 
 uniform vec3 uCameraPosition;
