@@ -26,6 +26,7 @@ new GUIDebugger();
 
 const debugValues = {
   depthBias: -0.00195,
+  normalBlendRate: 0.2,
   // for directional light
   shadowOrthographicSize: 4,
   // for point light
@@ -41,6 +42,17 @@ GUIDebugger.addRange({
   initialValue: debugValues.depthBias,
   onInput: (value) => {
     debugValues.depthBias = value;
+  },
+});
+
+GUIDebugger.addRange({
+  name: 'normalBlendRate',
+  min: 0,
+  max: 1,
+  step: 0.01,
+  initialValue: debugValues.normalBlendRate,
+  onInput: (value) => {
+    debugValues.normalBlendRate = value;
   },
 });
 
@@ -245,6 +257,7 @@ uniform samplerCube uCubeMap;
 uniform sampler2D uUvMap;
 uniform sampler2D uDepthMap;
 uniform float uDepthBias;
+uniform float uNormalBlendRate;
 
 in vec2 vUv;
 in vec4 vWorldPosition;
@@ -392,7 +405,7 @@ void main() {
   );
 
   // blend normal
-  vec3 N = normalize(mix(normalMapDir, parallaxMappingNormalDir, .2));
+  vec3 N = normalize(mix(normalMapDir, parallaxMappingNormalDir, uNormalBlendRate));
 
   float isShadow = calcShadow(uDepthMap, vProjectionUv);
 
@@ -521,6 +534,10 @@ const init = async () => {
       type: Engine.UniformType.Float,
       data: debugValues.depthBias,
     },
+    uNormalBlendRate: {
+      type: Engine.UniformType.Float,
+      data: debugValues.normalBlendRate,
+    },
   };
 
   const syncDebugValueComponent = new ScriptComponent({
@@ -529,6 +546,8 @@ const init = async () => {
         return;
       }
       actor.material.uniforms.uDepthBias.data = debugValues.depthBias;
+      actor.material.uniforms.uNormalBlendRate.data =
+        debugValues.normalBlendRate;
     },
   });
 
