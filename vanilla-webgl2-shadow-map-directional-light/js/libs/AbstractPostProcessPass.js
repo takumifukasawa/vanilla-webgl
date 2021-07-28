@@ -1,4 +1,4 @@
-import Engine from './Engine.js';
+import { AttributeType } from './Constants.js';
 import Geometry from './Geometry.js';
 import RenderTarget from './RenderTarget.js';
 
@@ -45,7 +45,7 @@ export default class AbstractPostProcessPass {
       gpu,
       attributes: [
         {
-          type: Engine.AttributeType.Position,
+          type: AttributeType.Position,
           // prettier-ignore
           data: [
             -1, -1, 0,
@@ -56,7 +56,7 @@ export default class AbstractPostProcessPass {
           stride: 3,
         },
         {
-          type: Engine.AttributeType.Uv,
+          type: AttributeType.Uv,
           // prettier-ignore
           data: [
             0, 0,

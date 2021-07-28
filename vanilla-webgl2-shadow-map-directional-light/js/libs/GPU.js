@@ -1,5 +1,5 @@
-import Engine from './Engine.js';
 import Texture from './Texture.js';
+import { PrimitiveType, UniformType } from './Constants.js';
 
 const createWhite1x1 = () => {
   const canvas = document.createElement('canvas');
@@ -105,9 +105,9 @@ export default class GPU {
     gl.useProgram(program);
 
     const primitives = {
-      [Engine.PrimitiveType.Points]: gl.POINTS,
-      [Engine.PrimitiveType.Lines]: gl.LINES,
-      [Engine.PrimitiveType.Triangles]: gl.TRIANGLES,
+      [PrimitiveType.Points]: gl.POINTS,
+      [PrimitiveType.Lines]: gl.LINES,
+      [PrimitiveType.Triangles]: gl.TRIANGLES,
     };
 
     gl.bindVertexArray(this.vao.glObject);
@@ -146,22 +146,22 @@ export default class GPU {
       const location = gl.getUniformLocation(program, name);
       // NOTE: add type
       switch (type) {
-        case Engine.UniformType.Float:
+        case UniformType.Float:
           gl.uniform1f(location, data);
           break;
-        case Engine.UniformType.Matrix4fv:
+        case UniformType.Matrix4fv:
           gl.uniformMatrix4fv(location, false, data.getArray());
           break;
-        case Engine.UniformType.Vector3f:
+        case UniformType.Vector3f:
           gl.uniform3fv(location, data.getArray());
           break;
-        case Engine.UniformType.Texture2D:
-        case Engine.UniformType.CubeMap:
+        case UniformType.Texture2D:
+        case UniformType.CubeMap:
           // TODO: textureが最大数よりも大きくなるときの対応が必要
           const texture = data ? data : this.dummyTexture.glObject;
           gl.activeTexture(textureUnits[activeTextureIndex]);
           gl.bindTexture(
-            type === Engine.UniformType.Texture2D
+            type === UniformType.Texture2D
               ? gl.TEXTURE_2D
               : gl.TEXTURE_CUBE_MAP,
             texture.glObject,

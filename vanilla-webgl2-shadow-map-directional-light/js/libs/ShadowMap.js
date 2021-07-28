@@ -1,4 +1,4 @@
-import Engine from './Engine.js';
+import { TextureType } from './Constants.js';
 import Framebuffer from './FrameBuffer.js';
 import Texture from './Texture.js';
 
@@ -30,7 +30,7 @@ export default class ShadowMap {
       gpu,
       width,
       height,
-      type: Engine.TextureType.Depth,
+      type: TextureType.Depth,
       mipmap: false,
     });
 

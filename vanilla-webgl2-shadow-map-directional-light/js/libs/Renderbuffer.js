@@ -1,4 +1,4 @@
-import Engine from './Engine.js';
+import { RenderbufferType } from './Constants.js';
 import GLObject from './GLObject.js';
 
 export default class Renderbuffer extends GLObject {
@@ -31,7 +31,7 @@ export default class Renderbuffer extends GLObject {
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.#renderbuffer);
 
-    if (this.#type === Engine.RenderbufferType.Depth) {
+    if (this.#type === RenderbufferType.Depth) {
       // render buffer を深度バッファに設定
       gl.renderbufferStorage(
         gl.RENDERBUFFER,
@@ -47,7 +47,7 @@ export default class Renderbuffer extends GLObject {
 
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.#renderbuffer);
 
-    if (this.#type === Engine.RenderbufferType.Depth) {
+    if (this.#type === RenderbufferType.Depth) {
       // render buffer を深度バッファに設定
       gl.renderbufferStorage(
         gl.RENDERBUFFER,

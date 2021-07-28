@@ -1,12 +1,12 @@
-import Engine from './Engine.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
+import { ActorType } from './Constants.js';
 
 export default class Actor {
   constructor(args = {}) {
     const { name, type, components = [] } = args;
     this.name = name || '';
-    this.type = type || Engine.ActorType.None;
+    this.type = type || ActorType.None;
     this.components = components || [];
     this.worldTransform = Matrix4.identity();
     this.position = Vector3.zero();

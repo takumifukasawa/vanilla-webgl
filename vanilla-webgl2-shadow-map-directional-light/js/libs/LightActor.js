@@ -1,6 +1,6 @@
 import Actor from './Actor.js';
 import ShadowMap from './ShadowMap.js';
-import Engine from './Engine.js';
+import { ActorType, LightType } from './Constants.js';
 import OrthographicCamera from './OrthographicCamera.js';
 import PerspectiveCamera from './PerspectiveCamera.js';
 import Matrix4 from './Matrix4.js';
@@ -27,7 +27,7 @@ export default class LightActor extends Actor {
   }
 
   constructor(args = {}) {
-    super({ ...args, type: Engine.ActorType.LightActor });
+    super({ ...args, type: ActorType.LightActor });
 
     const { gpu, light, castShadow, shadowMapWidth, shadowMapHeight } = args;
 
@@ -43,7 +43,7 @@ export default class LightActor extends Actor {
         height: shadowMapHeight,
       });
       this.#shadowCamera =
-        light.type === Engine.LightType.DirectionalLight
+        light.type === LightType.DirectionalLight
           ? new OrthographicCamera()
           : new PerspectiveCamera();
     }

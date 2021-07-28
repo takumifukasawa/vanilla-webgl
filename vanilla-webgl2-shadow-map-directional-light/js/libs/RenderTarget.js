@@ -1,4 +1,4 @@
-import Engine from './Engine.js';
+import { RenderbufferType } from './Constants.js';
 import Framebuffer from './FrameBuffer.js';
 import Renderbuffer from './Renderbuffer.js';
 import Texture from './Texture.js';
@@ -35,7 +35,7 @@ export default class RenderTarget {
         height,
         // width: 1,
         // height: 1,
-        type: Engine.RenderbufferType.Depth,
+        type: RenderbufferType.Depth,
       });
     }
 

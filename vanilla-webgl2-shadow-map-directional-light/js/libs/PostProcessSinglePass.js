@@ -1,7 +1,4 @@
-import GPU from './GPU.js';
-import Shader from './Shader.js';
-import Geometry from './Geometry.js';
-import Engine from './Engine.js';
+import { UniformType } from './Constants.js';
 import Material from './Material.js';
 import AbstractPostProcessPass from './AbstractPostProcessPass.js';
 
@@ -18,7 +15,7 @@ export default class PostProcessSinglePass extends AbstractPostProcessPass {
       uniforms: {
         ...(uniforms || {}),
         uSceneTexture: {
-          type: Engine.UniformType.Texture2D,
+          type: UniformType.Texture2D,
           data: null,
         },
       },

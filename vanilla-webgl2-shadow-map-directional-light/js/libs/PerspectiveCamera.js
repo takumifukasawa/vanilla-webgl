@@ -1,7 +1,6 @@
 import Camera from './Camera.js';
-import Engine from './Engine.js';
 import Matrix4 from './Matrix4.js';
-
+import { CameraType } from './Constants.js';
 export default class PerspectiveCamera extends Camera {
   fixedAspect;
 
@@ -12,7 +11,7 @@ export default class PerspectiveCamera extends Camera {
     farClip = 50,
     fixedAspect = null,
   ) {
-    super({ type: Engine.CameraType.PerspectiveCamera });
+    super({ type: CameraType.PerspectiveCamera });
     this.fov = fov;
     this.nearClip = nearClip;
     this.farClip = farClip;

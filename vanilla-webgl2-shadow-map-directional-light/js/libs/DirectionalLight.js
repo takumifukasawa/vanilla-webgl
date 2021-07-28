@@ -1,5 +1,4 @@
-import Engine from './Engine.js';
-import Vector3 from './Vector3.js';
+import { LightType } from './Constants.js';
 import Light from './Light.js';
 
 export default class DirectionalLight extends Light {
@@ -7,7 +6,7 @@ export default class DirectionalLight extends Light {
     super({
       color,
       intensity,
-      type: Engine.LightType.DirectionalLight,
+      type: LightType.DirectionalLight,
     });
   }
 }

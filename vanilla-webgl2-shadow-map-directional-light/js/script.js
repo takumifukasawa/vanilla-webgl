@@ -5,21 +5,24 @@ import Matrix4 from './libs/Matrix4.js';
 import Vector3 from './libs/Vector3.js';
 import MeshActor from './libs/MeshActor.js';
 import CameraActor from './libs/CameraActor.js';
-import MeshComponent from './libs/MeshComponent.js';
 import ScriptComponent from './libs/ScriptComponent.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
+import OrthographicCamera from './libs/OrthographicCamera.js';
 import loadObj from './libs/loadObj.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import PointLight from './libs/PointLight.js';
-// import PointLight from './libs/PointLight.js';
 import LightActor from './libs/LightActor.js';
 import loadImg from './utils/loadImg.js';
 import Texture from './libs/Texture.js';
 import CubeMap from './libs/CubeMap.js';
 import Attribute from './libs/Attribute.js';
 import Renderer from './libs/Renderer.js';
-import Engine from './libs/Engine.js';
-import OrthographicCamera from './libs/OrthographicCamera.js';
+import {
+  UniformType,
+  ActorType,
+  AttributeType,
+  PrimitiveType,
+} from './libs/Constants.js';
 import GUIDebugger from './utils/GUIDebugger.js';
 
 new GUIDebugger();
@@ -487,62 +490,62 @@ const init = async () => {
 
   const uniforms = {
     ['uLight.position']: {
-      type: Engine.UniformType.Vector3f,
+      type: UniformType.Vector3f,
       data: lightActor.position,
     },
     ['uLight.color']: {
-      type: Engine.UniformType.Vector3f,
+      type: UniformType.Vector3f,
       data: lightActor.light.color,
     },
     ['uLight.intensity']: {
-      type: Engine.UniformType.Float,
+      type: UniformType.Float,
       data: lightActor.light.intensity,
     },
     ['uLight.attenuation']: {
-      type: Engine.UniformType.Float,
+      type: UniformType.Float,
       data: lightActor.light.attenuation,
     },
     uBaseColorMap: {
-      type: Engine.UniformType.Texture2D,
+      type: UniformType.Texture2D,
       data: baseColorMapTexture,
     },
     uNormalMap: {
-      type: Engine.UniformType.Texture2D,
+      type: UniformType.Texture2D,
       data: normalMapTexture,
     },
     uHeightMap: {
-      type: Engine.UniformType.Texture2D,
+      type: UniformType.Texture2D,
       data: heightMapTexture,
     },
     uCubeMap: {
-      type: Engine.UniformType.CubeMap,
+      type: UniformType.CubeMap,
       data: cubeMapTexture,
     },
     uUvMap: {
-      type: Engine.UniformType.Texture2D,
+      type: UniformType.Texture2D,
       data: uvMapTexture,
     },
     uTextureProjectionMatrix: {
-      type: Engine.UniformType.Matrix4fv,
+      type: UniformType.Matrix4fv,
       data: Matrix4.identity(),
     },
     uDepthMap: {
-      type: Engine.UniformType.Texture2D,
+      type: UniformType.Texture2D,
       data: lightActor.shadowMap.depthTexture,
     },
     uDepthBias: {
-      type: Engine.UniformType.Float,
+      type: UniformType.Float,
       data: debugValues.depthBias,
     },
     uNormalBlendRate: {
-      type: Engine.UniformType.Float,
+      type: UniformType.Float,
       data: debugValues.normalBlendRate,
     },
   };
 
   const syncDebugValueComponent = new ScriptComponent({
     updateFunc: ({ actor }) => {
-      if (!actor.isType(Engine.ActorType.MeshActor)) {
+      if (!actor.isType(ActorType.MeshActor)) {
         return;
       }
       actor.material.uniforms.uDepthBias.data = debugValues.depthBias;
@@ -557,17 +560,17 @@ const init = async () => {
     gpu,
     attributes: [
       {
-        type: Engine.AttributeType.Position,
+        type: AttributeType.Position,
         data: cubeData.positions,
         stride: 3,
       },
       {
-        type: Engine.AttributeType.Uv,
+        type: AttributeType.Uv,
         data: cubeData.uvs,
         stride: 2,
       },
       {
-        type: Engine.AttributeType.Normal,
+        type: AttributeType.Normal,
         data: cubeData.normals,
         stride: 3,
       },
@@ -581,7 +584,7 @@ const init = async () => {
     vertexShader,
     fragmentShader,
     uniforms,
-    primitiveType: Engine.PrimitiveType.Triangle,
+    primitiveType: PrimitiveType.Triangle,
   });
 
   cubeMeshActor = new MeshActor({
@@ -615,17 +618,17 @@ const init = async () => {
     gpu,
     attributes: [
       {
-        type: Engine.AttributeType.Position,
+        type: AttributeType.Position,
         data: sphereData.positions,
         stride: 3,
       },
       {
-        type: Engine.AttributeType.Uv,
+        type: AttributeType.Uv,
         data: sphereData.uvs,
         stride: 2,
       },
       {
-        type: Engine.AttributeType.Normal,
+        type: AttributeType.Normal,
         data: sphereData.normals,
         stride: 3,
       },
@@ -639,7 +642,7 @@ const init = async () => {
     vertexShader,
     fragmentShader,
     uniforms,
-    primitiveType: Engine.PrimitiveType.Triangle,
+    primitiveType: PrimitiveType.Triangle,
   });
 
   sphereMeshActor = new MeshActor({
@@ -684,7 +687,7 @@ const init = async () => {
     gpu,
     attributes: [
       {
-        type: Engine.AttributeType.Position,
+        type: AttributeType.Position,
         // prettier-ignore
         data: [
           -1, -1, 0,
@@ -695,7 +698,7 @@ const init = async () => {
         stride: 3,
       },
       {
-        type: Engine.AttributeType.Uv,
+        type: AttributeType.Uv,
         // prettier-ignore
         data: [
           0, 0,
@@ -706,7 +709,7 @@ const init = async () => {
         stride: 2,
       },
       {
-        type: Engine.AttributeType.Normal,
+        type: AttributeType.Normal,
         data: floorNormals,
         stride: 3,
       },
@@ -721,7 +724,7 @@ const init = async () => {
     vertexShader,
     fragmentShader,
     uniforms,
-    primitiveType: Engine.PrimitiveType.Triangles,
+    primitiveType: PrimitiveType.Triangles,
   });
 
   floorMeshActor = new MeshActor({
@@ -792,7 +795,7 @@ const tick = (t) => {
   // update
   {
     actors.forEach((actor) => {
-      if (actor.type === Engine.ActorType.LightActor) {
+      if (actor.type === ActorType.LightActor) {
         // console.log('hoge');
       }
     });
@@ -802,15 +805,15 @@ const tick = (t) => {
   // render
   {
     const meshActors = actors.filter(
-      (actor) => actor.type === Engine.ActorType.MeshActor,
+      (actor) => actor.type === ActorType.MeshActor,
     );
 
     const lightActors = actors.filter(
-      (actor) => actor.type === Engine.ActorType.LightActor,
+      (actor) => actor.type === ActorType.LightActor,
     );
 
     const cameraActors = actors.filter(
-      (actor) => actor.type === Engine.ActorType.CameraActor,
+      (actor) => actor.type === ActorType.CameraActor,
     );
 
     gpu.flush();

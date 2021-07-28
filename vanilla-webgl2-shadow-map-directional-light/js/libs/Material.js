@@ -2,7 +2,12 @@ import GPU from './GPU.js';
 import Shader from './Shader.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
-import Engine from './Engine.js';
+import {
+  FaceType,
+  BlendType,
+  UniformType,
+  PrimitiveType,
+} from './Constants.js';
 
 // TODO:
 // - useUtilityUniforms 関連の処理は本当は Material 内に持たせたくない
@@ -56,7 +61,7 @@ export default class Material {
     primitiveType,
     transparent,
     blendType,
-    face = Engine.FaceType.Front,
+    face = FaceType.Front,
     depthTest = true,
     useUtilityUniforms = true,
   }) {
@@ -65,9 +70,9 @@ export default class Material {
       vertexShader,
       fragmentShader,
     });
-    this.#primitiveType = primitiveType || Engine.PrimitiveType.Triangles;
+    this.#primitiveType = primitiveType || PrimitiveType.Triangles;
     this.#transparent = !!transparent;
-    this.#blendType = Engine.BlendType.None;
+    this.#blendType = BlendType.None;
 
     if (this.#transparent && blendType) {
       this.#blendType = blendType;
@@ -84,27 +89,27 @@ export default class Material {
       ...(useUtilityUniforms
         ? {
             uModelMatrix: {
-              type: Engine.UniformType.Matrix4fv,
+              type: UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uInvModelMatrix: {
-              type: Engine.UniformType.Matrix4fv,
+              type: UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uViewMatrix: {
-              type: Engine.UniformType.Matrix4fv,
+              type: UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uProjectionMatrix: {
-              type: Engine.UniformType.Matrix4fv,
+              type: UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uNormalMatrix: {
-              type: Engine.UniformType.Matrix4fv,
+              type: UniformType.Matrix4fv,
               data: Matrix4.identity(),
             },
             uCameraPosition: {
-              type: Engine.UniformType.Vector3f,
+              type: UniformType.Vector3f,
               data: Vector3.one(),
             },
           }

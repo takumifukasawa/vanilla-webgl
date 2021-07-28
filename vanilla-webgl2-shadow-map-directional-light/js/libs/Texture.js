@@ -1,4 +1,4 @@
-import Engine from './Engine.js';
+import { TextureWrapType, TextureType } from './Constants.js';
 import GLObject from './GLObject.js';
 
 const createWhite1x1 = () => {
@@ -27,10 +27,10 @@ export default class Texture extends GLObject {
     width,
     height,
     mipmap = true,
-    wrapS = Engine.TextureWrapType.ClampToEdge,
-    wrapT = Engine.TextureWrapType.ClampToEdge,
+    wrapS = TextureWrapType.ClampToEdge,
+    wrapT = TextureWrapType.ClampToEdge,
     flipY = true,
-    type = Engine.TextureType.Rgba,
+    type = TextureType.Rgba,
   }) {
     super(gpu);
 
@@ -53,7 +53,7 @@ export default class Texture extends GLObject {
     }
 
     switch (type) {
-      case Engine.TextureType.Rgba:
+      case TextureType.Rgba:
         if (width && height) {
           // prettier-ignore
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.#img);
@@ -62,7 +62,7 @@ export default class Texture extends GLObject {
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.#img);
         }
         break;
-      case Engine.TextureType.Depth:
+      case TextureType.Depth:
         if (width && height) {
           // prettier-ignore
           gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT32F, width, height, 0, gl.DEPTH_COMPONENT, gl.FLOAT, this.#img);
@@ -79,30 +79,30 @@ export default class Texture extends GLObject {
     }
 
     switch (type) {
-      case Engine.TextureType.Rgba:
+      case TextureType.Rgba:
         // TODO: min filter, mag filter をパラメーターで渡す
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         break;
-      case Engine.TextureType.Depth:
+      case TextureType.Depth:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         break;
     }
 
     switch (wrapS) {
-      case Engine.TextureWrapType.Repeat:
+      case TextureWrapType.Repeat:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         break;
-      case Engine.TextureWrapType.ClampToEdge:
+      case TextureWrapType.ClampToEdge:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         break;
     }
     switch (wrapT) {
-      case Engine.TextureWrapType.Repeat:
+      case TextureWrapType.Repeat:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         break;
-      case Engine.TextureWrapType.ClampToEdge:
+      case TextureWrapType.ClampToEdge:
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         break;
     }

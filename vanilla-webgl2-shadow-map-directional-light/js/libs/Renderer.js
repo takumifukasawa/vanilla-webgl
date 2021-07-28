@@ -1,5 +1,4 @@
-import Engine from './Engine.js';
-import GPU from './GPU.js';
+import { FaceType, BlendType } from './Constants.js';
 import Material from './Material.js';
 import Matrix4 from './Matrix4.js';
 import Vector3 from './Vector3.js';
@@ -198,18 +197,18 @@ export default class Renderer {
 
     // culling
     switch (material.face) {
-      case Engine.FaceType.Front:
+      case FaceType.Front:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         break;
-      case Engine.FaceType.Back:
+      case FaceType.Back:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT);
         break;
-      case Engine.FaceType.DoubleSide:
+      case FaceType.DoubleSide:
         gl.disable(gl.CULL_FACE);
         break;
-      case Engine.FaceType.None:
+      case FaceType.None:
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.FRONT_AND_BACK);
         break;
@@ -221,7 +220,7 @@ export default class Renderer {
       gl.depthMask(false);
       gl.enable(gl.BLEND);
       switch (material.blendType) {
-        case Engine.BlendType.Alpha:
+        case BlendType.Alpha:
           gl.blendFuncSeparate(
             gl.SRC_ALPHA,
             gl.ONE_MINUS_SRC_ALPHA,
@@ -229,7 +228,7 @@ export default class Renderer {
             gl.ONE,
           );
           break;
-        case Engine.BlendType.Additive:
+        case BlendType.Additive:
           gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE, gl.ONE, gl.ONE);
           break;
         default:

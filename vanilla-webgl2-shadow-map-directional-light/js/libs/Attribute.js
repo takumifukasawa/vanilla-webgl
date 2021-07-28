@@ -1,5 +1,5 @@
-import Engine from './Engine.js';
 import Vector3 from './Vector3.js';
+import { AttributeType } from './Constants.js';
 
 export default class Attribute {
   constructor({ type, data, stride, location }) {
@@ -20,7 +20,7 @@ export default class Attribute {
       tangents.push(...t.getArray());
     }
     return {
-      type: Engine.AttributeType.Tangent,
+      type: AttributeType.Tangent,
       data: tangents,
       stride: 3,
     };
@@ -38,7 +38,7 @@ export default class Attribute {
       binormals.push(...b.getArray());
     }
     return {
-      type: Engine.AttributeType.Binormal,
+      type: AttributeType.Binormal,
       data: binormals,
       stride: 3,
     };
