@@ -8,8 +8,24 @@ export default class Actor {
   // #rotation;
   // #scale;
 
+  #type;
+  #name;
+  #components;
+
   // #worldTransform;
   #transform = new Transform();
+
+  get type() {
+    return this.#type;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  get components() {
+    return this.#components;
+  }
 
   get position() {
     return this.#transform.position;
@@ -29,9 +45,9 @@ export default class Actor {
 
   constructor(args = {}) {
     const { name, type, components = [] } = args;
-    this.name = name || '';
-    this.type = type || ActorType.None;
-    this.components = components || [];
+    this.#name = name || '';
+    this.#type = type || ActorType.None;
+    this.#components = components || [];
     // this.worldTransform = Matrix4.identity();
     // this.position = Vector3.zero();
   }
@@ -65,14 +81,14 @@ export default class Actor {
   }
 
   findComponent(type) {
-    const component = this.components.find((component) => {
+    const component = this.#components.find((component) => {
       return component.type === type;
     });
     return component || null;
   }
 
   addComponent(component) {
-    this.components.push(component);
+    this.#components.push(component);
   }
 
   // wip
@@ -86,25 +102,25 @@ export default class Actor {
   // }
 
   start({ time, deltaTime }) {
-    for (let i = 0; i < this.components.length; i++) {
-      const component = this.components[i];
+    for (let i = 0; i < this.#components.length; i++) {
+      const component = this.#components[i];
       if (!component.isStarted) {
         component.start({ actor: this, time, deltaTime });
-        component.isStarted = true;
+        component.setIsStarted(true);
       }
     }
   }
 
   update({ time, deltaTime }) {
-    for (let i = 0; i < this.components.length; i++) {
-      const component = this.components[i];
+    for (let i = 0; i < this.#components.length; i++) {
+      const component = this.#components[i];
       component.update({ actor: this, time, deltaTime });
     }
   }
 
   setSize({ width, height }) {
-    for (let i = 0; i < this.components.length; i++) {
-      const component = this.components[i];
+    for (let i = 0; i < this.#components.length; i++) {
+      const component = this.#components[i];
       component.setSize({ actor: this, width, height });
     }
   }
