@@ -5,6 +5,7 @@ import { ActorType, CameraType } from './Constants.js';
 
 export default class CameraActor extends Actor {
   #camera;
+  #lookAt;
   #renderTarget;
   #postProcess;
 
@@ -24,7 +25,7 @@ export default class CameraActor extends Actor {
     super({ ...args, type: ActorType.CameraActor });
     const { gpu, camera, lookAt, postProcess, renderTarget } = args;
     this.#camera = camera;
-    this.lookAt = lookAt || null;
+    this.#lookAt = lookAt || null;
     this.#postProcess = postProcess || null;
     this.#renderTarget = renderTarget;
   }
@@ -60,10 +61,10 @@ export default class CameraActor extends Actor {
 
   update({ time, deltaTime }) {
     super.update({ time, deltaTime });
-    if (this.lookAt) {
+    if (this.#lookAt) {
       const lookAtCameraMatrix = Matrix4.createLookAtCameraMatrix(
         this.position,
-        new Vector3(0, 0, 0),
+        this.#lookAt,
         new Vector3(0, 1, 0),
       );
       this.#camera.cameraMatrix = lookAtCameraMatrix;
