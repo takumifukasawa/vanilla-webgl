@@ -38,23 +38,30 @@ export default class PerspectiveCamera extends Camera {
   }
 
   setParams({ fov, nearClip, farClip, aspect }) {
-    this.#fov = fov;
-    this.#nearClip = nearClip;
-    this.#farClip = farClip;
-    this.#aspect = aspect;
-  }
-
-  // aspect: w / h
-  updateProjectionMatrix(aspect = null) {
+    if (fov) {
+      this.#fov = fov;
+    }
+    if (nearClip) {
+      this.#nearClip = nearClip;
+    }
+    if (farClip) {
+      this.#farClip = farClip;
+    }
     if (aspect) {
       this.#aspect = aspect;
     }
+  }
+
+  // aspect: w / h
+  updateProjectionMatrix(args = {}) {
+    if (args) {
+      this.setParams(args);
+    }
     this.projectionMatrix = Matrix4.getPerspectiveMatrix(
-      this.fov,
+      this.#fov,
       this.#aspect,
-      // this.#fixedAspect || aspect,
-      this.nearClip,
-      this.farClip,
+      this.#nearClip,
+      this.#farClip,
     );
   }
 }

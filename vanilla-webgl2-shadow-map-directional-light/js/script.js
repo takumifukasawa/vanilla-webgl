@@ -171,10 +171,9 @@ const lightActor = new LightActor({
       },
       updateFunc: ({ actor }) => {
         // for directional light
-        lightActor.shadowCamera.setParams({
+        actor.shadowCamera.updateProjectionMatrix({
           orthographicSize: debugValues.shadowOrthographicSize,
         });
-        actor.shadowCamera.updateProjectionMatrix();
       },
     }),
   ],

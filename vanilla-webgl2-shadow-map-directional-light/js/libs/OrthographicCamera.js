@@ -9,7 +9,6 @@ export default class OrthographicCamera extends Camera {
   #top;
   #nearClip;
   #farClip;
-  fixedAspect;
   #orthographicSize;
 
   get left() {
@@ -47,7 +46,6 @@ export default class OrthographicCamera extends Camera {
     top = 1,
     nearClip = 0.1,
     farClip = 50,
-    fixedAspect = null,
   ) {
     super({ type: CameraType.OrthographicCamera });
     this.#left = left;
@@ -56,38 +54,52 @@ export default class OrthographicCamera extends Camera {
     this.#top = top;
     this.#nearClip = nearClip;
     this.#farClip = farClip;
-    this.fixedAspect = fixedAspect;
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
     this.updateProjectionMatrix(this.left, this.right, this.bottom, this.top);
   }
 
-  setParams({ orthographicSize }) {
+  setParams({ left, right, bottom, top, orthographicSize }) {
+    if (left) {
+      this.#left = left;
+    }
+    if (right) {
+      this.#right = right;
+    }
+    if (bottom) {
+      this.#bottom = bottom;
+    }
+    if (top) {
+      this.#top = top;
+    }
     if (orthographicSize) {
       this.#orthographicSize = orthographicSize;
     }
   }
 
   // aspect: w / h
-  updateProjectionMatrix(left, right, bottom, top) {
+  updateProjectionMatrix(args = {}) {
+    if (args) {
+      this.setParams(args);
+    }
     if (this.#orthographicSize) {
       this.projectionMatrix = Matrix4.getOrthographicMatrix(
         -this.#orthographicSize,
         this.#orthographicSize,
         -this.#orthographicSize,
         this.#orthographicSize,
-        this.nearClip,
-        this.farClip,
+        this.#nearClip,
+        this.#farClip,
       );
       return;
     }
     this.projectionMatrix = Matrix4.getOrthographicMatrix(
-      left,
-      right,
-      bottom,
-      top,
-      this.nearClip,
-      this.farClip,
+      this.#left,
+      this.#right,
+      this.#bottom,
+      this.#top,
+      this.#nearClip,
+      this.#farClip,
     );
   }
 }

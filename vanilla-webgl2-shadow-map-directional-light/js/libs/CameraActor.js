@@ -27,17 +27,17 @@ export default class CameraActor extends Actor {
   setSize({ width, height }) {
     super.setSize({ width, height });
 
-    const aspect = this.camera.fixedAspect || width / height;
+    const aspect = this.camera.aspect || width / height;
 
     if (this.camera.type === CameraType.OrthographicCamera) {
-      this.camera.updateProjectionMatrix(
-        this.camera.left * aspect,
-        this.camera.right * aspect,
-        this.camera.bottom,
-        this.camera.top,
-      );
+      this.camera.updateProjectionMatrix({
+        left: this.camera.left * aspect,
+        right: this.camera.right * aspect,
+        bottom: this.camera.bottom,
+        top: this.camera.top,
+      });
     } else {
-      this.camera.updateProjectionMatrix(aspect);
+      this.camera.updateProjectionMatrix({ aspect });
     }
 
     if (this.#renderTarget) {
