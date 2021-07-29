@@ -27,9 +27,8 @@ export default class CameraActor extends Actor {
   setSize({ width, height }) {
     super.setSize({ width, height });
 
-    const aspect = this.camera.aspect || width / height;
-
     if (this.camera.type === CameraType.OrthographicCamera) {
+      const aspect = this.camera.aspect || width / height;
       this.camera.updateProjectionMatrix({
         left: this.camera.left * aspect,
         right: this.camera.right * aspect,
@@ -37,6 +36,7 @@ export default class CameraActor extends Actor {
         top: this.camera.top,
       });
     } else {
+      const aspect = width / height;
       this.camera.updateProjectionMatrix({ aspect });
     }
 

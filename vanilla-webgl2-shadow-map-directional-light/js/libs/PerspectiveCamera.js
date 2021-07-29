@@ -22,7 +22,7 @@ export default class PerspectiveCamera extends Camera {
     return this.#farClip;
   }
 
-  get aAspect() {
+  get aspect() {
     return this.#aspect;
   }
 
