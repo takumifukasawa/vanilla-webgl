@@ -3,14 +3,42 @@ import { CameraType } from './Constants.js';
 import Matrix4 from './Matrix4.js';
 
 export default class OrthographicCamera extends Camera {
-  left;
-  right;
-  bottom;
-  top;
-  nearClip;
-  farClip;
+  #left;
+  #right;
+  #bottom;
+  #top;
+  #nearClip;
+  #farClip;
   fixedAspect;
   #orthographicSize;
+
+  get left() {
+    return this.#left;
+  }
+
+  get right() {
+    return this.#right;
+  }
+
+  get bottom() {
+    return this.#bottom;
+  }
+
+  get top() {
+    return this.#top;
+  }
+
+  get nearClip() {
+    return this.#nearClip;
+  }
+
+  get farClip() {
+    return this.#farClip;
+  }
+
+  get orthographicSize() {
+    return this.#orthographicSize;
+  }
 
   constructor(
     left = -1,
@@ -22,12 +50,12 @@ export default class OrthographicCamera extends Camera {
     fixedAspect = null,
   ) {
     super({ type: CameraType.OrthographicCamera });
-    this.left = left;
-    this.right = right;
-    this.bottom = bottom;
-    this.top = top;
-    this.nearClip = nearClip;
-    this.farClip = farClip;
+    this.#left = left;
+    this.#right = right;
+    this.#bottom = bottom;
+    this.#top = top;
+    this.#nearClip = nearClip;
+    this.#farClip = farClip;
     this.fixedAspect = fixedAspect;
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();

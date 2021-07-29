@@ -178,8 +178,9 @@ const lightActor = new LightActor({
       },
       updateFunc: ({ actor }) => {
         // for directional light
-        lightActor.shadowCamera.orthographicSize =
-          debugValues.shadowOrthographicSize;
+        lightActor.shadowCamera.setParams({
+          orthographicSize: debugValues.shadowOrthographicSize,
+        });
 
         // for point light
         // actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
