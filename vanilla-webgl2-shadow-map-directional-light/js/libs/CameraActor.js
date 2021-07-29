@@ -4,8 +4,13 @@ import Actor from './Actor.js';
 import { ActorType, CameraType } from './Constants.js';
 
 export default class CameraActor extends Actor {
+  #camera;
   #renderTarget;
   #postProcess;
+
+  get camera() {
+    return this.#camera;
+  }
 
   get renderTarget() {
     return this.#renderTarget;
@@ -18,7 +23,7 @@ export default class CameraActor extends Actor {
   constructor(args = {}) {
     super({ ...args, type: ActorType.CameraActor });
     const { gpu, camera, lookAt, postProcess, renderTarget } = args;
-    this.camera = camera;
+    this.#camera = camera;
     this.lookAt = lookAt || null;
     this.#postProcess = postProcess || null;
     this.#renderTarget = renderTarget;
@@ -28,16 +33,16 @@ export default class CameraActor extends Actor {
     super.setSize({ width, height });
 
     if (this.camera.type === CameraType.OrthographicCamera) {
-      const aspect = this.camera.aspect || width / height;
-      this.camera.updateProjectionMatrix({
-        left: this.camera.left * aspect,
-        right: this.camera.right * aspect,
-        bottom: this.camera.bottom,
-        top: this.camera.top,
+      const aspect = this.#camera.aspect || width / height;
+      this.#camera.updateProjectionMatrix({
+        left: this.#camera.left * aspect,
+        right: this.#camera.right * aspect,
+        bottom: this.#camera.bottom,
+        top: this.#camera.top,
       });
     } else {
       const aspect = width / height;
-      this.camera.updateProjectionMatrix({ aspect });
+      this.#camera.updateProjectionMatrix({ aspect });
     }
 
     if (this.#renderTarget) {
@@ -49,6 +54,10 @@ export default class CameraActor extends Actor {
     }
   }
 
+  setLookAt(lookAtV) {
+    this.#lookAt = lookAtV;
+  }
+
   update({ time, deltaTime }) {
     super.update({ time, deltaTime });
     if (this.lookAt) {
@@ -57,7 +66,7 @@ export default class CameraActor extends Actor {
         new Vector3(0, 0, 0),
         new Vector3(0, 1, 0),
       );
-      this.camera.cameraMatrix = lookAtCameraMatrix;
+      this.#camera.cameraMatrix = lookAtCameraMatrix;
     }
   }
 }
