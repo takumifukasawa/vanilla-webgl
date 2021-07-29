@@ -132,12 +132,15 @@ const perspectiveCameraActor = new CameraActor({
         const targetX = w * states.mouseX;
         const targetY = h * states.mouseY;
 
-        actor.position.x += (targetX - actor.position.x) * dumping;
-        actor.position.y += (targetY - actor.position.y) * dumping;
-        actor.position.z = 15;
-        actor.worldTransform = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(actor.position),
+        const p = new Vector3(
+          actor.position.x + (targetX - actor.position.x) * dumping,
+          actor.position.y + (targetY - actor.position.y) * dumping,
+          15,
         );
+        actor.setPosition(p);
+        // actor.worldTransform = Matrix4.multiplyMatrices(
+        //   Matrix4.createTranslationMatrix(actor.position),
+        // );
       },
     }),
   ],
@@ -162,12 +165,10 @@ const lightActor = new LightActor({
   components: [
     new ScriptComponent({
       startFunc: ({ actor }) => {
-        actor.position.x = 4;
-        actor.position.y = 4;
-        actor.position.z = 4;
-        actor.worldTransform = Matrix4.multiplyMatrices(
-          Matrix4.createTranslationMatrix(actor.position),
-        );
+        actor.setPosition(new Vector3(4, 4, 4));
+        // actor.worldTransform = Matrix4.multiplyMatrices(
+        //   Matrix4.createTranslationMatrix(actor.position),
+        // );
       },
       updateFunc: ({ actor }) => {
         // for directional light
@@ -531,14 +532,24 @@ const init = async () => {
     },
   };
 
-  const syncDebugValueComponent = new ScriptComponent({
+  const syncValueComponent = new ScriptComponent({
     updateFunc: ({ actor }) => {
+      // NOTE: 多分いらない
       if (!actor.isType(ActorType.MeshActor)) {
         return;
       }
+
       actor.material.uniforms.uDepthBias.data = debugValues.depthBias;
       actor.material.uniforms.uNormalBlendRate.data =
         debugValues.normalBlendRate;
+
+      // TODO: renderer側で更新したい
+      actor.material.uniforms['uLight.position'].data = lightActor.position;
+      actor.material.uniforms['uLight.color'].data = lightActor.light.color;
+      actor.material.uniforms['uLight.intensity'].data =
+        lightActor.light.intensity;
+      actor.material.uniforms['uLight.attenuation'].data =
+        lightActor.light.attenuation;
     },
   });
 
@@ -588,13 +599,11 @@ const init = async () => {
           //   Matrix4.createRotationZMatrix(time * 0.5),
           // );
           // actor.worldTransform = t;
-          const t = Matrix4.multiplyMatrices(
-            Matrix4.createTranslationMatrix(new Vector3(-1, 0, 0)),
-          );
-          actor.worldTransform = t;
+          actor.setPosition(new Vector3(-1, 0, 0));
+          // actor.worldTransform = t;
         },
       }),
-      syncDebugValueComponent.clone(),
+      syncValueComponent.clone(),
     ],
   });
 
@@ -640,13 +649,14 @@ const init = async () => {
     components: [
       new ScriptComponent({
         updateFunc: function ({ actor, time, deltaTime }) {
-          const t = Matrix4.multiplyMatrices(
-            Matrix4.createTranslationMatrix(new Vector3(1.5, 1, 1)),
-          );
-          actor.worldTransform = t;
+          // const t = Matrix4.multiplyMatrices(
+          //   Matrix4.createTranslationMatrix(new Vector3(1.5, 1, 1)),
+          // );
+          // actor.worldTransform = t;
+          actor.setPosition(new Vector3(1.5, 1, 1));
         },
       }),
-      syncDebugValueComponent.clone(),
+      syncValueComponent.clone(),
     ],
   });
 
@@ -722,15 +732,18 @@ const init = async () => {
     components: [
       new ScriptComponent({
         updateFunc: function ({ actor, time, deltaTime }) {
-          const t = Matrix4.multiplyMatrices(
-            Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
-            Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
-            Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
-          );
-          actor.worldTransform = t;
+          // const t = Matrix4.multiplyMatrices(
+          //   Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
+          //   Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
+          //   Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
+          // );
+          // actor.worldTransform = t;
+          actor.setPosition(new Vector3(0, -1, 0));
+          actor.setRotationX((90 * Math.PI) / 180);
+          actor.setScale(new Vector3(4, 4, 4));
         },
       }),
-      syncDebugValueComponent.clone(),
+      syncValueComponent.clone(),
     ],
   });
 

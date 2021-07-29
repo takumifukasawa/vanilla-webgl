@@ -106,7 +106,7 @@ export default class Renderer {
           const material = this.#depthMaterial;
           if (material.useUtilityUniforms) {
             material.updateUniforms({
-              modelMatrix: meshActor.worldTransform,
+              modelMatrix: meshActor.transform.modelMatrix,
               // prettier-ignore
               viewMatrix: lightActor.shadowCamera.cameraMatrix.clone().inverse(),
               // prettier-ignore
@@ -139,10 +139,13 @@ export default class Renderer {
 
       if (material.useUtilityUniforms) {
         material.updateUniforms({
-          modelMatrix: meshActor.worldTransform,
+          modelMatrix: meshActor.transform.modelMatrix,
           viewMatrix: camera.cameraMatrix.clone().inverse(),
           projectionMatrix: camera.projectionMatrix,
-          normalMatrix: meshActor.worldTransform.clone().inverse().transpose(),
+          normalMatrix: meshActor.transform.modelMatrix
+            .clone()
+            .inverse()
+            .transpose(),
           cameraPosition: camera.cameraMatrix.getTranslationVector(),
         });
       }
