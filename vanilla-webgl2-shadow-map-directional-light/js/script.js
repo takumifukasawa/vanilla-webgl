@@ -162,13 +162,6 @@ const lightActor = new LightActor({
   components: [
     new ScriptComponent({
       startFunc: ({ actor }) => {
-        // for point light
-        // actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
-        // actor.shadowCamera.nearClip = 0.5;
-        // actor.shadowCamera.farClip = 10;
-        // actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
-        // actor.shadowCamera.updateProjectionMatrix();
-
         actor.position.x = 4;
         actor.position.y = 4;
         actor.position.z = 4;
@@ -181,11 +174,6 @@ const lightActor = new LightActor({
         lightActor.shadowCamera.setParams({
           orthographicSize: debugValues.shadowOrthographicSize,
         });
-
-        // for point light
-        // actor.shadowCamera.fov = debugValues.shadowPerspectiveFov;
-        // actor.shadowCamera.fixedAspect = debugValues.shadowPerspectiveAspect;
-
         actor.shadowCamera.updateProjectionMatrix();
       },
     }),
