@@ -5,7 +5,7 @@ import { ActorType, CameraType } from './Constants.js';
 
 export default class CameraActor extends Actor {
   #camera;
-  #lookAt;
+  #lookAt = Vector3.zero();
   #renderTarget;
   #postProcess;
 
@@ -23,10 +23,9 @@ export default class CameraActor extends Actor {
 
   constructor(args = {}) {
     super({ ...args, type: ActorType.CameraActor });
-    const { gpu, camera, lookAt, postProcess, renderTarget } = args;
+    const { gpu, camera, postProcess, renderTarget } = args;
     this.#camera = camera;
-    this.#lookAt = lookAt || null;
-    this.#postProcess = postProcess || null;
+    this.#postProcess = postProcess;
     this.#renderTarget = renderTarget;
   }
 

@@ -122,7 +122,6 @@ const renderer = new Renderer({ gpu });
 
 const perspectiveCameraActor = new CameraActor({
   camera: new PerspectiveCamera(0.5, 1, 0.1, 30),
-  lookAt: Vector3.zero(),
   components: [
     new ScriptComponent({
       updateFunc: ({ actor }) => {
@@ -145,6 +144,7 @@ const perspectiveCameraActor = new CameraActor({
     }),
   ],
 });
+perspectiveCameraActor.setLookAt(new Vector3(0, 0.5, 0));
 
 actors.push(perspectiveCameraActor);
 
