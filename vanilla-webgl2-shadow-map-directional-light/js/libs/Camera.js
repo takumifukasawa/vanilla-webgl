@@ -4,7 +4,7 @@ import Vector3 from './Vector3.js';
 export default class Camera {
   type;
 
-  constructor({ type, renderTarget }) {
+  constructor({ type }) {
     this.type = type;
     this.cameraMatrix = Matrix4.identity();
     this.projectionMatrix = Matrix4.identity();
