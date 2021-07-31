@@ -5,6 +5,7 @@ export default class Transform {
   #position;
   #rotation;
   #scale;
+  #modelMatrix = Matrix4.identity;
 
   get matrix() {}
 
@@ -21,13 +22,7 @@ export default class Transform {
   }
 
   get modelMatrix() {
-    return Matrix4.multiplyMatrices(
-      Matrix4.createTranslationMatrix(this.#position),
-      Matrix4.createRotationZMatrix(this.#rotation.z),
-      Matrix4.createRotationXMatrix(this.#rotation.x),
-      Matrix4.createRotationYMatrix(this.#rotation.y),
-      Matrix4.createScalingMatrix(this.#scale),
-    );
+    return this.#modelMatrix;
   }
 
   // TODO: quaternionのことを考えると rotation は rotator 的なクラスにしたほうがよい。
@@ -64,5 +59,15 @@ export default class Transform {
 
   setScale(scale) {
     this.#scale = scale;
+  }
+
+  updateModelMatrix() {
+    this.#modelMatrix = Matrix4.multiplyMatrices(
+      Matrix4.createTranslationMatrix(this.#position),
+      Matrix4.createRotationZMatrix(this.#rotation.z),
+      Matrix4.createRotationXMatrix(this.#rotation.x),
+      Matrix4.createRotationYMatrix(this.#rotation.y),
+      Matrix4.createScalingMatrix(this.#scale),
+    );
   }
 }

@@ -803,6 +803,14 @@ const tick = (t) => {
     actors.forEach((actor) => actor.update({ time, deltaTime }));
   }
 
+  // before render for update matrix etc...
+  {
+    actors.forEach((actor) => {
+      if (actor.type !== ActorType.MeshActor) return;
+      actor.transform.updateModelMatrix();
+    });
+  }
+
   // render
   {
     const meshActors = actors.filter(
