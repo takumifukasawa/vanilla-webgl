@@ -806,7 +806,6 @@ const tick = (t) => {
   // before render for update matrix etc...
   {
     actors.forEach((actor) => {
-      if (actor.type !== ActorType.MeshActor) return;
       actor.transform.updateModelMatrix();
     });
   }
