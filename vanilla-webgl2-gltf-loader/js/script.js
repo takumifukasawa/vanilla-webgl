@@ -9,6 +9,7 @@ import ScriptComponent from './libs/ScriptComponent.js';
 import PerspectiveCamera from './libs/PerspectiveCamera.js';
 import OrthographicCamera from './libs/OrthographicCamera.js';
 import loadObj from './libs/loadObj.js';
+import loadGLTF from './libs/loadGLTF.js';
 import DirectionalLight from './libs/DirectionalLight.js';
 import PointLight from './libs/PointLight.js';
 import LightActor from './libs/LightActor.js';
@@ -442,6 +443,13 @@ const init = async () => {
   const cubeData = await loadObj('./model/cube.obj');
   const sphereData = await loadObj('./model/sphere-32x32.obj');
 
+  const gltfData = await loadGLTF(
+    './model/plane-primitive.gltf',
+    './model/plane-primitive.bin',
+  );
+  console.log('gltfData', gltfData);
+  // return;
+
   const [
     uvMapImg,
     baseColorMapImg,
@@ -558,21 +566,21 @@ const init = async () => {
   const cubeGeometry = new Geometry({
     gpu,
     attributes: [
-      {
+      new Attribute({
         type: AttributeType.Position,
         data: cubeData.positions,
         stride: 3,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Uv,
         data: cubeData.uvs,
         stride: 2,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Normal,
         data: cubeData.normals,
         stride: 3,
-      },
+      }),
       Attribute.createTangent(cubeData.normals),
       Attribute.createBinormal(cubeData.normals),
     ],
@@ -614,21 +622,21 @@ const init = async () => {
   const sphereGeometry = new Geometry({
     gpu,
     attributes: [
-      {
+      new Attribute({
         type: AttributeType.Position,
         data: sphereData.positions,
         stride: 3,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Uv,
         data: sphereData.uvs,
         stride: 2,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Normal,
         data: sphereData.normals,
         stride: 3,
-      },
+      }),
       Attribute.createTangent(sphereData.normals),
       Attribute.createBinormal(sphereData.normals),
     ],
@@ -684,7 +692,7 @@ const init = async () => {
   const floorGeometry = new Geometry({
     gpu,
     attributes: [
-      {
+      new Attribute({
         type: AttributeType.Position,
         // prettier-ignore
         data: [
@@ -694,8 +702,8 @@ const init = async () => {
           -1, 1, 0,
         ],
         stride: 3,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Uv,
         // prettier-ignore
         data: [
@@ -705,12 +713,12 @@ const init = async () => {
           0, 1,
         ],
         stride: 2,
-      },
-      {
+      }),
+      new Attribute({
         type: AttributeType.Normal,
         data: floorNormals,
         stride: 3,
-      },
+      }),
       Attribute.createTangent(floorNormals),
       Attribute.createBinormal(floorNormals),
     ],
