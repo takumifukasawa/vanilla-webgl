@@ -2,6 +2,11 @@ import Geometry from './Geometry.js';
 import Attribute from './Attribute.js';
 import { AttributeType } from './Constants.js';
 
+// -------------------------------------------------------------------
+// ref:
+// https://www.khronos.org/files/gltf20-reference-guide.pdf
+// -------------------------------------------------------------------
+
 export default async function loadGLTF(gpu, gltfPath, binPath) {
   const gl = gpu.gl;
 
@@ -16,7 +21,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
   // for debug
   // console.log(json);
 
-  // component type は gl の format と値が同じ
+  // accessor の component type は gl の format と値が同じ
   // console.log('gl.BYTE', gl.BYTE); // 5120
   // console.log('gl.UNSIGNED_BYTE', gl.UNSIGNED_BYTE); // 5121
   // console.log('gl.SHORT', gl.SHORT); // 5122
@@ -26,7 +31,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
   // console.log('gl.FLOAT', gl.FLOAT); // 5126
 
   // mesh は一個想定なので固定index
-  const primitiveIds = [];
+  const attributeTypes = [];
   const primitive = meshes[0].primitives[0];
   Object.keys(primitive.attributes).forEach((key) => {
     let type = '';
@@ -43,12 +48,13 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
       default:
         throw 'invalid primitive type';
     }
-    primitiveIds[primitive.attributes[key]] = type;
+    attributeTypes[primitive.attributes[key]] = type;
   });
-  primitiveIds[primitive.indices] = 'INDICES';
+  // indexとわかる用の適当な名前を割り当て
+  attributeTypes[primitive.indices] = 'INDICES';
 
   const attributes = [];
-  let indices = [];
+  let indices;
 
   for (let i = 0; i < accessors.length; i++) {
     const accessor = accessors[i];
@@ -60,7 +66,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
       bufferViewData.byteOffset + bufferViewData.byteLength,
     );
 
-    const attributeType = primitiveIds[i];
+    const attributeType = attributeTypes[i];
 
     let data;
     switch (accessor.componentType) {
@@ -79,7 +85,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
       continue;
     }
 
-    // NOTE: location の順番をを揃えるため明示的に指定
+    // NOTE: location の順番を揃えるため明示的に指定
     let stride;
     let location;
     switch (attributeType) {
