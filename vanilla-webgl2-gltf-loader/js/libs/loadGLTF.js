@@ -13,10 +13,10 @@ import { AttributeType } from './Constants.js';
 // - skinnedmesh未対応
 // -------------------------------------------------------------------
 
-export default async function loadGLTF(gpu, gltfPath) {
+export default async function loadGLTF({ gpu, path }) {
   const gl = gpu.gl;
 
-  const gltfResponse = await fetch(gltfPath);
+  const gltfResponse = await fetch(path);
 
   const json = await gltfResponse.json();
 
@@ -146,5 +146,5 @@ export default async function loadGLTF(gpu, gltfPath) {
     indices,
   });
 
-  return geometry;
+  return { geometry };
 }

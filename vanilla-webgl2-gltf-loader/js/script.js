@@ -444,7 +444,7 @@ const init = async () => {
   const cubeData = await loadObj('./model/cube.obj');
   const sphereData = await loadObj('./model/sphere-32x32.obj');
 
-  const gltfData = await loadGLTF({
+  const { geometry: gltfData } = await loadGLTF({
     gpu,
     path: './model/plane-primitive-embedded.gltf',
   });
