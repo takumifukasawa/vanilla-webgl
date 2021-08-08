@@ -22,7 +22,7 @@ export const ComponentType = {
 export const AttributeType = {
   Position: 'Position',
   Normal: 'Normal',
-  Uv: 'UV',
+  Uv: 'Uv',
   Tangent: 'Tangent',
   Binormal: 'Binormal',
 };

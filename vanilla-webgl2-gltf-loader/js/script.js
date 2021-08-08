@@ -434,6 +434,7 @@ void main() {
   //   vec3(0., 0., 1.),
   //   isShadow
   // );
+  // outColor = vec4(vUv, 1, 1);
 
   outColor = vec4(color, 1.);
 }
@@ -444,11 +445,10 @@ const init = async () => {
   const sphereData = await loadObj('./model/sphere-32x32.obj');
 
   const gltfData = await loadGLTF(
+    gpu,
     './model/plane-primitive.gltf',
     './model/plane-primitive.bin',
   );
-  console.log('gltfData', gltfData);
-  // return;
 
   const [
     uvMapImg,
@@ -689,41 +689,42 @@ const init = async () => {
     0, 0, 1,
   ];
 
-  const floorGeometry = new Geometry({
-    gpu,
-    attributes: [
-      new Attribute({
-        type: AttributeType.Position,
-        // prettier-ignore
-        data: [
-          -1, -1, 0,
-          1, -1, 0,
-          1, 1, 0,
-          -1, 1, 0,
-        ],
-        stride: 3,
-      }),
-      new Attribute({
-        type: AttributeType.Uv,
-        // prettier-ignore
-        data: [
-          0, 0,
-          1, 0,
-          1, 1,
-          0, 1,
-        ],
-        stride: 2,
-      }),
-      new Attribute({
-        type: AttributeType.Normal,
-        data: floorNormals,
-        stride: 3,
-      }),
-      Attribute.createTangent(floorNormals),
-      Attribute.createBinormal(floorNormals),
-    ],
-    indices: [0, 1, 2, 0, 2, 3],
-  });
+  // const floorGeometry = new Geometry({
+  //   gpu,
+  //   attributes: [
+  //     new Attribute({
+  //       type: AttributeType.Position,
+  //       // prettier-ignore
+  //       data: [
+  //         -1, -1, 0,
+  //         1, -1, 0,
+  //         1, 1, 0,
+  //         -1, 1, 0,
+  //       ],
+  //       stride: 3,
+  //     }),
+  //     new Attribute({
+  //       type: AttributeType.Uv,
+  //       // prettier-ignore
+  //       data: [
+  //         0, 0,
+  //         1, 0,
+  //         1, 1,
+  //         0, 1,
+  //       ],
+  //       stride: 2,
+  //     }),
+  //     new Attribute({
+  //       type: AttributeType.Normal,
+  //       data: floorNormals,
+  //       stride: 3,
+  //     }),
+  //     Attribute.createTangent(floorNormals),
+  //     Attribute.createBinormal(floorNormals),
+  //   ],
+  //   indices: [0, 1, 2, 0, 2, 3],
+  // });
+  const floorGeometry = gltfData;
 
   const floorMaterial = new Material({
     gpu,
@@ -747,7 +748,6 @@ const init = async () => {
           // );
           // actor.worldTransform = t;
           actor.setPosition(new Vector3(0, -1, 0));
-          actor.setRotationX((90 * Math.PI) / 180);
           actor.setScale(new Vector3(4, 4, 4));
         },
       }),
