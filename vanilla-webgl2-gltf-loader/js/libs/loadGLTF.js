@@ -5,21 +5,27 @@ import { AttributeType } from './Constants.js';
 // -------------------------------------------------------------------
 // ref:
 // https://www.khronos.org/files/gltf20-reference-guide.pdf
+//
+// - gltf embed 想定
+// - position, normal, uv, indices を検知
+// - meshは一個想定
+// - 複数UV未対応
+// - skinnedmesh未対応
 // -------------------------------------------------------------------
 
-export default async function loadGLTF(gpu, gltfPath, binPath) {
+export default async function loadGLTF(gpu, gltfPath) {
   const gl = gpu.gl;
 
   const gltfResponse = await fetch(gltfPath);
-  const binResponse = await fetch(binPath);
 
-  const binBufferData = await binResponse.arrayBuffer();
   const json = await gltfResponse.json();
 
-  const { accessors, meshes, bufferViews } = json;
+  // mesh は一個想定なので固定index
+  const binResponse = await fetch(json.buffers[0].uri);
 
-  // for debug
-  // console.log(json);
+  const binBufferData = await binResponse.arrayBuffer();
+
+  const { accessors, meshes, bufferViews } = json;
 
   // accessor の component type は gl の format と値が同じ
   // console.log('gl.BYTE', gl.BYTE); // 5120
@@ -61,6 +67,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
 
     const bufferViewData = bufferViews[accessor.bufferView];
 
+    // attribute,indexごとにデータを分けるためbufferをslice
     const slicedBufferData = binBufferData.slice(
       bufferViewData.byteOffset,
       bufferViewData.byteOffset + bufferViewData.byteLength,
@@ -68,6 +75,7 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
 
     const attributeType = attributeTypes[i];
 
+    // attribute,indexの型別にsliceされたデータを typed array に突っ込む
     let data;
     switch (accessor.componentType) {
       case gl.UNSIGNED_SHORT:
@@ -80,12 +88,17 @@ export default async function loadGLTF(gpu, gltfPath, binPath) {
         throw 'invalid component type';
     }
 
+    // indexだったらattributeを作成しないため
     if (attributeType === 'INDICES') {
       indices = data;
       continue;
     }
 
-    // NOTE: location の順番を揃えるため明示的に指定
+    // locationの順番を揃えるため明示的に指定. attributeはこの順番のlocationにする
+    // - position
+    // - uv
+    // - normal
+    // シェーダーのlayoutの順番と揃っている必要があることに注意
     let stride;
     let location;
     switch (attributeType) {

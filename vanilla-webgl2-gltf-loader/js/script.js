@@ -444,11 +444,10 @@ const init = async () => {
   const cubeData = await loadObj('./model/cube.obj');
   const sphereData = await loadObj('./model/sphere-32x32.obj');
 
-  const gltfData = await loadGLTF(
+  const gltfData = await loadGLTF({
     gpu,
-    './model/plane-primitive.gltf',
-    './model/plane-primitive.bin',
-  );
+    path: './model/plane-primitive-embedded.gltf',
+  });
 
   const [
     uvMapImg,
