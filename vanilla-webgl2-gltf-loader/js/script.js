@@ -117,7 +117,6 @@ let deltaTime = 0;
 
 let cubeMeshActor;
 let sphereMeshActor;
-let monkeyMeshActor;
 let floorMeshActor;
 
 const renderer = new Renderer({ gpu });
@@ -447,12 +446,8 @@ const init = async () => {
 
   const { geometry: gltfPlaneGeometry } = await loadGLTF({
     gpu,
-    path: './model/plane-primitive-embedded.gltf',
-  });
-
-  const { geometry: gltfMonkeyGeometry } = await loadGLTF({
-    gpu,
-    path: './model/monkey-embedded.gltf',
+    gltfPath: './model/plane-primitive.gltf',
+    binPath: './model/plane-primitive.bin',
   });
 
   const [
@@ -674,41 +669,6 @@ const init = async () => {
   });
 
   actors.push(sphereMeshActor);
-
-  // monkey
-
-  const monkeyGeometry = gltfMonkeyGeometry;
-
-  const monkeyMaterial = new Material({
-    gpu,
-    vertexShader,
-    fragmentShader,
-    uniforms,
-    primitiveType: PrimitiveType.Triangles,
-  });
-
-  monkeyMeshActor = new MeshActor({
-    name: 'monkey',
-    geometry: monkeyGeometry,
-    material: monkeyMaterial,
-    components: [
-      new ScriptComponent({
-        updateFunc: function ({ actor, time, deltaTime }) {
-          // const t = Matrix4.multiplyMatrices(
-          //   Matrix4.createTranslationMatrix(new Vector3(0, -1, 0)),
-          //   Matrix4.createRotationXMatrix((90 * Math.PI) / 180),
-          //   Matrix4.createScalingMatrix(new Vector3(4, 4, 4)),
-          // );
-          // actor.worldTransform = t;
-          actor.setPosition(new Vector3(0, 0, 3));
-          actor.setScale(new Vector3(1, 1, 1));
-        },
-      }),
-      syncValueComponent.clone(),
-    ],
-  });
-
-  actors.push(monkeyMeshActor);
 
   //
   // plane vertex positions

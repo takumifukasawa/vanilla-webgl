@@ -13,15 +13,14 @@ import { AttributeType } from './Constants.js';
 // - skinnedmesh未対応
 // -------------------------------------------------------------------
 
-export default async function loadGLTF({ gpu, path }) {
+export default async function loadGLTF({ gpu, gltfPath, binPath }) {
   const gl = gpu.gl;
 
-  const gltfResponse = await fetch(path);
+  const gltfResponse = await fetch(gltfPath);
 
   const json = await gltfResponse.json();
 
-  // mesh は一個想定なので固定index
-  const binResponse = await fetch(json.buffers[0].uri);
+  const binResponse = await fetch(binPath);
 
   const binBufferData = await binResponse.arrayBuffer();
 
