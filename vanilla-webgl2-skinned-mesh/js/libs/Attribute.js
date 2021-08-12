@@ -3,6 +3,15 @@ import { AttributeType } from './Constants.js';
 
 export default class Attribute {
   constructor({ type, data, stride, location }) {
+    if (!type) {
+      throw 'invalid type';
+    }
+    if (!data) {
+      throw 'invalid data';
+    }
+    if (!stride) {
+      throw 'invalid stride';
+    }
     this.type = type;
     this.data = data;
     this.stride = stride;

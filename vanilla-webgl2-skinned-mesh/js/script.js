@@ -44,6 +44,7 @@ let startTime = null;
 let beforeTime = null;
 let deltaTime = 0;
 
+let skinnedMeshActor;
 let floorMeshActor;
 
 const renderer = new Renderer({ gpu });
@@ -142,6 +143,85 @@ const init = async () => {
   });
 
   //
+  // 8 --- B2 --- 9
+  // |     |      |
+  // 6 --- |  --- 7
+  // |     |      |
+  // 4 --- B1 --- 5
+  // |     |      |
+  // 2 --- |  --- 3
+  // |     |      |
+  // 0 --- B0 --- 1
+  //
+  const skinnedMeshGeometry = new Geometry({
+    gpu,
+    attributes: [
+      new Attribute({
+        type: AttributeType.Position,
+        // prettier-ignore
+        data: [
+          -0.5, 0,  0,  // 0
+           0.5, 0,  0,  // 1
+          -0.5, 1,  0,  // 2
+           0.5, 1,  0,  // 3
+          -0.5, 2,  0,  // 4
+           0.5, 2,  0,  // 5
+          -0.5, 3,  0,  // 6
+           0.5, 3,  0,  // 7
+          -0.5, 4,  0,  // 8
+           0.5, 4,  0,  // 9
+        ],
+        stride: 3,
+      }),
+      new Attribute({
+        type: AttributeType.Uv,
+        // prettier-ignore
+        data: [
+          0,  0,    // 0
+          1,  0,    // 1
+          0,  0.25, // 2
+          1,  0.25, // 3
+          0,  0.5,  // 4
+          1,  0.5,  // 5
+          0,  0.75, // 6
+          1,  0.75, // 7
+          0,  1,    // 8
+          1,  1,    // 9
+        ],
+        stride: 2,
+      }),
+    ],
+    // prettier-ignore
+    indices: [
+      2, 0, 3,
+      1, 3, 0,
+      4, 2, 5,
+      3, 5, 2,
+      6, 4, 7,
+      5, 7, 4,
+      8, 6, 9,
+      7, 9, 6
+    ],
+  });
+
+  const skinnedMeshMaterial = new Material({
+    gpu,
+    vertexShader,
+    fragmentShader,
+    uniforms,
+    primitiveType: PrimitiveType.Triangles,
+  });
+
+  skinnedMeshActor = new MeshActor({
+    name: 'skinnedMesh',
+    geometry: skinnedMeshGeometry,
+    material: skinnedMeshMaterial,
+    components: [syncValueComponent.clone()],
+  });
+
+  actors.push(skinnedMeshActor);
+
+  //
   // plane vertex positions
   //
   // 3 --------- 2
@@ -151,14 +231,6 @@ const init = async () => {
   // |   /       |
   // | /         |
   // 0 --------- 1
-
-  // prettier-ignore
-  const floorNormals = [
-    0, 0, 1,
-    0, 0, 1,
-    0, 0, 1,
-    0, 0, 1,
-  ];
 
   const floorGeometry = new Geometry({
     gpu,
@@ -204,7 +276,7 @@ const init = async () => {
     components: [
       new ScriptComponent({
         updateFunc: function ({ actor, time, deltaTime }) {
-          actor.setPosition(new Vector3(0, -1, 0));
+          // actor.setPosition(new Vector3(0, -1, 0));
           actor.setRotationX((90 * Math.PI) / 180);
           actor.setScale(new Vector3(4, 4, 4));
         },

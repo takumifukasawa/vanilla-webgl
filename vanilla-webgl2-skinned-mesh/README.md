@@ -10,3 +10,4 @@
 [その 61 完全ホワイトボックスなスキンメッシュアニメーションの解説](http://marupeke296.com/DXG_No61_WhiteBoxSkinMeshAnimation.html)
 [WebGL2 Skinning](https://webgl2fundamentals.org/webgl/lessons/webgl-skinning.html)
 [glTF 2.0 Quick Reference Guide](https://www.khronos.org/files/gltf20-reference-guide.pdf)
+[[WebGL] スキニングメッシュ（ボーン）の仕組みを自前で実装してみる](https://qiita.com/edo_m18/items/31ee6cbc3b3ff22013ae)
