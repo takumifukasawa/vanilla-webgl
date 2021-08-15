@@ -1,3 +1,4 @@
+import { AttributeType } from './Constants.js';
 import GLObject from './GLObject.js';
 
 export default class VertexArrayObject extends GLObject {
@@ -9,18 +10,37 @@ export default class VertexArrayObject extends GLObject {
 
   constructor({ gl, attributes, indices }) {
     super();
+
     this.#vao = gl.createVertexArray();
+
     gl.bindVertexArray(this.#vao);
+
     attributes.forEach((attribute, i) => {
       const { data, stride, location } = attribute;
       const vbo = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
+
+      switch (attribute.type) {
+        case AttributeType.BoneIndices:
+          // prettier-ignore
+          gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array(data), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(location);
+          // prettier-ignore
+          gl.vertexAttribIPointer(location, stride, gl.UNSIGNED_BYTE, false, 0, 0);
+          break;
+        default:
+          // prettier-ignore
+          gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(location);
+          gl.vertexAttribPointer(location, stride, gl.FLOAT, false, 0, 0);
+          break;
+      }
+
       // unbuffer するとエラーになる
       // gl.bindBuffer(gl.ARRAY_BUFFER, null);
     });
+
+    // indexが存在してたらiboを張る
     if (indices) {
       const ibo = gl.createBuffer();
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
@@ -32,6 +52,7 @@ export default class VertexArrayObject extends GLObject {
       // unbuffer するとエラーになる
       // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     }
+
     gl.bindVertexArray(null);
   }
 }

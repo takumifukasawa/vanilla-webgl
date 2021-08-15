@@ -139,6 +139,7 @@ export default class GPU {
     ];
 
     // uniforms
+    // refs: https://developer.mozilla.org/ja/docs/Web/API/WebGLRenderingContext/uniformMatrix
     const uniformsKeys = Object.keys(this.uniforms);
     for (let i = 0; i < uniformsKeys.length; i++) {
       const name = uniformsKeys[i];
@@ -150,7 +151,13 @@ export default class GPU {
           gl.uniform1f(location, data);
           break;
         case UniformType.Matrix4fv:
-          gl.uniformMatrix4fv(location, false, data.getArray());
+          // 第二引数はtransposeのフラグ。必ずfalseにする必要がある
+          if (Array.isArray(data)) {
+            // prettier-ignore
+            gl.uniformMatrix4fv(location, false, ...(data.map(m => m.getArray())));
+          } else {
+            gl.uniformMatrix4fv(location, false, data.getArray());
+          }
           break;
         case UniformType.Vector3f:
           gl.uniform3fv(location, data.getArray());

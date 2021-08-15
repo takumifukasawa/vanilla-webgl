@@ -17,6 +17,7 @@ export default class Attribute {
     this.stride = stride;
     this.location = location;
   }
+
   static createTangent(normalData) {
     const tangents = [];
     for (let i = 0; i < normalData.length; i += 3) {
@@ -34,6 +35,7 @@ export default class Attribute {
       stride: 3,
     };
   }
+
   static createBinormal(normalData) {
     const binormals = [];
     for (let i = 0; i < normalData.length; i += 3) {

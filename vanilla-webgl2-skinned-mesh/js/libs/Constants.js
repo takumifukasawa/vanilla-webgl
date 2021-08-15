@@ -19,12 +19,16 @@ export const ComponentType = {
   CameraComponent: 'CameraComponent',
 };
 
+// TODO: Position,Normalなどアプリケーション依存ではなくFloatとかtype依存にしたい
 export const AttributeType = {
   Position: 'Position',
   Normal: 'Normal',
   Uv: 'Uv',
   Tangent: 'Tangent',
   Binormal: 'Binormal',
+  Color: 'Color',
+  BoneWeights: 'BoneWeights',
+  BoneIndices: 'BoneIndices',
 };
 
 export const PrimitiveType = {

@@ -91,7 +91,7 @@ const lightActor = new LightActor({
 
 actors.push(lightActor);
 
-const vertexShader = `#version 300 es
+const floorVertexShader = `#version 300 es
 
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aUv;
@@ -109,7 +109,48 @@ void main() {
 }
 `;
 
-const fragmentShader = `#version 300 es
+const floorFragmentShader = `#version 300 es
+
+precision mediump float;
+
+in vec2 vUv;
+
+out vec4 outColor;
+
+void main() {
+  outColor = vec4(vUv.xy, 1., 1.);
+}
+`;
+
+const skinnedMeshVertexShader = `#version 300 es
+
+layout (location = 0) in vec3 aPosition;
+layout (location = 1) in vec2 aUv;
+layout (location = 2) in uvec4 aBoneIndices;
+layout (location = 3) in vec4 aBoneWeights;
+
+uniform mat4 uModelMatrix;
+uniform mat4 uViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat4 boneMatrices[4];
+
+out vec2 vUv;
+
+void main() {
+  vUv = aUv;
+
+  vec4 position = vec4(aPosition, 1.);
+  vec4 p =
+    boneMatrices[aBoneIndices[0]] * position * aBoneWeights[0] +
+    boneMatrices[aBoneIndices[1]] * position * aBoneWeights[1] +
+    boneMatrices[aBoneIndices[2]] * position * aBoneWeights[2] +
+    boneMatrices[aBoneIndices[3]] * position * aBoneWeights[3];
+
+  gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * p;
+}
+`;
+
+const skinnedMeshFragmentShader = `#version 300 es
 
 precision mediump float;
 
@@ -143,6 +184,7 @@ const init = async () => {
   });
 
   //
+  // 手動でskinnedMeshを作成
   // 8 --- B2 --- 9
   // |     |      |
   // 6 --- |  --- 7
@@ -153,6 +195,14 @@ const init = async () => {
   // |     |      |
   // 0 --- B0 --- 1
   //
+
+  // boneを手動で定義
+  const boneNum = 3;
+  const boneMatrices = Array.from(new Array(4)).map(() => Matrix4.identity());
+  const bindPoseMatrices = Array.from(new Array(4)).map(() =>
+    Matrix4.identity(),
+  );
+
   const skinnedMeshGeometry = new Geometry({
     gpu,
     attributes: [
@@ -190,6 +240,42 @@ const init = async () => {
         ],
         stride: 2,
       }),
+      // 影響を受けるボーンを列挙
+      new Attribute({
+        type: AttributeType.BoneIndices,
+        // prettier-ignore
+        data: [
+          0, 0, 0, 0, // 0: B0
+          0, 0, 0, 0, // 1: B0
+          0, 1, 0, 0, // 2: B0,B1
+          0, 1, 0, 0, // 3: B0,B1
+          1, 0, 0, 0, // 4: B1
+          1, 0, 0, 0, // 5: B1
+          1, 2, 0, 0, // 6: B1,B2
+          1, 2, 0, 0, // 7: B1,B2
+          2, 0, 0, 0, // 8: B2
+          2, 0, 0, 0, // 9: B2
+        ],
+        stride: 4,
+      }),
+      // 影響を受けるボーンの重みを0~1で指定
+      new Attribute({
+        type: AttributeType.BoneWeights,
+        // prettier-ignore
+        data: [
+          1, 0, 0, 0,     // 0: B0
+          1, 0, 0, 0,     // 1: B0
+          0.5, 0.5, 0, 0, // 2: B0,B1
+          0.5, 0.5, 0, 0, // 3: B0,B1
+          1, 0, 0, 0,     // 4: B1
+          1, 0, 0, 0,     // 5: B1
+          0.5, 0.5, 0, 0, // 6: B1,B2
+          0.5, 0.5, 0, 0, // 7: B1,B2
+          1, 0, 0, 0,     // 8: B2
+          1, 0, 0, 0,     // 9: B2
+        ],
+        stride: 4,
+      }),
     ],
     // prettier-ignore
     indices: [
@@ -206,17 +292,50 @@ const init = async () => {
 
   const skinnedMeshMaterial = new Material({
     gpu,
-    vertexShader,
-    fragmentShader,
+    vertexShader: skinnedMeshVertexShader,
+    fragmentShader: skinnedMeshFragmentShader,
     uniforms,
+    uniforms: {
+      ...uniforms,
+      ...{
+        boneMatrices: {
+          type: UniformType.Matrix4fv,
+          data: boneMatrices,
+        },
+      },
+    },
     primitiveType: PrimitiveType.Triangles,
   });
+
+  const computeBones = (angle) => {
+    let m0 = Matrix4.identity();
+    let m1 = Matrix4.identity();
+    let m2 = Matrix4.identity();
+    let m3 = Matrix4.identity();
+    m1.rotateZ(angle);
+    m1.translate(new Vector3(0, 2, 0));
+    m1 = Matrix4.multiplyMatrices(m1, m0);
+    m2.rotateZ(angle);
+    m2.translate(new Vector3(0, 2, 0));
+    m2 = Matrix4.multiplyMatrices(m2, m1);
+    skinnedMeshMaterial.uniforms.boneMatrices.data = [m0, m1, m2, m3];
+  };
 
   skinnedMeshActor = new MeshActor({
     name: 'skinnedMesh',
     geometry: skinnedMeshGeometry,
     material: skinnedMeshMaterial,
-    components: [syncValueComponent.clone()],
+    components: [
+      syncValueComponent.clone(),
+      new ScriptComponent({
+        startFunc: ({ time }) => {
+          computeBones(time);
+        },
+        updateFunc: ({ time }) => {
+          computeBones(time);
+        },
+      }),
+    ],
   });
 
   actors.push(skinnedMeshActor);
@@ -263,8 +382,8 @@ const init = async () => {
 
   const floorMaterial = new Material({
     gpu,
-    vertexShader,
-    fragmentShader,
+    vertexShader: floorVertexShader,
+    fragmentShader: floorFragmentShader,
     uniforms,
     primitiveType: PrimitiveType.Triangles,
   });
