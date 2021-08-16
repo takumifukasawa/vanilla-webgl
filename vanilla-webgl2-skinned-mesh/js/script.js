@@ -134,10 +134,11 @@ uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;
 uniform mat4 boneMatrices[4];
 
-out vec2 vUv;
+// out vec2 vUv;
+out vec4 vColor;
 
 void main() {
-  vUv = aUv;
+  // vUv = aUv;
 
   vec4 position = vec4(aPosition, 1.);
   vec4 p =
@@ -145,8 +146,18 @@ void main() {
     boneMatrices[aBoneIndices[1]] * position * aBoneWeights[1] +
     boneMatrices[aBoneIndices[2]] * position * aBoneWeights[2] +
     boneMatrices[aBoneIndices[3]] * position * aBoneWeights[3];
+    // boneMatrices[aBoneIndices[0]] * position * 0.+
+    // boneMatrices[aBoneIndices[1]] * position * 0.+
+    // boneMatrices[aBoneIndices[2]] * position * 0.+
+    // boneMatrices[aBoneIndices[3]] * position * 1.;
+
+  mat4 m = boneMatrices[2];
+  vColor = vec4(m[1][0], m[1][1], m[1][2], m[1][3]);
+  vColor = vec4(aBoneWeights);
+  // vColor = vec4(aBoneIndices[0], aBoneIndices[1], aBoneIndices[2], aBoneIndices[3]);
 
   gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * p;
+  // gl_Position = uProjectionMatrix * uViewMatrix * position;
 }
 `;
 
@@ -154,12 +165,14 @@ const skinnedMeshFragmentShader = `#version 300 es
 
 precision mediump float;
 
-in vec2 vUv;
+// in vec2 vUv;
+in vec4 vColor;
 
 out vec4 outColor;
 
 void main() {
-  outColor = vec4(vUv.xy, 1., 1.);
+  // outColor = vec4(vUv.xy, 1., 1.);
+  outColor = vec4(vColor.rgb, 1.);
 }
 `;
 
@@ -196,12 +209,55 @@ const init = async () => {
   // 0 --- B0 --- 1
   //
 
-  // boneを手動で定義
-  const boneNum = 3;
-  const boneMatrices = Array.from(new Array(4)).map(() => Matrix4.identity());
-  const bindPoseMatrices = Array.from(new Array(4)).map(() =>
-    Matrix4.identity(),
-  );
+  // シェーダーに渡すbone行列群
+  const computeBones = (angle) => {
+    let m0 = Matrix4.identity();
+    let m1 = Matrix4.identity();
+    let m2 = Matrix4.identity();
+    let m3 = Matrix4.identity();
+
+    m1 = Matrix4.multiplyMatrices(
+      Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
+      Matrix4.createRotationZMatrix(angle),
+    );
+    m1.multiplyMatrix(m0);
+
+    m2 = Matrix4.multiplyMatrices(
+      Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
+      Matrix4.createRotationZMatrix(angle),
+    );
+    m2.multiplyMatrix(m1);
+
+    return [m0, m1, m2, m3];
+  };
+
+  // ここでは要素確保用初期化
+  let boneMatrices = Array.from(new Array(4)).map(() => Matrix4.identity());
+  // let bones = Array.from(new Array(4)).map(() => Matrix4.identity())
+
+  // 初期姿勢を計算
+  const bindPoseMatrices = computeBones(0);
+
+  // bindPoseの逆行列を生成
+  const bindPoseInvMatrices = bindPoseMatrices.map((m) => m.clone().inverse());
+
+  const updateBoneMatrices = (bones) => {
+    boneMatrices = bones.map((bone, i) =>
+      Matrix4.multiplyMatrices(
+        // bindPoseMatrices[i].clone(),
+        bone.clone(),
+        bindPoseInvMatrices[i].clone(),
+      ),
+    );
+  };
+
+  updateBoneMatrices(bindPoseMatrices);
+
+  console.log('--- init ---');
+  console.log('bindPoseMatrices', bindPoseMatrices);
+  console.log('bindPoseInvMatrices', bindPoseInvMatrices);
+  console.log('boneMatrices', boneMatrices);
+  console.log('------------');
 
   const skinnedMeshGeometry = new Geometry({
     gpu,
@@ -307,20 +363,6 @@ const init = async () => {
     primitiveType: PrimitiveType.Triangles,
   });
 
-  const computeBones = (angle) => {
-    let m0 = Matrix4.identity();
-    let m1 = Matrix4.identity();
-    let m2 = Matrix4.identity();
-    let m3 = Matrix4.identity();
-    m1.rotateZ(angle);
-    m1.translate(new Vector3(0, 2, 0));
-    m1 = Matrix4.multiplyMatrices(m1, m0);
-    m2.rotateZ(angle);
-    m2.translate(new Vector3(0, 2, 0));
-    m2 = Matrix4.multiplyMatrices(m2, m1);
-    skinnedMeshMaterial.uniforms.boneMatrices.data = [m0, m1, m2, m3];
-  };
-
   skinnedMeshActor = new MeshActor({
     name: 'skinnedMesh',
     geometry: skinnedMeshGeometry,
@@ -329,10 +371,44 @@ const init = async () => {
       syncValueComponent.clone(),
       new ScriptComponent({
         startFunc: ({ time }) => {
-          computeBones(time);
+          const matrices = computeBones(0);
+          updateBoneMatrices(matrices);
+          // for debug
+          // prettier-ignore
+          // boneMatrices[1] = new Matrix4(
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1
+          // );
+          // // prettier-ignore
+          // boneMatrices[2] = new Matrix4(
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1
+          // );
+          // // prettier-ignore
+          // boneMatrices[3] = new Matrix4(
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1,
+          //   1, 1, 1, 1
+          // );
+
+          skinnedMeshMaterial.uniforms.boneMatrices.data = boneMatrices;
+          console.log('--- start ---');
+          console.log('boneMatrices', boneMatrices);
+          console.log('-------------');
         },
         updateFunc: ({ time }) => {
-          computeBones(time);
+          const angle = Math.sin(time * 1.2) * 0.3;
+          const matrices = computeBones(angle);
+          updateBoneMatrices(matrices);
+          skinnedMeshMaterial.uniforms.boneMatrices.data = boneMatrices;
+          // console.log('--- update ---');
+          // console.log('boneMatrices', boneMatrices);
+          // console.log('--------------');
         },
       }),
     ],
