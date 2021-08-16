@@ -210,23 +210,36 @@ const init = async () => {
   //
 
   // シェーダーに渡すbone行列群
-  const computeBones = (angle) => {
+  const computeBones = (angleX, angleY, angleZ) => {
     let m0 = Matrix4.identity();
     let m1 = Matrix4.identity();
     let m2 = Matrix4.identity();
     let m3 = Matrix4.identity();
 
+    // m0 = Matrix4.multiplyMatrices(
+    //   Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
+    //   Matrix4.createRotationYMatrix(angleY),
+    //   Matrix4.createRotationXMatrix(angleX),
+    //   Matrix4.createRotationZMatrix(angleZ),
+    // );
+
     m1 = Matrix4.multiplyMatrices(
-      Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
-      Matrix4.createRotationZMatrix(angle),
+      Matrix4.createTranslationMatrix(new Vector3(0, 2, 0)),
+      Matrix4.createRotationYMatrix(angleY),
+      Matrix4.createRotationXMatrix(angleX),
+      Matrix4.createRotationZMatrix(angleZ),
+      m0.clone(),
     );
-    m1.multiplyMatrix(m0);
+    // m1.multiplyMatrix(m0);
 
     m2 = Matrix4.multiplyMatrices(
-      Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
-      Matrix4.createRotationZMatrix(angle),
+      Matrix4.createTranslationMatrix(new Vector3(0, 2, 0)),
+      Matrix4.createRotationYMatrix(angleY),
+      Matrix4.createRotationXMatrix(angleX),
+      Matrix4.createRotationZMatrix(angleZ),
+      m1.clone(),
     );
-    m2.multiplyMatrix(m1);
+    // m2.multiplyMatrix(m1);
 
     return [m0, m1, m2, m3];
   };
@@ -236,7 +249,7 @@ const init = async () => {
   // let bones = Array.from(new Array(4)).map(() => Matrix4.identity())
 
   // 初期姿勢を計算
-  const bindPoseMatrices = computeBones(0);
+  const bindPoseMatrices = computeBones(0, 0, 0);
 
   // bindPoseの逆行列を生成
   const bindPoseInvMatrices = bindPoseMatrices.map((m) => m.clone().inverse());
@@ -370,40 +383,11 @@ const init = async () => {
     components: [
       syncValueComponent.clone(),
       new ScriptComponent({
-        startFunc: ({ time }) => {
-          const matrices = computeBones(0);
-          updateBoneMatrices(matrices);
-          // for debug
-          // prettier-ignore
-          // boneMatrices[1] = new Matrix4(
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1
-          // );
-          // // prettier-ignore
-          // boneMatrices[2] = new Matrix4(
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1
-          // );
-          // // prettier-ignore
-          // boneMatrices[3] = new Matrix4(
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1,
-          //   1, 1, 1, 1
-          // );
-
-          skinnedMeshMaterial.uniforms.boneMatrices.data = boneMatrices;
-          console.log('--- start ---');
-          console.log('boneMatrices', boneMatrices);
-          console.log('-------------');
-        },
         updateFunc: ({ time }) => {
-          const angle = Math.sin(time * 1.2) * 0.3;
-          const matrices = computeBones(angle);
+          const angleX = 0;
+          const angleY = 0;
+          const angleZ = Math.sin(time * 1.2) * 0.8;
+          const matrices = computeBones(angleX, angleY, angleZ);
           updateBoneMatrices(matrices);
           skinnedMeshMaterial.uniforms.boneMatrices.data = boneMatrices;
           // console.log('--- update ---');
