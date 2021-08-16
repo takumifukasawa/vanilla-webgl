@@ -145,16 +145,17 @@ export default class GPU {
       const name = uniformsKeys[i];
       const { type, data } = this.uniforms[name];
       const location = gl.getUniformLocation(program, name);
-      // NOTE: add type
+      // note: add type
       switch (type) {
         case UniformType.Float:
           gl.uniform1f(location, data);
           break;
         case UniformType.Matrix4fv:
           // 第二引数はtransposeのフラグ。必ずfalseにする必要がある
+          // 配列をuniformで渡す場合は一次元にする必要があるのでflatなどで対処
           if (Array.isArray(data)) {
             // prettier-ignore
-            gl.uniformMatrix4fv(location, false, ...(data.map(m => m.getArray())));
+            gl.uniformMatrix4fv(location, false, data.map((m) => m.getArray()).flat());
           } else {
             gl.uniformMatrix4fv(location, false, data.getArray());
           }
