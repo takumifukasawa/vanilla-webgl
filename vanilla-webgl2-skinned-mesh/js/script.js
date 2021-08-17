@@ -216,13 +216,6 @@ const init = async () => {
     let m2 = Matrix4.identity();
     let m3 = Matrix4.identity();
 
-    // m0 = Matrix4.multiplyMatrices(
-    //   Matrix4.createTranslationMatrix(new Vector3(0, 0, 0)),
-    //   Matrix4.createRotationYMatrix(angleY),
-    //   Matrix4.createRotationXMatrix(angleX),
-    //   Matrix4.createRotationZMatrix(angleZ),
-    // );
-
     m1 = Matrix4.multiplyMatrices(
       Matrix4.createTranslationMatrix(new Vector3(0, 2, 0)),
       Matrix4.createRotationYMatrix(angleY),
@@ -230,7 +223,6 @@ const init = async () => {
       Matrix4.createRotationZMatrix(angleZ),
       m0.clone(),
     );
-    // m1.multiplyMatrix(m0);
 
     m2 = Matrix4.multiplyMatrices(
       Matrix4.createTranslationMatrix(new Vector3(0, 2, 0)),
@@ -239,28 +231,24 @@ const init = async () => {
       Matrix4.createRotationZMatrix(angleZ),
       m1.clone(),
     );
-    // m2.multiplyMatrix(m1);
 
     return [m0, m1, m2, m3];
   };
 
   // ここでは要素確保用初期化
   let boneMatrices = Array.from(new Array(4)).map(() => Matrix4.identity());
-  // let bones = Array.from(new Array(4)).map(() => Matrix4.identity())
 
   // 初期姿勢を計算
   const bindPoseMatrices = computeBones(0, 0, 0);
 
-  // bindPoseの逆行列を生成
+  // 初期姿勢の逆行列を生成。
+  // 位置を戻してから回転などを加えるため
   const bindPoseInvMatrices = bindPoseMatrices.map((m) => m.clone().inverse());
 
   const updateBoneMatrices = (bones) => {
     boneMatrices = bones.map((bone, i) =>
-      Matrix4.multiplyMatrices(
-        // bindPoseMatrices[i].clone(),
-        bone.clone(),
-        bindPoseInvMatrices[i].clone(),
-      ),
+      // 初期姿勢の逆行列に現在のboneの変形を加える
+      Matrix4.multiplyMatrices(bone.clone(), bindPoseInvMatrices[i].clone()),
     );
   };
 
@@ -386,13 +374,10 @@ const init = async () => {
         updateFunc: ({ time }) => {
           const angleX = 0;
           const angleY = 0;
-          const angleZ = Math.sin(time * 1.2) * 0.8;
+          const angleZ = ((Math.sin(time) * 45) / 180) * Math.PI;
           const matrices = computeBones(angleX, angleY, angleZ);
           updateBoneMatrices(matrices);
           skinnedMeshMaterial.uniforms.boneMatrices.data = boneMatrices;
-          // console.log('--- update ---');
-          // console.log('boneMatrices', boneMatrices);
-          // console.log('--------------');
         },
       }),
     ],
