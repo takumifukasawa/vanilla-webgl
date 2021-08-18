@@ -446,8 +446,7 @@ const init = async () => {
 
   const { geometry: gltfPlaneGeometry } = await loadGLTF({
     gpu,
-    gltfPath: './model/plane-primitive.gltf',
-    binPath: './model/plane-primitive.bin',
+    gltfPath: './model/plane.gltf',
   });
 
   const [
