@@ -20,12 +20,13 @@ export default async function loadGLTF({ gpu, gltfPath }) {
 
   const json = await gltfResponse.json();
 
-  // meshは一個想定なので0固定
-  const buffer = json.buffers[0];
-
-  const binResponse = await fetch(buffer.uri);
-
-  const binBufferData = await binResponse.arrayBuffer();
+  const binBufferDataArray = await Promise.all(
+    json.buffers.map(async (buffer) => {
+      const binResponse = await fetch(buffer.uri);
+      const binBufferData = await binResponse.arrayBuffer();
+      return binBufferData;
+    }),
+  );
 
   const { accessors, meshes, bufferViews } = json;
 
@@ -53,6 +54,12 @@ export default async function loadGLTF({ gpu, gltfPath }) {
       case 'TEXCOORD_0':
         type = AttributeType.Uv;
         break;
+      case 'JOINTS_0':
+        type = AttributeType.Joints0;
+        break;
+      case 'WEIGHTS_0':
+        type = AttributeType.Weights0;
+        break;
       default:
         throw 'invalid primitive type';
     }
@@ -70,12 +77,12 @@ export default async function loadGLTF({ gpu, gltfPath }) {
     const bufferViewData = bufferViews[accessor.bufferView];
 
     // attribute,indexごとにデータを分けるためbufferをslice
-    const slicedBufferData = binBufferData.slice(
+    const slicedBufferData = binBufferDataArray[bufferViewData.buffer].slice(
       bufferViewData.byteOffset,
       bufferViewData.byteOffset + bufferViewData.byteLength,
     );
 
-    const attributeType = attributeTypes[i];
+    const attributeType = attributeTypes[bufferViewData.buffer];
 
     // attribute,indexの型別にsliceされたデータを typed array に突っ込む
     let data;
@@ -108,13 +115,23 @@ export default async function loadGLTF({ gpu, gltfPath }) {
         stride = 3;
         location = 0;
         break;
+      case AttributeType.Uv:
+        stride = 2;
+        location = 1;
+        break;
       case AttributeType.Normal:
         stride = 3;
         location = 2;
         break;
-      case AttributeType.Uv:
-        stride = 2;
-        location = 1;
+      // TODO: fix stride,location
+      case AttributeType.Joints0:
+        stride = 4;
+        location = 3;
+        break;
+      // TODO: fix stride,location
+      case AttributeType.Weights0:
+        stride = 4;
+        location = 4;
         break;
       default:
         throw 'invalid attribute type';
@@ -135,15 +152,19 @@ export default async function loadGLTF({ gpu, gltfPath }) {
   });
 
   if (!normalAttribute) {
-    throw 'empty normal attribute';
+    console.warn('empty normal attribute');
   }
 
   const geometry = new Geometry({
     gpu,
     attributes: [
       ...attributes,
-      Attribute.createTangent(normalAttribute.data),
-      Attribute.createBinormal(normalAttribute.data),
+      ...(normalAttribute
+        ? [
+            Attribute.createTangent(normalAttribute.data),
+            Attribute.createBinormal(normalAttribute.data),
+          ]
+        : []),
     ],
     indices,
   });

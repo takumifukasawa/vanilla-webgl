@@ -29,6 +29,8 @@ export const AttributeType = {
   Color: 'Color',
   BoneWeights: 'BoneWeights',
   BoneIndices: 'BoneIndices',
+  Joints0: 'Joints0',
+  Weights0: 'Weights0',
 };
 
 export const PrimitiveType = {

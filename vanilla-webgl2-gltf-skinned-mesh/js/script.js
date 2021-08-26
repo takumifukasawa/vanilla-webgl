@@ -17,6 +17,7 @@ import {
   AttributeType,
   PrimitiveType,
 } from './libs/Constants.js';
+import loadGLTF from './libs/loadGLTF.js';
 import GUIDebugger from './utils/GUIDebugger.js';
 
 new GUIDebugger();
@@ -177,6 +178,12 @@ void main() {
 `;
 
 const init = async () => {
+  const gltf = await loadGLTF({
+    gpu,
+    // gltfPath: './model/simple-meshes.gltf',
+    gltfPath: './model/simple-skin.gltf',
+  });
+
   const uniforms = {};
 
   const syncValueComponent = new ScriptComponent({
