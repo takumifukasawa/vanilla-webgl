@@ -183,6 +183,7 @@ const init = async () => {
     // gltfPath: './model/simple-meshes.gltf',
     gltfPath: './model/simple-skin.gltf',
   });
+  console.log(gltf);
 
   const uniforms = {};
 

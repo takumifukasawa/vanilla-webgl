@@ -30,6 +30,8 @@ export default async function loadGLTF({ gpu, gltfPath }) {
 
   const { accessors, meshes, bufferViews } = json;
 
+  console.log('json', json);
+
   // accessor の component type は gl の format と値が同じ
   // console.log('gl.BYTE', gl.BYTE); // 5120
   // console.log('gl.UNSIGNED_BYTE', gl.UNSIGNED_BYTE); // 5121
@@ -42,6 +44,10 @@ export default async function loadGLTF({ gpu, gltfPath }) {
   // mesh は一個想定なので固定index
   const attributeTypes = [];
   const primitive = meshes[0].primitives[0];
+
+  console.log('meshes', meshes);
+  console.log('primitive.attributes', primitive.attributes);
+
   Object.keys(primitive.attributes).forEach((key) => {
     let type = '';
     switch (key) {
@@ -71,18 +77,24 @@ export default async function loadGLTF({ gpu, gltfPath }) {
   const attributes = [];
   let indices;
 
+  console.log('accessors', accessors);
+  console.log('attributeTypes', attributeTypes);
+  console.log('===========');
+
   for (let i = 0; i < accessors.length; i++) {
     const accessor = accessors[i];
 
     const bufferViewData = bufferViews[accessor.bufferView];
 
+    console.log(bufferViewData);
     // attribute,indexごとにデータを分けるためbufferをslice
     const slicedBufferData = binBufferDataArray[bufferViewData.buffer].slice(
       bufferViewData.byteOffset,
       bufferViewData.byteOffset + bufferViewData.byteLength,
     );
 
-    const attributeType = attributeTypes[bufferViewData.buffer];
+    const attributeType = attributeTypes[accessor.bufferView];
+    // const attributeType = attributeTypes[bufferViewData.buffer];
 
     // attribute,indexの型別にsliceされたデータを typed array に突っ込む
     let data;
@@ -99,6 +111,7 @@ export default async function loadGLTF({ gpu, gltfPath }) {
 
     // indexだったらattributeを作成しないため
     if (attributeType === 'INDICES') {
+      console.log('i', data);
       indices = data;
       continue;
     }
